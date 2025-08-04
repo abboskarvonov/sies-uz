@@ -3,5 +3,27 @@
 @tailwind utilities;
 
 [x-cloak] {
-    display: none;
+    display: none !important;
+}
+
+/* News */
+.news-overlay {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(
+        rgba(0, 0, 0, 0.01) 40%,
+        rgba(0, 0, 0, 0.7) 80%
+    );
+    z-index: 11;
+    top: 0;
+}
+
+.news-small-overlay {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(rgba(0, 0, 0, 0.1) 30%, rgba(0, 0, 0, 0.8) 70%);
+    z-index: 11;
+    top: 0;
 }
