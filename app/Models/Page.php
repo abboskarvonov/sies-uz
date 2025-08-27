@@ -124,6 +124,34 @@ class Page extends Model implements Sortable
         return $this->hasMany(PageFile::class);
     }
 
+    // App\Models\Page.php
+    public function scopeOfType($query, $type)
+    {
+        return $query->where('page_type', $type);
+    }
+
+    public function scopeInMenu($query, $menuId, $submenuId = null, $multimenuId = null)
+    {
+        return $query->when($menuId, fn($q) => $q->where('menu_id', $menuId))
+            ->when($submenuId, fn($q) => $q->where('submenu_id', $submenuId))
+            ->when($multimenuId, fn($q) => $q->where('multimenu_id', $multimenuId));
+    }
+
+    public function scopeLatestByDate($query)
+    {
+        return $query->latest('date');
+    }
+
+    public function staffMembers()
+    {
+        return $this->hasMany(StaffMember::class, 'page_id');
+    }
+
+    public function departmentHistory()
+    {
+        return $this->hasOne(DepartmentHistory::class, 'department_id', 'id');
+    }
+
     public function getActivitylogOptions(): LogOptions
     {
         return LogOptions::defaults()

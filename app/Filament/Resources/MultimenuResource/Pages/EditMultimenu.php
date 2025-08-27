@@ -21,20 +21,26 @@ class EditMultimenu extends EditRecord
 
     protected function mutateFormDataBeforeSave(array $data): array
     {
-        $data['slug_uz'] = $this->generateUniqueSlug($data['title_uz'], 'slug_uz');
-        $data['slug_ru'] = $this->generateUniqueSlug($data['title_ru'], 'slug_ru');
-        $data['slug_en'] = $this->generateUniqueSlug($data['title_en'], 'slug_en');
+        $id = $this->record->id ?? null;
+
+        $data['slug_uz'] = $this->generateUniqueSlug($data['title_uz'], 'slug_uz', $id);
+        $data['slug_ru'] = $this->generateUniqueSlug($data['title_ru'], 'slug_ru', $id);
+        $data['slug_en'] = $this->generateUniqueSlug($data['title_en'], 'slug_en', $id);
 
         return $data;
     }
 
-    protected function generateUniqueSlug($title, $column)
+    protected function generateUniqueSlug($title, $column, $ignoreId = null)
     {
         $slug = Str::slug($title);
         $originalSlug = $slug;
         $i = 1;
 
-        while (Multimenu::where($column, $slug)->exists()) {
+        while (
+            Multimenu::where($column, $slug)
+            ->when($ignoreId, fn($q) => $q->where('id', '!=', $ignoreId))
+            ->exists()
+        ) {
             $slug = $originalSlug . '-' . $i++;
         }
 

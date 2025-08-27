@@ -4,7 +4,7 @@
     @include('components.home.edu-links')
     <x-home.research-activities :announcementsWithActivity="$announcementsWithActivity" />
     <x-home.faculty :faculties="$faculties" />
-    <x-home.pointers />
+    <x-home.pointers :stat="$stat" />
     <x-home.departments :departments="$departments" />
     <x-home.gallery :galleryImages="$galleryImages" />
     <x-home.video-gallery />

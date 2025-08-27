@@ -5,7 +5,7 @@
             <div class="grid justify-center justify-items-center gap-2">
                 <img src="/img/logo.webp" alt="SamISI logo" class="w-auto max-w-[160px]" />
                 <h1 class="text-center text-lg font-bold uppercase lg:text-xl">
-                    Samarqand Iqtisodiyot va Servis Instituti
+                    {{ __('messages.app_name') }}
                 </h1>
             </div>
 
@@ -13,11 +13,11 @@
             <div class="grid content-start gap-6">
                 <p class="flex items-center gap-2 text-sm lg:text-base">
                     <img src="/img/icons/placeholder.webp" class="w-5 dark:invert lg:w-7" alt="Manzil belgisi" />
-                    Samarqand shahri, Ibn Sino ko‘chasi, 5-uy
+                    {{ __('messages.address') }}
                 </p>
                 <p class="flex items-center gap-2 text-sm lg:text-base">
                     <img src="/img/icons/003-phone-call.webp" class="w-5 dark:invert lg:w-7" alt="Telefon belgisi" />
-                    Telefon: +998 (66) 231-12-53, +998 (66) 231-03-93
+                    {{ __('messages.phone') }}: +998 (66) 231-12-53, +998 (66) 231-03-93
                 </p>
                 <p class="flex items-center gap-2 text-sm lg:text-base">
                     <img src="/img/icons/001-envelope.webp" class="w-5 dark:invert lg:w-7" alt="Email belgisi" />
@@ -53,11 +53,11 @@
         <div class="mt-5 grid gap-5 border-t-2 border-t-gray-700 pt-5 dark:border-t-gray-200">
             <p class="flex items-center gap-2 text-sm">
                 <img src="/img/icons/alert.webp" class="w-4 dark:invert lg:w-5" alt="Ogohlantirish" />
-                Sayt materiallaridan foydalanishda manba ko‘rsatilishi shart
+                {{ __('messages.warning') }}
             </p>
             <p class="flex items-center gap-2 text-sm">
                 <img src="/img/icons/copyright.webp" class="w-4 dark:invert lg:w-5" alt="Copyright belgisi" />
-                © 2025 Samarqand Iqtisodiyot va Servis Instituti. Barcha huquqlar himoyalangan.
+                {{ __('messages.copyright') }}
             </p>
         </div>
     </div>

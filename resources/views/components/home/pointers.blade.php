@@ -2,7 +2,7 @@
     <div class="container mx-auto">
         <h1 class="flex items-center gap-2 text-xl font-medium uppercase md:text-2xl">
             <img src="/img/icons/015-bar-chart.webp" alt="Book icon" class="w-6 dark:invert">
-            {{ $translations['pointers'] ?? 'Ko‘rsatkichlar' }}
+            {{ __('messages.statistics') }}
         </h1>
         <div class="mt-5 grid grid-cols-1 gap-2 sm:grid-cols-2 md:mt-10 lg:grid-cols-4">
 
@@ -16,10 +16,10 @@
             <div
                 class="relative grid gap-4 overflow-hidden rounded-2xl bg-stone-200 px-6 py-12 shadow-md dark:bg-stone-600">
                 <div class="flex items-center gap-2">
-                    <p class="text-xl font-bold lg:text-3xl">{{ $translations['area'] ?? 'Maydon' }}</p>
+                    <p class="text-xl font-bold lg:text-3xl">{{ __('messages.area') }}</p>
                 </div>
                 <p class="text-4xl font-bold lg:text-6xl">
-                    {{ number_format($stat['campus_area'] ?? 0, 0, '.', ' ') }}
+                    <span class="countup" data-target="{{ (int) ($stat['campus_area'] ?? 0) }}">0</span>
                     <span class="text-2xl">m<sup>2</sup></span>
                 </p>
                 <img src="/img/icons/square.png" alt="SamISI" class="absolute right-0 w-2/4 opacity-20 dark:invert">
@@ -29,10 +29,10 @@
             <div
                 class="relative grid gap-4 overflow-hidden rounded-2xl bg-green-200 px-6 py-12 shadow-md dark:bg-green-600">
                 <div class="flex items-center gap-2">
-                    <p class="text-xl font-bold lg:text-3xl">{{ $translations['green_area'] ?? 'Yashil hudud' }}</p>
+                    <p class="text-xl font-bold lg:text-3xl">{{ __('messages.green_area') }}</p>
                 </div>
                 <p class="text-4xl font-bold lg:text-6xl">
-                    {{ number_format($stat['green_area'] ?? 0, 0, '.', ' ') }}
+                    <span class="countup" data-target="{{ (int) ($stat['green_area'] ?? 0) }}">0</span>
                     <span class="text-2xl">m<sup>2</sup></span>
                 </p>
                 <img src="/img/icons/tree.png" alt="SamISI" class="absolute right-0 w-2/4 opacity-20 dark:invert">
@@ -42,19 +42,22 @@
             <div class="relative grid gap-4 rounded-2xl bg-blue-50 p-6 shadow-md dark:bg-blue-900">
                 <div class="grid">
                     <p class="text-lg font-bold text-cyan-800 dark:text-gray-100">
-                        {{ $translations['faculity'] ?? 'Fakultetlar' }}</p>
-                    <p class="text-4xl font-bold lg:text-6xl">{{ number_format($stat['faculties'] ?? 0) }}</p>
+                        {{ __('messages.faculty') }}</p>
+                    <p class="text-4xl font-bold lg:text-6xl"><span class="countup"
+                            data-target="{{ (int) ($stat['faculties'] ?? 0) }}">0</span></p>
                 </div>
                 <div class="grid grid-cols-2">
                     <div class="grid">
-                        <p class="text-md text-cyan-800 dark:text-gray-100">
-                            {{ $translations['departments'] ?? 'Bo‘limlar' }}</p>
-                        <p class="text-2xl font-bold">{{ number_format($stat['departments'] ?? 0) }}</p>
+                        <p class="text-sm text-cyan-800 dark:text-gray-100">
+                            {{ __('messages.departments') }}</p>
+                        <p class="text-2xl font-bold"><span class="countup"
+                                data-target="{{ (int) ($stat['departments'] ?? 0) }}">0</span></p>
                     </div>
                     <div class="grid">
-                        <p class="text-md text-cyan-800 dark:text-gray-100">
-                            {{ $translations['centers'] ?? 'Markazlar' }}</p>
-                        <p class="text-2xl font-bold">{{ number_format($stat['centers'] ?? 0) }}</p>
+                        <p class="text-sm text-cyan-800 dark:text-gray-100">
+                            {{ __('messages.section_centers') }}</p>
+                        <p class="text-2xl font-bold"><span class="countup"
+                                data-target="{{ (int) ($stat['centers'] ?? 0) }}">0</span></p>
                     </div>
                 </div>
                 <img src="/img/icons/university.png" alt="SamISI"
@@ -65,24 +68,30 @@
             <div class="relative grid gap-4 rounded-2xl bg-blue-50 p-6 shadow-md dark:bg-blue-900">
                 <div class="grid">
                     <p class="text-lg font-bold text-cyan-800 dark:text-gray-100">
-                        {{ $translations['all_employees'] ?? 'Xodimlar' }}</p>
-                    <p class="text-4xl font-bold lg:text-6xl">{{ number_format($stat['employees'] ?? 0) }}</p>
+                        {{ __('messages.employees') }}</p>
+                    <p class="text-4xl font-bold lg:text-6xl"><span class="countup"
+                            data-target="{{ (int) ($stat['employees'] ?? 0) }}">0</span></p>
                 </div>
                 <div class="grid grid-cols-3">
                     <div class="grid">
-                        <p class="text-md text-cyan-800 dark:text-gray-100">
-                            {{ $translations['rahbariyat'] ?? 'Rahbariyat' }}</p>
-                        <p class="text-2xl font-bold">{{ number_format($stat['leadership'] ?? 0) }}</p>
+                        <p class="text-sm text-cyan-800 dark:text-gray-100">
+                            {{ __('messages.leadership') }}</p>
+                        <p class="text-2xl font-bold">
+                            <span class="countup" data-target="{{ (int) ($stat['leadership'] ?? 0) }}">0</span>
+                        </p>
                     </div>
                     <div class="grid">
-                        <p class="text-md text-cyan-800 dark:text-gray-100">
-                            {{ $translations['ilmiy'] ?? 'Ilmiy xodimlar' }}</p>
-                        <p class="text-2xl font-bold">{{ number_format($stat['scientific'] ?? 0) }}</p>
+                        <p class="text-sm text-cyan-800 dark:text-gray-100">
+                            {{ __('messages.scientific') }}</p>
+                        <p class="text-2xl font-bold">
+                            <span class="countup" data-target="{{ (int) ($stat['scientific'] ?? 0) }}">0</span>
+                        </p>
                     </div>
                     <div class="grid">
-                        <p class="text-md text-cyan-800 dark:text-gray-100">
-                            {{ $translations['texnik'] ?? 'Texnik xodimlar' }}</p>
-                        <p class="text-2xl font-bold">{{ number_format($stat['technical'] ?? 0) }}</p>
+                        <p class="text-sm text-cyan-800 dark:text-gray-100">
+                            {{ __('messages.technical') }}</p>
+                        <p class="text-2xl font-bold"><span class="countup"
+                                data-target="{{ (int) ($stat['technical'] ?? 0) }}">0</span></p>
                     </div>
                 </div>
                 <img src="/img/icons/recruiting.png" alt="SamISI"
@@ -93,19 +102,22 @@
             <div class="relative grid gap-4 rounded-2xl bg-blue-50 p-6 shadow-md dark:bg-blue-900">
                 <div class="grid">
                     <p class="text-lg font-bold text-cyan-800 dark:text-gray-100">
-                        {{ $translations['all_students'] ?? 'Talabalar' }}</p>
-                    <p class="text-4xl font-bold lg:text-6xl">{{ number_format($stat['students'] ?? 0) }}</p>
+                        {{ __('messages.students') }}</p>
+                    <p class="text-4xl font-bold lg:text-6xl"><span class="countup"
+                            data-target="{{ (int) ($stat['students'] ?? 0) }}">0</span></p>
                 </div>
                 <div class="grid grid-cols-2">
                     <div class="grid">
-                        <p class="text-md text-cyan-800 dark:text-gray-100">
-                            {{ $translations['boys'] ?? 'O‘g‘il bolalar' }}</p>
-                        <p class="text-2xl font-bold">{{ number_format($stat['male_students'] ?? 0) }}</p>
+                        <p class="text-sm text-cyan-800 dark:text-gray-100">
+                            {{ __('messages.male_students') }}</p>
+                        <p class="text-2xl font-bold"><span class="countup"
+                                data-target="{{ (int) ($stat['male_students'] ?? 0) }}">0</span></p>
                     </div>
                     <div class="grid">
-                        <p class="text-md text-cyan-800 dark:text-gray-100">{{ $translations['girls'] ?? 'Qizlar' }}
+                        <p class="text-sm text-cyan-800 dark:text-gray-100">{{ __('messages.female_students') }}
                         </p>
-                        <p class="text-2xl font-bold">{{ number_format($stat['female_students'] ?? 0) }}</p>
+                        <p class="text-2xl font-bold"><span class="countup"
+                                data-target="{{ (int) ($stat['female_students'] ?? 0) }}">0</span></p>
                     </div>
                 </div>
                 <img src="/img/icons/graduating-student.png" alt="SamISI"
@@ -116,22 +128,27 @@
             <div class="relative grid gap-4 rounded-2xl bg-blue-50 p-6 shadow-md dark:bg-blue-900">
                 <div class="grid">
                     <p class="text-lg font-bold text-cyan-800 dark:text-gray-100">
-                        {{ $translations['teachers'] ?? 'O‘qituvchilar' }}</p>
-                    <p class="text-4xl font-bold lg:text-6xl">{{ number_format($stat['teachers'] ?? 0) }}</p>
+                        {{ __('messages.teachers') }}</p>
+                    <p class="text-4xl font-bold lg:text-6xl"><span class="countup"
+                            data-target="{{ (int) ($stat['teachers'] ?? 0) }}">0</span></p>
                 </div>
                 <div class="grid grid-cols-3">
                     <div class="grid">
-                        <p class="text-md text-cyan-800 dark:text-gray-100">{{ $translations['doktr'] ?? 'DSc' }}</p>
-                        <p class="text-2xl font-bold">{{ number_format($stat['dsi'] ?? 0) }}</p>
+                        <p class="text-sm text-cyan-800 dark:text-gray-100">{{ __('messages.dsc') }}</p>
+                        <p class="text-2xl font-bold"><span class="countup"
+                                data-target="{{ (int) ($stat['dsi'] ?? 0) }}">0</span></p>
                     </div>
                     <div class="grid">
-                        <p class="text-md text-cyan-800 dark:text-gray-100">{{ $translations['nomzod'] ?? 'PhD' }}</p>
-                        <p class="text-2xl font-bold">{{ number_format($stat['phd_teachers'] ?? 0) }}</p>
+                        <p class="text-sm text-cyan-800 dark:text-gray-100">{{ __('messages.phd') }}</p>
+                        <p class="text-2xl font-bold"><span class="countup"
+                                data-target="{{ (int) ($stat['phd_teachers'] ?? 0) }}">0</span></p>
                     </div>
                     <div class="grid">
-                        <p class="text-md text-cyan-800 dark:text-gray-100">{{ $translations['dotsent'] ?? 'Dotsent' }}
+                        <p class="text-sm text-cyan-800 dark:text-gray-100">
+                            {{ __('messages.dotsent') }}
                         </p>
-                        <p class="text-2xl font-bold">{{ number_format($stat['professors'] ?? 0) }}</p>
+                        <p class="text-2xl font-bold"><span class="countup"
+                                data-target="{{ (int) ($stat['professors'] ?? 0) }}">0</span></p>
                     </div>
                 </div>
                 <img src="/img/icons/teacher.webp" alt="SamISI"
@@ -144,28 +161,33 @@
                 <div class="grid grid-cols-3 gap-2 md:grid-cols-5">
                     <div class="grid">
                         <p class="text-lg font-bold text-cyan-800 dark:text-gray-100">
-                            {{ $translations['nashrlar'] ?? 'Nashrlar' }}</p>
-                        <p class="text-4xl font-bold lg:text-6xl">{{ number_format($stat['books'] ?? 0) }}</p>
+                            {{ __('messages.books') }}</p>
+                        <p class="text-4xl font-bold lg:text-6xl"><span class="countup"
+                                data-target="{{ (int) ($stat['books'] ?? 0) }}">0</span></p>
                     </div>
                     <div class="col-span-2 grid sm:col-span-1">
-                        <p class="text-md text-cyan-800 dark:text-gray-100">
-                            {{ $translations['darslik'] ?? 'Darsliklar' }}</p>
-                        <p class="text-2xl font-bold">{{ number_format($stat['textbooks'] ?? 0) }}</p>
+                        <p class="text-sm text-cyan-800 dark:text-gray-100">
+                            {{ __('messages.textbooks') }}</p>
+                        <p class="text-2xl font-bold"><span class="countup"
+                                data-target="{{ (int) ($stat['textbooks'] ?? 0) }}">0</span></p>
                     </div>
                     <div class="grid">
-                        <p class="text-md text-cyan-800 dark:text-gray-100">
-                            {{ $translations['uquv'] ?? 'O‘quv qo‘llanmalar' }}</p>
-                        <p class="text-2xl font-bold">{{ number_format($stat['study'] ?? 0) }}</p>
+                        <p class="text-sm text-cyan-800 dark:text-gray-100">
+                            {{ __('messages.manuals') }}</p>
+                        <p class="text-2xl font-bold"><span class="countup"
+                                data-target="{{ (int) ($stat['study'] ?? 0) }}">0</span></p>
                     </div>
                     <div class="grid">
-                        <p class="text-md text-cyan-800 dark:text-gray-100">
-                            {{ $translations['uslubiy'] ?? 'Uslubiy qo‘llanmalar' }}</p>
-                        <p class="text-2xl font-bold">{{ number_format($stat['methodological'] ?? 0) }}</p>
+                        <p class="text-sm text-cyan-800 dark:text-gray-100">
+                            {{ __('messages.methodological') }}</p>
+                        <p class="text-2xl font-bold"><span class="countup"
+                                data-target="{{ (int) ($stat['methodological'] ?? 0) }}">0</span></p>
                     </div>
                     <div class="grid">
-                        <p class="text-md text-cyan-800 dark:text-gray-100">
-                            {{ $translations['monografiya'] ?? 'Monografiyalar' }}</p>
-                        <p class="text-2xl font-bold">{{ number_format($stat['monograph'] ?? 0) }}</p>
+                        <p class="text-sm text-cyan-800 dark:text-gray-100">
+                            {{ __('messages.monograph') }}</p>
+                        <p class="text-2xl font-bold"><span class="countup"
+                                data-target="{{ (int) ($stat['monograph'] ?? 0) }}">0</span></p>
                     </div>
                 </div>
                 <img src="/img/icons/library.png" alt="SamISI"

@@ -40,7 +40,8 @@
         },
         "files": [
             "app/Helpers/ImageHelper.php",
-            "app/Helpers/SlugHelper.php"
+            "app/Helpers/SlugHelper.php",
+            "app/Helpers/LocalizationHelper.php"
         ]
     },
     "autoload-dev": {

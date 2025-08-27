@@ -12,7 +12,7 @@
                             @mouseleave="openMenu = null, openSubmenu = null">
                             <!-- Main Menu button -->
                             <x-button class="capitalize">
-                                {{ $menu->title_uz }}
+                                {{ $menu->{'title_' . app()->getLocale()} }}
                             </x-button>
 
                             <!-- Submenu -->
@@ -24,7 +24,7 @@
                                         <!-- Submenu button -->
                                         <button
                                             class="flex justify-between items-center w-full px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-800 text-sm text-left">
-                                            {{ $submenu->title_uz }}
+                                            {{ $submenu->{'title_' . app()->getLocale()} }}
                                             <svg class="w-4 h-4 flex-shrink-0 ml-auto" fill="none"
                                                 stroke="currentColor" viewBox="0 0 24 24">
                                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
@@ -36,9 +36,10 @@
                                         <div x-show="openSubmenu === {{ $submenu->id }}" x-cloak x-transition
                                             class="absolute left-full top-0 mt-0 ml-1 w-56 text-sm max-h-96 overflow-y-scroll bg-white dark:bg-gray-900 border rounded shadow-lg dark:border-gray-800">
                                             @foreach ($submenu->multimenus as $multimenu)
-                                                <a href="{{ $multimenu->{'slug_' . app()->getLocale()} }}"
+                                                <a href="{{ $multimenu->link ?: localized_page_route($menu, $submenu, $multimenu) }}"
+                                                    target="{{ $multimenu->link ? '_blank' : '_self' }}"
                                                     class="block px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-800">
-                                                    {{ $multimenu->title_uz }}
+                                                    {{ $multimenu->{'title_' . app()->getLocale()} }}
                                                 </a>
                                             @endforeach
                                         </div>

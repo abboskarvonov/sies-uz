@@ -2,7 +2,7 @@
     <div class="container mx-auto">
         <h1 class="flex items-center gap-2 text-xl font-medium uppercase md:text-2xl">
             <img src="{{ asset('/img/icons/youtube.png') }}" alt="Video icon" class="w-6 dark:invert" />
-            Video Lavhalar
+            {{ __('messages.video') }}
         </h1>
         <div class="grid grid-cols-2 md:grid-cols-4 mt-5 md:mt-10 gap-2 md:gap-6 lg:gap-10">
             {{-- Katta video --}}

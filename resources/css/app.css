@@ -6,6 +6,12 @@
     display: none !important;
 }
 
+.prose,
+.prose * {
+    font-family: "Figtree", sans-serif !important;
+    font-size: 1rem !important;
+}
+
 /* News */
 .news-overlay {
     position: absolute;

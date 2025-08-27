@@ -7,7 +7,7 @@
               bg-white dark:bg-gray-700 rounded-lg shadow 
               hover:shadow-md transition hover:bg-gray-100 dark:hover:bg-gray-900">
                 <img src="{{ asset('img/icons/hemisstudent.webp') }}" alt="HEMIS" class="w-16 h-16 mb-4 dark:invert">
-                <p class="text-center text-gray-700 dark:text-gray-200 font-medium">HEMIS</p>
+                <p class="text-center text-gray-700 dark:text-gray-200 font-medium">{{ __('messages.hemis') }}</p>
             </a>
 
             <!-- Dars jadvali -->
@@ -16,7 +16,7 @@
               bg-white dark:bg-gray-700 rounded-lg shadow 
               hover:shadow-md transition hover:bg-gray-100 dark:hover:bg-gray-900">
                 <img src="{{ asset('img/icons/schedule.webp') }}" alt="Dars jadvali" class="w-16 h-16 mb-4 dark:invert">
-                <p class="text-center text-gray-700 dark:text-gray-200 font-medium">DARS JADVALLI</p>
+                <p class="text-center text-gray-700 dark:text-gray-200 font-medium">{{ __('messages.schedule') }}</p>
             </a>
 
             <!-- Masofaviy ta'lim -->
@@ -26,7 +26,8 @@
               hover:shadow-md transition hover:bg-gray-100 dark:hover:bg-gray-900">
                 <img src="{{ asset('img/icons/moodle1.webp') }}" alt="Masofaviy ta'lim"
                     class="w-16 h-16 mb-4 dark:invert">
-                <p class="text-center text-gray-700 dark:text-gray-200 font-medium">MASOFAVIY TA'LIM TIZIMI</p>
+                <p class="text-center text-gray-700 dark:text-gray-200 font-medium">{{ __('messages.online_learning') }}
+                </p>
             </a>
 
             <!-- Elektron kutubxona -->
@@ -36,7 +37,7 @@
               hover:shadow-md transition hover:bg-gray-100 dark:hover:bg-gray-900">
                 <img src="{{ asset('img/icons/library.webp') }}" alt="Elektron kutubxona"
                     class="w-16 h-16 mb-4 dark:invert">
-                <p class="text-center text-gray-700 dark:text-gray-200 font-medium">ELEKTRON KUTUBXONA</p>
+                <p class="text-center text-gray-700 dark:text-gray-200 font-medium">{{ __('messages.e_library') }}</p>
             </a>
         </div>
     </div>

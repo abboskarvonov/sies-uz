@@ -57,6 +57,13 @@ class Multimenu extends Model implements Sortable
         });
     }
 
+    public function getSlug($locale = null)
+    {
+        $locale = $locale ?? app()->getLocale();
+        $column = 'slug_' . $locale;
+        return $this->$column;
+    }
+
     public function menu()
     {
         return $this->belongsTo(Menu::class);

@@ -2,7 +2,7 @@
     <div class="container mx-auto">
         <h1 class="flex items-center gap-2 text-xl font-medium uppercase md:text-2xl">
             <img src="/img/icons/017-image.webp" alt="Book icon" class="w-6 dark:invert" />
-            Institutimiz hayotidan foto lavhalar
+            {{ __('messages.gallery') }}
         </h1>
         <div class="gallery mt-10">
 
@@ -11,7 +11,7 @@
                     @foreach ($galleryImages as $image)
                         <a data-fancybox="gallery" href="{{ $image }}" aria-label="Photo gallery">
                             <img src=
-                                "{{ $image }}"
+                                "{{ $image }}" alt="{{ $image }}"
                                 class="h-[250px] w-full overflow-hidden rounded-lg object-cover" />
                         </a>
                     @endforeach

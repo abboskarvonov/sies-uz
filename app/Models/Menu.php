@@ -57,6 +57,13 @@ class Menu extends Model implements Sortable
         });
     }
 
+    public function getSlug($locale = null)
+    {
+        $locale = $locale ?? app()->getLocale();
+        $column = 'slug_' . $locale;
+        return $this->$column;
+    }
+
     public function createdBy()
     {
         return $this->belongsTo(\App\Models\User::class, 'created_by');
