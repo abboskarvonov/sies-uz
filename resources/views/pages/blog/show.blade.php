@@ -20,7 +20,7 @@
                 <div class="flex items-center gap-2">
                     <div class="flex space-x-2">
                         <x-icon-button
-                            onclick="window.open('https://t.me/share/url?url={{ urlencode(url()->current()) }}&text={{ urlencode($page->{'title_' . $locale}) }}','_blank')">
+                            onclick="window.open('https://t.me/share/url?url={{ urlencode(url()->current()) }}&text={{ urlencode(lc_title($page)) }}','_blank')">
                             <img src="{{ asset('img/icons/telegram.webp') }}" class="w-5 h-5" alt="Telegram icon">
                         </x-icon-button>
                         <x-icon-button
@@ -34,7 +34,7 @@
                 </div>
             </div>
             <div class="col-span-5 md:col-span-2">
-                <x-main.image src="{{ asset('storage/' . $page->image) }}" alt="{{ $page->{'title_' . $locale} }}"
+                <x-main.image src="{{ asset('storage/' . $page->image) }}" alt="{{ lc_title($page) }}"
                     class="max-h-[480px] w-full rounded-lg object-cover shadow" />
             </div>
         </div>
@@ -47,12 +47,12 @@
                         {!! lc_content($page) !!}
                     </div>
                     @if (!empty($images) && is_array($images))
-                        <div class="mt-3 grid grid-cols-1 gap-1 lg:grid-cols-2">
+                        <div class="mt-3 grid grid-cols-2 md:grid-cols-3 gap-1 lg:grid-cols-4">
                             @foreach ($images as $i => $url)
                                 <a data-fancybox="gallery" href="{{ $url }}" aria-label="Photo gallery">
                                     <x-main.image src="{{ $url }}" :lazy="true"
                                         alt="Gallery image {{ $i + 1 }}"
-                                        class="h-[350px] w-full overflow-hidden rounded-lg object-cover" />
+                                        class="h-[250px] w-full overflow-hidden rounded-lg object-cover" />
                                 </a>
                             @endforeach
                         </div>

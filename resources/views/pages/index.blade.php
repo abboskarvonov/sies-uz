@@ -1,5 +1,5 @@
 <x-main-layout>
-    @include('components.home.hero')
+    @include('components.home.hero-modern')
     <x-home.news :latestNews="$latestNews" :otherNews="$otherNews" :announcements="$announcements" />
     @include('components.home.edu-links')
     <x-home.research-activities :announcementsWithActivity="$announcementsWithActivity" />

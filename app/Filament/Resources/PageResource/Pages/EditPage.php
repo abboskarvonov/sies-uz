@@ -7,7 +7,6 @@ use App\Helpers\SlugHelper;
 use App\Models\Page;
 use Filament\Actions;
 use Filament\Resources\Pages\EditRecord;
-use Illuminate\Support\Str;
 
 class EditPage extends EditRecord
 {

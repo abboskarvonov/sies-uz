@@ -2,7 +2,7 @@
     <x-breadcrumb :menu="$menuModel" :submenu="$submenuModel" :multimenu="$multimenuModel" :page="$pageModel" :staff="$staff" />
     <div class="dark:bg-gray-6 page-header relative mb-4 w-full bg-gray-200">
         <div class="absolute z-10 h-full w-full bg-white/75 dark:bg-gray-950/80"></div>
-        <div class="container mx-auto relative z-20 grid grid-cols-5 gap-5 py-6">
+        <div class="container mx-auto relative z-20 grid grid-cols-5 gap-5 py-6 px-4 lg:px-0">
             <div class="col-span-5 grid place-content-center justify-start space-y-5 md:col-span-3">
                 <div class="flex items-center gap-3">
                     <img src="{{ asset('img/icons/user-tie.webp') }}" class="w-6 h-6" alt="">
@@ -17,7 +17,7 @@
                 <div class="flex items-center gap-2">
                     <div class="flex space-x-2">
                         <x-icon-button
-                            onclick="window.open('https://t.me/share/url?url={{ urlencode(url()->current()) }}&text={{ urlencode($staff->{'name_' . $locale}) }}','_blank')">
+                            onclick="window.open('https://t.me/share/url?url={{ urlencode(url()->current()) }}&text={{ urlencode(lc_name($staff)) }}','_blank')">
                             <img src="{{ asset('img/icons/telegram.webp') }}" class="w-5 h-5" alt="Telegram icon">
                         </x-icon-button>
                         <x-icon-button

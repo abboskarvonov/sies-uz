@@ -35,6 +35,11 @@ class MenuResource extends Resource
 
     protected static SubNavigationPosition $subNavigationPosition = SubNavigationPosition::Top;
 
+    public static function canAccess(): bool
+    {
+        return authUser()?->hasRole('super-admin');
+    }
+
     public static function form(Form $form): Form
     {
         return $form
@@ -64,6 +69,7 @@ class MenuResource extends Resource
                         Select::make('position')
                             ->options([
                                 'header' => 'Header',
+                                'quick_links' => 'Quick Links',
                                 'footer' => 'Footer',
                             ])->required(),
                         Section::make()
@@ -104,6 +110,7 @@ class MenuResource extends Resource
                     ->label('Position')
                     ->options([
                         'header' => 'Header',
+                        'quick_links' => 'Quick Links',
                         'footer' => 'Footer',
                     ]),
                 SelectFilter::make('menu_type')

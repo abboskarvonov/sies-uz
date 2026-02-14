@@ -4,29 +4,32 @@
             <img src="/img/icons/014-graduation-hat.webp" alt="Book icon" class="w-7 dark:invert" />
             {{ __('messages.faculty') }}
         </h1>
-        <div class="mt-3 grid grid-cols-1 gap-10 pb-10 md:grid-cols-2 lg:mt-10 lg:grid-cols-4">
+
+        <section class="mt-3 grid grid-cols-1 gap-10 pb-10 md:grid-cols-2 lg:mt-10 lg:grid-cols-4">
             @if ($faculties)
                 @foreach ($faculties as $faculty)
-                    <div class="relative h-[450px] overflow-hidden rounded-md shadow lg:h-[550px]">
-                        <x-main.image class="block h-full w-full object-cover"
-                            src="{{ asset('storage/' . $faculty->image) }}" alt="{{ lc_title($faculty) }}" />
-                        <div class="slider-overlay absolute top-0 z-20 h-full w-full">
-                            <h1 class="absolute bottom-10 left-0 w-full bg-gray-800 px-2 py-6 text-center text-white">
-                                <a href="/uz/pages-view/iqtisodiyot-fakulteti">
-                                    {{ lc_title($faculty) }}
-                                </a>
-                            </h1>
+                    <a href="{{ localized_page_route($faculty->menu, $faculty->submenu, $faculty->multimenu, $faculty) }}"
+                        class="block bg-white dark:bg-gray-800 rounded-xl shadow-lg overflow-hidden border-b-4 border-gray-600 dark:border-gray-400 transition-shadow duration-300 hover:shadow-xl">
+                        <x-main.image class="w-full h-96 object-cover" src="{{ asset('storage/' . $faculty->image) }}"
+                            alt="{{ lc_title($faculty) }}" />
+                        <div class="p-4">
+                            <h3
+                                class="text-xl text-center font-bold text-gray-900 dark:text-gray-100 mb-1 line-clamp-2">
+                                {{ lc_title($faculty) }}</h3>
                         </div>
-                    </div>
+                    </a>
                 @endforeach
             @endif
-        </div>
-        <div class="mx-auto grid w-52">
-            <x-button>
-                <a href="/uz/pages-view/fakultetlar">
-                    {{ __('messages.all_faculties') }}
-                </a>
-            </x-button>
-        </div>
+        </section>
+        @if($faculties->isNotEmpty())
+            <div class="mx-auto grid w-52">
+                <x-button>
+                    <a
+                        href="{{ localized_page_route($faculties->first()->menu, $faculties->first()->submenu, $faculties->first()->multimenu) }}">
+                        {{ __('messages.all_faculties') }}
+                    </a>
+                </x-button>
+            </div>
+        @endif
     </div>
 </div>

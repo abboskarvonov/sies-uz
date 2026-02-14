@@ -29,6 +29,11 @@ class PageFileResource extends Resource
 
     protected static ?int $navigationSort = 3;
 
+    public static function canAccess(): bool
+    {
+        return authUser()?->hasRole('super-admin');
+    }
+
     public static function form(Form $form): Form
     {
         return $form

@@ -19,7 +19,12 @@ class CreatePageFile extends CreateRecord
 
         foreach ($files as $filePath) {
             $data['file'] = $filePath;
-            $data['name'] = basename($filePath);
+
+            // Faqat name mavjud bo‘lmasa fayl nomini qo‘yamiz
+            if (empty($data['name'])) {
+                $data['name'] = basename($filePath);
+            }
+
             $lastCreated = PageFile::create($data);
         }
 

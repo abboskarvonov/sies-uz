@@ -1,22 +1,24 @@
-<div class="w-full bg-gray-200 py-3 px-1 dark:bg-gray-950">
+<div class="w-full bg-gray-200 py-3 px-2 dark:bg-gray-950">
     <div class="container mx-auto">
         <div class="flex items-center justify-between">
             <div class="grid auto-cols-max grid-flow-col items-center gap-1">
                 <x-icon-button>
-                    <a href='#' aria-label="Uzb flag">
-                        <img src="{{ asset('img/flags/uz.png') }}" alt="Uzb flag" class="w-5" />
+                    <a href='{{ route('symbol.show', ['symbol' => $symbolSlugs['flag']]) }}' aria-label="Uzb flag">
+                        <img src="{{ asset('img/flags/uz.png') }}" alt="Uzb flag" class="w-5 h-5" width="20px"
+                            height="20px" />
                     </a>
                 </x-icon-button>
 
                 <x-icon-button>
-                    <a href='#' aria-label="Gerb">
-                        <img src="{{ asset('img/gerb.webp') }}" alt="Gerb" class="w-5" />
+                    <a href='{{ route('symbol.show', ['symbol' => $symbolSlugs['emblem']]) }}' aria-label="Gerb">
+                        <img src="{{ asset('img/gerb.webp') }}" alt="Gerb" class="w-5 h-5" width="20px"
+                            height="20px" />
                     </a>
                 </x-icon-button>
                 <x-icon-button>
-                    <a href='#' aria-label="Music icon">
+                    <a href='{{ route('symbol.show', ['symbol' => $symbolSlugs['anthem']]) }}' aria-label="Music icon">
                         <img src="{{ asset('img/icons/002-musical-note.webp') }}" alt="Music icon"
-                            class="w-4 dark:invert" />
+                            class="w-4 h-4 dark:invert" width="16px" height="16px" />
                     </a>
                 </x-icon-button>
             </div>
@@ -46,38 +48,52 @@
                 <x-button>
                     <a href="https://student.sies.uz/dashboard/login"
                         class="flex items-center gap-1 text-xs font-bold uppercase" target="_blank">
-                        <img src="/img/icons/001-user.webp" alt="User icon" class="w-4 dark:invert" />
+                        <img src="/img/icons/001-user.webp" alt="User icon" width="16px" height="16px"
+                            class="w-4 h-4 dark:invert" />
                         Hemis
                     </a>
                 </x-button>
                 <x-button>
                     <a href="http://arm.sies.uz/" class="flex items-center gap-1 text-xs font-bold uppercase"
                         target="_blank">
-                        <img src="/img/icons/004-book.webp" alt="Book icon" class="w-4 dark:invert" />
+                        <img src="/img/icons/004-book.webp" alt="Book icon" width="16px" height="16px"
+                            class="w-4 h-4 dark:invert" />
                         Arm
+                    </a>
+                </x-button>
+                <x-button>
+                    <a href="http://sdg.sies.uz/" class="flex items-center gap-1 text-xs font-bold uppercase"
+                        target="_blank">
+                        <img src="/img/icons/sdg.webp" alt="SDG icon" width="16px" height="16px"
+                            class="w-4 h-4 dark:invert" />
+                        SDG
                     </a>
                 </x-button>
             </div>
 
-            <div class="grid auto-cols-max grid-flow-col items-center gap-1">
+            <div class="hidden md:grid auto-cols-max grid-flow-col items-center gap-1">
                 <x-icon-button>
                     <a href="https://t.me/siesuz" target="_blank" aria-label="Telegram">
-                        <img src="{{ asset('img/icons/telegram.webp') }}" alt="Telegram icon" class="w-5" />
+                        <img src="{{ asset('img/icons/telegram.webp') }}" alt="Telegram icon" class="w-5 h-5"
+                            width="20px" height="20px" />
                     </a>
                 </x-icon-button>
                 <x-icon-button>
                     <a href="https://t.me/siesuz" target="_blank" aria-label="Telegram">
-                        <img src="{{ asset('img/icons/facebook.webp') }}" alt="Telegram icon" class="w-5" />
+                        <img src="{{ asset('img/icons/facebook.webp') }}" alt="Telegram icon" class="w-5 h-5"
+                            width="20px" height="20px" />
                     </a>
                 </x-icon-button>
                 <x-icon-button>
                     <a href="https://t.me/siesuz" target="_blank" aria-label="Telegram">
-                        <img src="{{ asset('img/icons/instagram.webp') }}" alt="Telegram icon" class="w-5" />
+                        <img src="{{ asset('img/icons/instagram.webp') }}" alt="Telegram icon" class="w-5 h-5"
+                            width="20px" height="20px" />
                     </a>
                 </x-icon-button>
                 <x-icon-button>
                     <a href="https://t.me/siesuz" target="_blank" aria-label="Telegram">
-                        <img src="{{ asset('img/icons/youtube.webp') }}" alt="Telegram icon" class="w-5" />
+                        <img src="{{ asset('img/icons/youtube.webp') }}" alt="Telegram icon" class="w-5 h-5"
+                            width="20px" height="20px" />
                     </a>
                 </x-icon-button>
             </div>
@@ -94,7 +110,8 @@
                                 <button
                                     class="flex text-sm border-2 border-transparent rounded-sm focus:outline-none focus:border-gray-300 transition">
                                     <img class="size-8 rounded-sm object-cover"
-                                        src="{{ Auth::user()->profile_photo_url }}" alt="{{ Auth::user()->name }}" />
+                                        src="{{ Auth::user()->profile_photo_url }}"
+                                        alt="{{ Auth::user()->name }}" />
                                 </button>
                             @else
                                 <span class="inline-flex rounded-md">
@@ -103,7 +120,8 @@
                                         {{ Auth::user()->name }}
 
                                         <svg class="ms-2 -me-0.5 size-4" xmlns="http://www.w3.org/2000/svg"
-                                            fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                                            fill="none" viewBox="0 0 24 24" stroke-width="1.5"
+                                            stroke="currentColor">
                                             <path stroke-linecap="round" stroke-linejoin="round"
                                                 d="M19.5 8.25l-7.5 7.5-7.5-7.5" />
                                         </svg>
@@ -117,6 +135,16 @@
                             <div class="block px-4 py-2 text-xs text-gray-400">
                                 {{ __('Manage Account') }}
                             </div>
+
+                            @php
+                                $user = auth()->user();
+                            @endphp
+
+                            @if ($user && $user->hasAnyRole(['super-admin', 'admin', 'user']))
+                                <x-dropdown-link href="{{ route('filament.admin.pages.dashboard') }}">
+                                    {{ __('Admin') }}
+                                </x-dropdown-link>
+                            @endif
 
                             <x-dropdown-link href="{{ route('dashboard') }}">
                                 {{ __('Dashboard') }}
@@ -148,13 +176,13 @@
                     <x-icon-button>
                         <a href="{{ route('login') }}">
                             <img src="{{ asset('img/icons/002-enter.webp') }}" alt="User icon"
-                                class="w-4 dark:invert" />
+                                class="w-4 h-4 dark:invert" width="16px" height="16px" />
                         </a>
                     </x-icon-button>
                     <x-icon-button>
                         <a href="{{ route('register') }}">
                             <img src="{{ asset('img/icons/003-add-user.webp') }}" alt="User icon"
-                                class="w-4 dark:invert" />
+                                class="w-4 h-4 dark:invert" width="16px" height="16px" />
                         </a>
                     </x-icon-button>
                 @endif

@@ -5,7 +5,7 @@
         <div class="container mx-auto relative z-20 grid grid-cols-5 gap-5 py-6 px-4 lg:px-0">
             <div class="col-span-5 grid place-content-center justify-start space-y-5 md:col-span-3">
                 <h1 class="text-2xl font-medium uppercase tracking-tight">
-                    {{ lc_title($multimenuModel) }}
+                    {{ lc_title($page) }}
                 </h1>
                 <div class="flex items-center gap-6">
                     <div class="flex items-center gap-1">
@@ -20,7 +20,7 @@
                 <div class="flex items-center gap-2">
                     <div class="flex space-x-2">
                         <x-icon-button
-                            onclick="window.open('https://t.me/share/url?url={{ urlencode(url()->current()) }}&text={{ urlencode($page->{'title_' . $locale}) }}','_blank')">
+                            onclick="window.open('https://t.me/share/url?url={{ urlencode(url()->current()) }}&text={{ urlencode(lc_title($page)) }}','_blank')">
                             <img src="{{ asset('img/icons/telegram.webp') }}" class="w-5 h-5" alt="Telegram icon">
                         </x-icon-button>
                         <x-icon-button
@@ -34,7 +34,7 @@
                 </div>
             </div>
             <div class="col-span-5 md:col-span-2">
-                <x-main.image src="{{ asset('storage/' . $page->image) }}" alt="{{ $page->{'title_' . $locale} }}"
+                <x-main.image src="{{ asset('storage/' . $page->image) }}" alt="{{ lc_title($page) }}"
                     class="max-h-[480px] w-full rounded-lg object-cover shadow" />
             </div>
         </div>
@@ -54,19 +54,21 @@
                                     <a href="{{ asset('storage/' . $file->file) }}" download
                                         class="flex flex-col items-center gap-2">
                                         <img src="/img/icons/file.webp" alt="Download icon" class="w-10 dark:invert" />
-                                        {{ $file->name ?? basename($file->file) }}
+                                        <span class="text-sm break-all line-clamp-1">
+                                            {{ $file->name ?? basename($file->file) }}
+                                        </span>
                                     </a>
                                 </div>
                             @endforeach
                         </div>
                     @endif
                     @if (!empty($page->images) && is_array($page->images))
-                        <div class="mt-3 grid grid-cols-1 gap-1 lg:grid-cols-2">
+                        <div class="mt-3 grid grid-cols-2 md:grid-cols-3 gap-1 lg:grid-cols-4">
                             @foreach ($page->images as $img)
                                 <a data-fancybox="gallery" href="{{ asset('storage/' . $img) }}"
                                     aria-label="Photo gallery">
                                     <x-main.image src="{{ asset('storage/' . $img) }}"
-                                        class="h-[350px] w-full overflow-hidden rounded-lg object-cover" />
+                                        class="h-[250px] w-full overflow-hidden rounded-lg object-cover" />
                                 </a>
                             @endforeach
                         </div>

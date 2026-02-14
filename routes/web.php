@@ -2,10 +2,10 @@
 
 use App\Http\Controllers\LegacyLinkController;
 use App\Http\Controllers\PageController;
+use App\Http\Controllers\SearchController;
+use App\Http\Controllers\SymbolController;
 use Illuminate\Support\Facades\Route;
 use Mcamara\LaravelLocalization\Facades\LaravelLocalization;
-
-
 
 Route::group(
     [
@@ -15,6 +15,11 @@ Route::group(
     function () {
         // Home page
         Route::get('/', [PageController::class, 'index'])->name('home');
+        Route::get('/search', [SearchController::class, 'index'])->name('search');
+        // ✅ Symbol routes uchun alohida prefix
+        Route::prefix('symbol')->group(function () {
+            Route::get('/{symbol}', [SymbolController::class, 'show'])->name('symbol.show');
+        });
     }
 );
 

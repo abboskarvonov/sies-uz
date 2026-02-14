@@ -1,9 +1,5 @@
 <?php
 
-use App\Models\Menu;
-use App\Models\Multimenu;
-use App\Models\Submenu;
-use Illuminate\Support\Facades\Request;
 use Illuminate\Support\Str;
 use Mcamara\LaravelLocalization\Facades\LaravelLocalization;
 
@@ -120,22 +116,48 @@ if (!function_exists('localized_url')) {
                     ->where('submenu_id', $submenu->id)->first();
                 if (!$multimenu) return $fallback();
 
+                // Page topish: slug yoki ID bo'yicha
                 $page = $Page::query()
                     ->where('menu_id', $menu->id)
                     ->where('submenu_id', $submenu->id)
                     ->where('multimenu_id', $multimenu->id)
                     ->where(function ($q) use ($slugColCurrent, $pageSlug) {
+                        // Avval joriy tildagi slug bo'yicha
                         $q->where($slugColCurrent, $pageSlug);
+
+                        // Agar slug-id formatida bo'lsa ID ni ajratib olish
                         $id = (int) preg_replace('/^.*-(\d+)$/', '$1', $pageSlug);
-                        if ($id > 0) $q->orWhere('id', $id);
+                        if ($id > 0) {
+                            $q->orWhere('id', $id);
+                        }
+
+                        // Agar faqat raqam bo'lsa
+                        if (is_numeric($pageSlug)) {
+                            $q->orWhere('id', (int) $pageSlug);
+                        }
+
+                        // Fallback: boshqa tillardagi sluglar bo'yicha ham qidirish
+                        $q->orWhere('slug_uz', $pageSlug)
+                          ->orWhere('slug_ru', $pageSlug)
+                          ->orWhere('slug_en', $pageSlug);
                     })
                     ->first();
                 if (!$page) return $fallback();
 
-                $targetPageSlug = $page->{$slugColTarget}
-                    ?? (($page->{'title_' . $locale} ?? null)
+                // Target til uchun slug olish (fallback: uz -> title-id formatida)
+                $targetPageSlug = $page->{$slugColTarget};
+
+                if (empty($targetPageSlug)) {
+                    // Agar slug mavjud bo'lmasa, fallback sifatida slug_uz ishlatamiz
+                    $targetPageSlug = $page->slug_uz;
+                }
+
+                if (empty($targetPageSlug)) {
+                    // Agar slug_uz ham bo'lmasa, title-id formatida yaratamiz
+                    $targetPageSlug = ($page->{'title_' . $locale} ?? null)
                         ? \Illuminate\Support\Str::slug($page->{'title_' . $locale}) . '-' . $page->id
-                        : $page->id);
+                        : $page->id;
+                }
 
                 $url = route('pages.detail', [
                     'menu'       => $getSlug($menu, $locale),
@@ -202,22 +224,42 @@ if (!function_exists('localized_url')) {
                     ->where('submenu_id', $submenu->id)->first();
                 if (!$multimenu) return $fallback();
 
+                // Page topish: slug yoki ID bo'yicha
                 $page = $Page::query()
                     ->where('menu_id', $menu->id)
                     ->where('submenu_id', $submenu->id)
                     ->where('multimenu_id', $multimenu->id)
                     ->where(function ($q) use ($slugColCurrent, $pageSlug) {
                         $q->where($slugColCurrent, $pageSlug);
+
                         $id = (int) preg_replace('/^.*-(\d+)$/', '$1', $pageSlug);
-                        if ($id > 0) $q->orWhere('id', $id);
+                        if ($id > 0) {
+                            $q->orWhere('id', $id);
+                        }
+
+                        if (is_numeric($pageSlug)) {
+                            $q->orWhere('id', (int) $pageSlug);
+                        }
+
+                        $q->orWhere('slug_uz', $pageSlug)
+                          ->orWhere('slug_ru', $pageSlug)
+                          ->orWhere('slug_en', $pageSlug);
                     })
                     ->first();
                 if (!$page) return $fallback();
 
-                $targetPageSlug = $page->{$slugColTarget}
-                    ?? (($page->{'title_' . $locale} ?? null)
+                // Target til uchun slug olish (fallback: uz -> title-id formatida)
+                $targetPageSlug = $page->{$slugColTarget};
+
+                if (empty($targetPageSlug)) {
+                    $targetPageSlug = $page->slug_uz;
+                }
+
+                if (empty($targetPageSlug)) {
+                    $targetPageSlug = ($page->{'title_' . $locale} ?? null)
                         ? Str::slug($page->{'title_' . $locale}) . '-' . $page->id
-                        : $page->id);
+                        : $page->id;
+                }
 
                 $url = route('staff.show.withPage', [
                     'menu'       => $getSlug($menu, $locale),
@@ -273,8 +315,17 @@ if (!function_exists('localized_page_route')) {
 
         $pageSlug = null;
         if ($page) {
-            $pageSlug = $page->{$slugCol}
-                ?? ($page->{'title_' . $locale} ? Str::slug($page->{'title_' . $locale}) . '-' . $page->id : null);
+            $pageSlug = $page->{$slugCol};
+
+            if (empty($pageSlug)) {
+                $pageSlug = $page->slug_uz;
+            }
+
+            if (empty($pageSlug)) {
+                $pageSlug = $page->{'title_' . $locale}
+                    ? Str::slug($page->{'title_' . $locale}) . '-' . $page->id
+                    : null;
+            }
         }
 
         // Paramlarni yig'amiz
@@ -341,10 +392,17 @@ if (!function_exists('localized_staff_url')) {
 
         if ($page) {
             // 6 segment: /menu/submenu/multimenu/{page}/staff/{staff}
-            $pageSlug = $page->{$slugCol}
-                ?? (($page->{'title_' . $locale} ?? null)
+            $pageSlug = $page->{$slugCol};
+
+            if (empty($pageSlug)) {
+                $pageSlug = $page->slug_uz;
+            }
+
+            if (empty($pageSlug)) {
+                $pageSlug = ($page->{'title_' . $locale} ?? null)
                     ? Str::slug($page->{'title_' . $locale}) . '-' . $page->id
-                    : (string) $page->id);
+                    : (string) $page->id;
+            }
 
             $url = route('staff.show.withPage', [
                 'menu'       => $getSlug($menu),

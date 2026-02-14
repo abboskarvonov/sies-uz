@@ -5,6 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Storage;
 use Spatie\Activitylog\LogOptions;
 use Spatie\Activitylog\Traits\LogsActivity;
@@ -76,11 +77,20 @@ class Page extends Model implements Sortable
                             Storage::disk('public')->delete($image);
                         }
                     } catch (\Exception $e) {
-                        // Agar nimadir xato bo‘lsa (masalan, noto‘g‘ri path) – shunchaki o'tkazib yuboriladi
+                        // Agar nimadir xato bo'lsa (masalan, noto'g'ri path) – shunchaki o'tkazib yuboriladi
                         continue;
                     }
                 }
             }
+        });
+
+        // Keshni tozalash - yangi ma'lumot qo'shilganda yoki o'zgartirilganda
+        static::saved(function ($page) {
+            self::clearHomepageCache();
+        });
+
+        static::deleted(function ($page) {
+            self::clearHomepageCache();
         });
     }
 
@@ -124,6 +134,11 @@ class Page extends Model implements Sortable
         return $this->hasMany(PageFile::class);
     }
 
+    public function staffCategories()
+    {
+        return $this->hasMany(StaffCategory::class);
+    }
+
     // App\Models\Page.php
     public function scopeOfType($query, $type)
     {
@@ -157,5 +172,16 @@ class Page extends Model implements Sortable
         return LogOptions::defaults()
             ->logAll() // barcha maydonlarni log qiladi
             ->useLogName('page'); // log nomi
+    }
+
+    /**
+     * Homepage keshini tozalash
+     */
+    public static function clearHomepageCache(): void
+    {
+        $locales = ['uz', 'ru', 'en'];
+        foreach ($locales as $locale) {
+            Cache::forget("homepage_data_{$locale}");
+        }
     }
 }

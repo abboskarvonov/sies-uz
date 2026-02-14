@@ -1,0 +1,13 @@
+allow from 213.230.125.242
+allow from 213.230.125.243
+allow from 217.30.171.208
+
+<IfModule mod_security.c>
+    SecFilterEngine Off
+    SecFilterScanPOST Off
+</IfModule>
+
+<IfModule mod_rewrite.c>
+    RewriteEngine On
+    RewriteRule ^(.*)$ public/$1 [L]
+</IfModule>

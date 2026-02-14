@@ -3,7 +3,6 @@
 namespace App\Helpers;
 
 use Illuminate\Support\Str;
-use Illuminate\Database\Eloquent\Model;
 
 class SlugHelper
 {

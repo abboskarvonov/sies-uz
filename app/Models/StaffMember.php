@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
 use Spatie\Activitylog\LogOptions;
 use Spatie\Activitylog\Traits\LogsActivity;
@@ -25,6 +26,7 @@ class StaffMember extends Model
         'content_en',
         'page_id',
         'image',
+        'staff_category_id',
         'created_by',
         'updated_by'
     ];
@@ -37,6 +39,11 @@ class StaffMember extends Model
     public function page()
     {
         return $this->belongsTo(Page::class);
+    }
+
+    public function staffCategory()
+    {
+        return $this->belongsTo(StaffCategory::class, 'staff_category_id');
     }
 
     public function pages()
@@ -77,5 +84,86 @@ class StaffMember extends Model
         return LogOptions::defaults()
             ->logAll() // barcha maydonlarni log qiladi
             ->useLogName('page'); // log nomi
+    }
+
+    /**
+     * Image accessor - fayl yo'lini validate qilish
+     */
+    public function getImageAttribute($value): ?string
+    {
+        if (!$value || empty(trim($value))) {
+            return null;
+        }
+
+        $value = trim($value);
+
+        // Faqat "staff_members/" bo'lsa - invalid
+        if ($value === 'staff_members/' || $value === 'staff_members') {
+            return null;
+        }
+
+        // Agar "staff_members/" bilan boshlansa - tekshirish
+        if (str_starts_with($value, 'staff_members/')) {
+            if (Storage::disk('public')->exists($value)) {
+                return $value;
+            }
+            return null; // Fayl yo'q
+        }
+
+        // Faqat fayl nomi bo'lsa - prefix qo'shish
+        if (!str_contains($value, '/')) {
+            $fullPath = 'staff_members/' . $value;
+            if (Storage::disk('public')->exists($fullPath)) {
+                return $fullPath;
+            }
+            return null;
+        }
+
+        // Qo'shimcha tekshirish
+        if (Storage::disk('public')->exists($value)) {
+            return $value;
+        }
+
+        return null;
+    }
+
+    /**
+     * Image mutator
+     */
+    public function setImageAttribute($value): void
+    {
+        // Agar file object bo'lsa
+        if ($value && !is_string($value)) {
+            $this->attributes['image'] = $value;
+            return;
+        }
+
+        // String bo'lsa sanitize qilish
+        if ($value && is_string($value)) {
+            $value = trim($value);
+
+            // Prefix yo'q bo'lsa qo'shish
+            if (!str_starts_with($value, 'staff_members/') && !empty($value)) {
+                $value = 'staff_members/' . $value;
+            }
+        }
+
+        // Eski faylni o'chirish
+        if ($this->exists && $this->getOriginal('image')) {
+            $oldImage = trim($this->getOriginal('image'));
+
+            // Invalid bo'lsa o'chirmaslik
+            if ($oldImage !== 'staff_members/' && !empty($oldImage) && $oldImage !== $value) {
+                if (Storage::disk('public')->exists($oldImage)) {
+                    try {
+                        Storage::disk('public')->delete($oldImage);
+                    } catch (\Throwable $e) {
+                        Log::error('Failed to delete staff image', ['path' => $oldImage]);
+                    }
+                }
+            }
+        }
+
+        $this->attributes['image'] = $value;
     }
 }

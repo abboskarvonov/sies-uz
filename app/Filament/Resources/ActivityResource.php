@@ -21,6 +21,19 @@ class ActivityResource extends Resource
 
     protected static ?string $navigationIcon = 'heroicon-o-rectangle-stack';
 
+    protected static ?string $navigationGroup = 'System';
+
+    protected static ?string $navigationLabel = 'Loglar';
+
+    protected static ?string $pluralModelLabel = 'Loglar';
+
+    protected static ?int $navigationSort = 10;
+
+    public static function canAccess(): bool
+    {
+        return authUser()?->hasRole('super-admin');
+    }
+
     public static function form(Form $form): Form
     {
         return $form

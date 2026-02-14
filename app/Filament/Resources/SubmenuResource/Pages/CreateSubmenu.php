@@ -12,7 +12,7 @@ class CreateSubmenu extends CreateRecord
 {
     protected static string $resource = SubmenuResource::class;
 
-    protected function mutateFormDataBeforeSave(array $data): array
+    protected function mutateFormDataBeforeCreate(array $data): array
     {
         $data['slug_uz'] = $this->generateUniqueSlug($data['title_uz'], 'slug_uz');
         $data['slug_ru'] = $this->generateUniqueSlug($data['title_ru'], 'slug_ru');

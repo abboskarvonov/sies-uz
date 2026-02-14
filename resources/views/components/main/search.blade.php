@@ -19,21 +19,12 @@
                 &times;
             </button>
 
-            <!-- Modal title -->
-            <h2 class="text-xl font-semibold mb-4">Custom Modal Title</h2>
-
-            <!-- Modal content -->
-            <p class="text-gray-700">
-                This is the modal content. The background is blurred.
-            </p>
-
-            <!-- Footer -->
-            <div class="flex justify-end mt-6">
-                <button @click="customModalOpen = false"
-                    class="px-4 py-2 bg-gray-300 text-gray-700 rounded hover:bg-gray-400">
-                    Close
-                </button>
-            </div>
+            <form action="{{ route('search') }}" method="GET" class="flex items-center space-x-2 p-4">
+                <input type="text" name="q" placeholder="Izlash..."
+                    class="w-full px-4 py-2 border border-gray-300 rounded" />
+                <button type="submit"
+                    class="px-4 py-2 bg-blue-600 text-white rounded">{{ __('messages.search_text') }}</button>
+            </form>
         </div>
     </div>
 </div>

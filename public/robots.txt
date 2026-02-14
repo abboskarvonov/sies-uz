@@ -1,2 +1,33 @@
 User-agent: *
-Disallow:
+Disallow: /admin
+Disallow: /dashboard
+Disallow: /login
+Disallow: /register
+Disallow: /user/
+Disallow: /password/
+Disallow: /email/
+Disallow: /verify-email
+Disallow: /two-factor-challenge
+
+
+Disallow: /sanctum/
+Disallow: /telescope/
+Disallow: /_debugbar/
+
+
+Allow: /build/
+Allow: /storage/
+Allow: /img/
+Allow: /css/
+Allow: /js/
+
+
+Host: https://sies.uz
+Clean-param: utm_source&utm_medium&utm_campaign&utm_term&utm_content from /
+Clean-param: ref from /
+
+
+Sitemap: https://sies.uz/sitemap.xml
+Sitemap: https://sies.uz/uz/sitemap.xml
+Sitemap: https://sies.uz/ru/sitemap.xml
+Sitemap: https://sies.uz/en/sitemap.xml

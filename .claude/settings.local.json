@@ -1,0 +1,15 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(composer install:*)",
+      "Bash(php artisan config:cache:*)",
+      "Bash(php artisan:*)",
+      "Bash(composer dump-autoload:*)",
+      "Bash(grep:*)",
+      "Bash(curl:*)",
+      "Bash(mysql:*)",
+      "Bash(find:*)",
+      "Bash(done)"
+    ]
+  }
+}

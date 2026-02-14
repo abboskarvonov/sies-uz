@@ -5,9 +5,7 @@ namespace App\Filament\Resources\PageResource\Pages;
 use App\Filament\Resources\PageResource;
 use App\Helpers\SlugHelper;
 use App\Models\Page;
-use Filament\Actions;
 use Filament\Resources\Pages\CreateRecord;
-use Illuminate\Support\Str;
 
 class CreatePage extends CreateRecord
 {

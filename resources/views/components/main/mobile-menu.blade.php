@@ -27,14 +27,9 @@
 
         <nav class="flex flex-col space-y-1 p-4">
             @foreach ($menus as $menu)
-                @php
-                    $slug = $menu->{'slug_' . $locale};
-                    $title = $menu->{'title_' . $locale};
-                @endphp
-
-                <a href="{{ $slug }}"
+                <a href="{{ localized_page_route($menu) }}"
                     class="block px-4 py-2 rounded hover:bg-gray-100 dark:hover:bg-gray-800 text-gray-900 dark:text-white font-medium">
-                    {{ $title }}
+                    {{ lc_title($menu) }}
                 </a>
             @endforeach
         </nav>

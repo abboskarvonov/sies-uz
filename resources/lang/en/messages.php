@@ -45,6 +45,10 @@ return [
     'read_more' => 'Read more',
     'year_name' => '2025 – The Year of Environmental Protection and the "Green" Economy',
     'menu' => 'Menus',
+    'welcome' => 'Welcome',
+    'learn_more' => 'Learn More',
+    'programs' => 'Academic Programs',
+    'quick_links' => 'Quick Links',
     'about_department' => 'About the Department',
     'deparment_history' => 'Department History',
     'department_staff' => 'Department Staff',
@@ -59,4 +63,6 @@ return [
     'back_to_home' => 'Back to Home',
     'tag_text' => 'pages related to the tag',
     'staff_error' => 'Staff information is not available at the moment.',
+    'search' => 'Search Results',
+    'search_text' => 'Search',
 ];

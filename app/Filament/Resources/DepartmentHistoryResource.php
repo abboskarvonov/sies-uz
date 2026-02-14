@@ -31,6 +31,10 @@ class DepartmentHistoryResource extends Resource
 
     protected static ?int $navigationSort = 5;
 
+    public static function canAccess(): bool
+    {
+        return authUser()?->hasRole('super-admin');
+    }
 
     public static function form(Form $form): Form
     {

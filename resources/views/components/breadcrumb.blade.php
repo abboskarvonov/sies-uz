@@ -2,7 +2,7 @@
     <div class="bg-gray-100 dark:bg-gray-950 px-4 lg:px-0">
         <div class="container mx-auto py-10">
             <nav class="flex" aria-label="Breadcrumb">
-                <ol class="inline-flex items-center space-x-1 md:space-x-2 rtl:space-x-reverse">
+                <ol class="inline-flex flex-wrap items-center space-x-1 md:space-x-2 rtl:space-x-reverse">
                     {{-- Home --}}
                     <li class="inline-flex items-center">
                         <a href="{{ route('home') }}"

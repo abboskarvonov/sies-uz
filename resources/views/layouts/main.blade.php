@@ -32,24 +32,75 @@
     <meta name="twitter:description" content="{{ $metaDescription }}">
     <meta name="twitter:image" content="{{ $metaImage }}">
 
-    <!-- Fonts -->
-    <link rel="preconnect" href="https://fonts.bunny.net">
-    <link href="https://fonts.bunny.net/css?family=figtree:400,500,600&display=swap" rel="stylesheet" />
+    <!-- Fonts - Optimized for performance -->
+    <link rel="preconnect" href="https://fonts.bunny.net" crossorigin>
+    <link rel="dns-prefetch" href="https://cdnjs.cloudflare.com">
+
+    <!-- Preload critical font -->
+    <link rel="preload" href="https://fonts.bunny.net/css?family=figtree:400,500,600&display=swap" as="style" onload="this.onload=null;this.rel='stylesheet'">
+    <noscript><link href="https://fonts.bunny.net/css?family=figtree:400,500,600&display=swap" rel="stylesheet"></noscript>
+
+    <!-- Font Awesome - Async load -->
+    <link rel="preload" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/7.0.1/css/all.min.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
+    <noscript><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/7.0.1/css/all.min.css" integrity="sha512-2SwdPD6INVrV/lHTZbO2nodKhrnDdJK9/kg2XD1r9uGqPo1cUbujc+IYdlYdEErWNu69gVcYgdxlmVmzTWnetw==" crossorigin="anonymous" referrerpolicy="no-referrer"></noscript>
+    <!-- Google tag (gtag.js) -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=UA-136882406-1"></script>
+    <script>
+        window.dataLayer = window.dataLayer || [];
+
+        function gtag() {
+            dataLayer.push(arguments);
+        }
+        gtag("js", new Date());
+
+        gtag("config", "UA-136882406-1");
+    </script>
+
+    <!-- Preload LCP image for faster rendering -->
+    <link rel="preload" as="image" href="{{ asset('img/hero-bg-1920.webp') }}"
+          imagesrcset="{{ asset('img/hero-bg-640.webp') }} 640w, {{ asset('img/hero-bg-1280.webp') }} 1280w, {{ asset('img/hero-bg-1920.webp') }} 1920w"
+          imagesizes="100vw" fetchpriority="high">
 
     <!-- Scripts -->
     @vite(['resources/css/app.css', 'resources/js/app.js'])
 
     <!-- Styles -->
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/ui/dist/fancybox.css" />
-    @livewireStyles
+    <link rel="preload" href="https://cdn.jsdelivr.net/npm/@fancyapps/ui/dist/fancybox.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
+    <noscript><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/ui/dist/fancybox.css"></noscript>
     @stack('styles')
     <style>
         .page-header {
             background-size: cover;
             background-position: center;
-            background-image: url("{{ asset('img/hero-bg.webp') }}");
+            background-image: image-set(
+                url("{{ asset('img/hero-bg-640.webp') }}") 1x,
+                url("{{ asset('img/hero-bg-1280.webp') }}") 2x,
+                url("{{ asset('img/hero-bg-1920.webp') }}") 3x
+            );
+            /* Fallback for older browsers */
+            background-image: url("{{ asset('img/hero-bg-1280.webp') }}");
+        }
+
+        /* Responsive background images */
+        @media (max-width: 640px) {
+            .page-header {
+                background-image: url("{{ asset('img/hero-bg-640.webp') }}");
+            }
+        }
+
+        @media (min-width: 641px) and (max-width: 1280px) {
+            .page-header {
+                background-image: url("{{ asset('img/hero-bg-1280.webp') }}");
+            }
+        }
+
+        @media (min-width: 1281px) {
+            .page-header {
+                background-image: url("{{ asset('img/hero-bg-1920.webp') }}");
+            }
         }
     </style>
+    @livewireStyles
 </head>
 
 <body class="font-sans antialiased text-gray-900 dark:text-white">
@@ -57,6 +108,7 @@
     <div class="min-h-screen bg-white dark:bg-gray-900">
         @include('components.main.header')
         @include('components.main.navbar')
+        @include('components.main.quick-links')
         <main>
             {{ $slot }}
         </main>

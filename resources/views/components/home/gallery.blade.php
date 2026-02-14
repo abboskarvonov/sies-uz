@@ -4,19 +4,31 @@
             <img src="/img/icons/017-image.webp" alt="Book icon" class="w-6 dark:invert" />
             {{ __('messages.gallery') }}
         </h1>
-        <div class="gallery mt-10">
 
-            <div class="grid grid-cols-2 gap-1 lg:grid-cols-4">
-                @if ($galleryImages)
+        <div class="gallery mt-10">
+            @if ($galleryImages && $galleryImages->count() > 0)
+                <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-6 gap-6">
                     @foreach ($galleryImages as $image)
-                        <a data-fancybox="gallery" href="{{ $image }}" aria-label="Photo gallery">
-                            <img src=
-                                "{{ $image }}" alt="{{ $image }}"
-                                class="h-[250px] w-full overflow-hidden rounded-lg object-cover" />
-                        </a>
+                        @if($image)
+                            <a data-fancybox="gallery" href="{{ $image }}" aria-label="Photo gallery"
+                                class="group relative block w-full pb-[100%] rounded-xl overflow-hidden shadow-md transition-shadow duration-300 hover:shadow-xl">
+
+                                <div class="absolute inset-0">
+                                    <x-main.image :src="$image" :alt="$image" :loading="'lazy'"
+                                        class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110" />
+
+                                    <div
+                                        class="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center">
+                                        <span class="text-white text-2xl font-semibold">+</span>
+                                    </div>
+                                </div>
+                            </a>
+                        @endif
                     @endforeach
-                @endif
-            </div>
+                </div>
+            @else
+                <p class="text-center text-gray-500 py-10">{{ __('No images available') }}</p>
+            @endif
         </div>
     </div>
 </div>

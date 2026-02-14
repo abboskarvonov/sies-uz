@@ -29,7 +29,7 @@ class User extends Authenticatable implements FilamentUser, MustVerifyEmail
 
     public function canAccessPanel(Panel $panel): bool
     {
-        return ! is_null($this->email_verified_at) && $this->hasAnyRole(['super-admin', 'admin']);
+        return ! is_null($this->email_verified_at) && $this->hasAnyRole(['super-admin', 'admin', 'user']);
     }
 
     /**
@@ -76,6 +76,11 @@ class User extends Authenticatable implements FilamentUser, MustVerifyEmail
             'password' => 'hashed',
             'last_seen_at' => 'datetime',
         ];
+    }
+
+    public function staffMember()
+    {
+        return $this->hasOne(StaffMember::class);
     }
 
     public function getActivitylogOptions(): LogOptions

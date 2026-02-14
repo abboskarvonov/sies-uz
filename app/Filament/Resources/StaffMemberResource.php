@@ -3,9 +3,9 @@
 namespace App\Filament\Resources;
 
 use App\Filament\Resources\StaffMemberResource\Pages;
-use App\Filament\Resources\StaffMemberResource\RelationManagers;
+use App\Models\Page;
+use App\Models\StaffCategory;
 use App\Models\StaffMember;
-use Filament\Forms;
 use Filament\Forms\Components\FileUpload;
 use Filament\Forms\Components\RichEditor;
 use Filament\Forms\Components\Section;
@@ -17,9 +17,9 @@ use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Columns\ImageColumn;
 use Filament\Tables\Columns\TextColumn;
+use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Table;
-use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Database\Eloquent\SoftDeletingScope;
+use Illuminate\Support\Facades\Auth;
 
 class StaffMemberResource extends Resource
 {
@@ -34,6 +34,15 @@ class StaffMemberResource extends Resource
     protected static ?string $pluralModelLabel = 'Xodimlar';
 
     protected static ?int $navigationSort = 4;
+
+    public static function getEloquentQuery(): \Illuminate\Database\Eloquent\Builder
+    {
+        $query = parent::getEloquentQuery();
+
+        return authUser()?->hasRole('super-admin')
+            ? $query
+            : $query->where('user_id', Auth::id());
+    }
 
     public static function form(Form $form): Form
     {
@@ -66,23 +75,44 @@ class StaffMemberResource extends Resource
                     ->schema([
                         Select::make('user_id')
                             ->label('Foydalanuvchi')
-                            ->relationship('user', 'name'),
+                            ->relationship('user', 'name')
+                            ->preload()
+                            ->searchable()
+                            ->visible(fn(): bool => authUser()?->hasRole('super-admin')),
 
                         Select::make('page_id')
                             ->label('Sahifa')
-                            ->relationship('page', 'title_uz')
+                            ->options(function () {
+                                return Page::whereIn('page_type', ['faculty', 'department', 'center', 'section'])
+                                    ->pluck('title_uz', 'id');
+                            })
                             ->searchable()
                             ->preload()
-                            ->required(),
+                            ->required()
+                            ->reactive(),
+
+                        Select::make('staff_category_id')
+                            ->label('Xodim kategoriyasi')
+                            ->options(function (callable $get) {
+                                $pageId = $get('page_id');
+                                if (!$pageId) return [];
+
+                                return StaffCategory::where('page_id', $pageId)
+                                    ->pluck('title_uz', 'id');
+                            })
+                            ->searchable()
+                            ->required()
+                            ->reactive(),
 
                         Select::make('pages')
                             ->label('Tahrirlash mumkin bo‘lgan sahifalar')
                             ->relationship('pages', 'title_uz')
                             ->multiple()
                             ->preload()
-                            ->searchable(),
+                            ->searchable()
+                            ->visible(fn(): bool => authUser()?->hasRole('super-admin')),
                     ])
-                    ->columns(3),
+                    ->columns(4),
 
                 Section::make('Rasm')
                     ->schema([
@@ -92,8 +122,6 @@ class StaffMemberResource extends Resource
                             ->directory('staff_members')
                             ->preserveFilenames(),
                     ]),
-
-
             ]);
     }
 
@@ -106,21 +134,22 @@ class StaffMemberResource extends Resource
                 TextColumn::make('position_uz')->label('Lavozim'),
                 TextColumn::make('user.name')->label('Foydalanuvchi'),
                 TextColumn::make('page.title_uz')->label('Tegishli sahifa'),
-                TextColumn::make('pages')
-                    ->label('Tahrirlash mumkin bo‘lgan sahifalar')
-                    ->getStateUsing(
-                        fn($record) =>
-                        $record->pages
-                            ->pluck('title_' . app()->getLocale())
-                            ->implode(', ')
-                    )
-                    ->wrap(),
                 TextColumn::make('createdBy.name')->label('Yaratuvchi'),
                 TextColumn::make('updatedBy.name')->label('O\'zgartiruvchi'),
                 ImageColumn::make('image')->label('Rasm'),
             ])
             ->filters([
-                //
+                SelectFilter::make('page_id')
+                    ->label('Sahifa')
+                    ->options(function () {
+                        return Page::whereIn('page_type', ['faculty', 'department', 'center', 'section'])
+                            ->orderBy('title_uz')
+                            ->pluck('title_uz', 'id');
+                    })
+                    ->searchable()
+                    ->preload()
+                    ->multiple()  // Bir nechta sahifani tanlash imkoniyati
+                    ->placeholder('Sahifani tanlang'),
             ])
             ->actions([
                 Tables\Actions\ViewAction::make(),

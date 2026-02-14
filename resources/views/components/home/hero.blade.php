@@ -1,19 +1,3 @@
-{{-- <section class="relative bg-gray-200 dark:bg-gray-900 bg-cover bg-center"
-    style="background-image: url('{{ asset('img/hero-bg.webp') }}');">
-    <div class="absolute z-10 h-full w-full bg-white/65 dark:bg-gray-950/80"></div>
-    <div class="relative z-20 mx-auto max-w-screen-xl px-4 py-14 text-center lg:px-12 lg:py-28">
-        <h1
-            class="mb-4 text-4xl font-extrabold leading-none tracking-tight text-gray-900 dark:text-white md:text-5xl lg:text-6xl">
-            Samarqand iqtisodiyot va servis instituti
-        </h1>
-        <p
-            class="my-10 rounded-2xl bg-gray-900/70 py-5 text-lg font-normal text-gray-100 shadow-md dark:bg-gray-100/80 dark:text-gray-800 sm:px-16 lg:text-xl xl:px-40">
-            Samarqand iqtisodiyot va servis instituti — xizmat koʻrsatish sohasi tarmoqlari iqtisodiyoti va uni tashkil
-            etish boʻyicha mutaxassislar tayyorlaydigan hamda 15 dan ortiq yo'nalishlarga ega oliy oʻquv yurti.
-        </p>
-    </div>
-</section> --}}
-{{-- resources/views/components/hero-stats.blade.php --}}
 @props([
     // Controllerdan keladigan statistikalar (fallback 0)
     'stat' => [
@@ -26,13 +10,14 @@
     'title' => __('messages.app_name'),
     'subtitle' => __('messages.hero_text'),
     // Fon rasm
-    'bg' => asset('img/hero-bg.webp'),
+    'bg' => 'img/hero-bg.webp',
 ])
 
 <section class="relative">
     {{-- Background --}}
     <div class="relative h-[500px] md:h-[600px] overflow-hidden">
-        <img src="{{ $bg }}" alt="Hero background" class="absolute inset-0 h-full w-full object-cover">
+        <x-main.image :eager="true" width="1920" height="700" src="{{ asset($bg) }}" alt="Hero background"
+            class="absolute inset-0 h-full w-full object-cover" />
         <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-black/50 to-black/10"></div>
 
         {{-- Title + subtitle + CTA --}}

@@ -106,6 +106,16 @@
                                 {{ __('Manage Account') }}
                             </div>
 
+                            @php
+                                $user = auth()->user();
+                            @endphp
+
+                            @if ($user && $user->hasAnyRole(['super-admin', 'admin', 'user']))
+                                <x-dropdown-link href="{{ route('filament.admin.pages.dashboard') }}">
+                                    {{ __('Admin') }}
+                                </x-dropdown-link>
+                            @endif
+
                             <x-dropdown-link href="{{ route('dashboard') }}">
                                 {{ __('Dashboard') }}
                             </x-dropdown-link>

@@ -7,11 +7,10 @@ use AlperenErsoy\FilamentExport\Actions\FilamentExportHeaderAction;
 use App\Filament\Resources\PageResource\Pages;
 use App\Models\Multimenu;
 use App\Models\Page;
-use Filament;
 use App\Models\Submenu;
+use Filament;
 use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\FileUpload;
-use Filament\Forms\Components\Repeater;
 use Filament\Forms\Components\RichEditor;
 use Filament\Forms\Components\Section;
 use Filament\Forms\Components\Select;
@@ -30,7 +29,11 @@ use Filament\Tables\Columns\ImageColumn;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Table;
+use FilamentTiptapEditor\TiptapEditor;
+use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
+use Mohamedsabil83\FilamentFormsTinyeditor\Components\TinyEditor;
 
 class PageResource extends Resource
 {
@@ -50,6 +53,32 @@ class PageResource extends Resource
 
     protected static SubNavigationPosition $subNavigationPosition = SubNavigationPosition::Top;
 
+
+    public static function getEloquentQuery(): Builder
+    {
+        $query = parent::getEloquentQuery();
+
+        $user = Auth::user();
+
+        // Adminlar hammasini ko‘ra oladi
+        if (authUser()?->hasAnyRole(['super-admin', 'admin'])) {
+            return $query;
+        }
+
+        // StaffMember bo‘lmasa, hech narsa ko‘rmasin:
+        if (!$user->staffMember) {
+            return $query->whereRaw('1=0');
+        }
+
+        // Pivot orqali bog‘langan Page ID larini filterlaymiz
+        $pageIds = $user->staffMember
+            ->pages()
+            ->pluck('pages.id')
+            ->toArray();
+
+        return $query->whereIn('id', $pageIds);
+    }
+
     public static function form(Form $form): Form
     {
         return $form
@@ -60,15 +89,15 @@ class PageResource extends Resource
                             ->tabs([
                                 Tabs\Tab::make('Uz')->schema([
                                     TextInput::make('title_uz')->required(),
-                                    RichEditor::make('content_uz'),
+                                    TinyEditor::make('content_uz'),
                                 ]),
                                 Tabs\Tab::make('Ru')->schema([
                                     TextInput::make('title_ru')->nullable(),
-                                    RichEditor::make('content_ru'),
+                                    TinyEditor::make('content_ru'),
                                 ]),
                                 Tabs\Tab::make('En')->schema([
                                     TextInput::make('title_en')->nullable(),
-                                    RichEditor::make('content_en'),
+                                    TinyEditor::make('content_en'),
                                 ]),
                             ])
                             ->columnSpanFull(),
@@ -103,7 +132,8 @@ class PageResource extends Resource
                             ->preload(),
                     ])
                     ->collapsed(false)
-                    ->columns(3),
+                    ->columns(3)
+                    ->visible(fn(): bool => authUser()?->hasRole('super-admin') || authUser()?->hasRole('admin')),
 
                 Section::make('Qo\'shimcha ma\'lumotlar')
                     ->schema([
@@ -112,12 +142,12 @@ class PageResource extends Resource
                             ->required(),
                         Select::make('page_type')
                             ->options([
-                                'default' => 'Default',
+                                'default' => 'Oddiy',
                                 'blog' => 'Blog',
-                                'department' => 'Department',
-                                'faculty' => 'Faculty',
-                                'center' => 'Center',
-                                'section' => 'Section',
+                                'faculty' => 'Fakultet',
+                                'department' => 'Kafedra',
+                                'center' => 'Markaz',
+                                'section' => 'Bo`lim',
                             ])
                             ->required()
                             ->reactive(),
@@ -146,7 +176,8 @@ class PageResource extends Resource
                             ->label('Ilmiy faoliyat')
                             ->default(false),
                     ])
-                    ->columns(3),
+                    ->columns(3)
+                    ->visible(fn(): bool => authUser()?->hasRole('super-admin') || authUser()?->hasRole('admin')),
 
                 Section::make('Rasmlar')
                     ->schema([
@@ -172,7 +203,7 @@ class PageResource extends Resource
                 FilamentExportHeaderAction::make('Export')
             ])
             ->reorderable('order')
-            ->defaultSort('date', 'desc')
+            ->defaultSort('order', 'desc')
             ->columns([
                 TextColumn::make('id')->label('ID'),
                 TextColumn::make('title_uz')->label('Sarlavha')->searchable(),
@@ -203,12 +234,12 @@ class PageResource extends Resource
                 SelectFilter::make('page_type')
                     ->label('Turi')
                     ->options([
-                        'default' => 'Default',
+                        'default' => 'Oddiy',
                         'blog' => 'Blog',
-                        'department' => 'Department',
-                        'faculty' => 'Faculty',
-                        'center' => 'Center',
-                        'section' => 'Section',
+                        'faculty' => 'Fakultet',
+                        'department' => 'Kafedra',
+                        'center' => 'Markaz',
+                        'section' => 'Bo`lim',
                     ]),
                 SelectFilter::make('status')
                     ->label('Holati')
@@ -334,7 +365,8 @@ class PageResource extends Resource
     public static function getRelations(): array
     {
         return [
-            //
+            PageResource\RelationManagers\StaffCategoriesRelationManager::class,
+            PageResource\RelationManagers\StaffMembersRelationManager::class,
         ];
     }
 
