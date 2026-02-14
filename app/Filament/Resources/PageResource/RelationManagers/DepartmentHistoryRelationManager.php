@@ -1,0 +1,74 @@
+<?php
+
+namespace App\Filament\Resources\PageResource\RelationManagers;
+
+use Filament\Forms\Components\RichEditor;
+use Filament\Forms\Components\Tabs;
+use Filament\Forms\Form;
+use Filament\Resources\RelationManagers\RelationManager;
+use Filament\Tables;
+use Filament\Tables\Columns\TextColumn;
+use Filament\Tables\Table;
+
+class DepartmentHistoryRelationManager extends RelationManager
+{
+    protected static string $relationship = 'departmentHistory';
+
+    protected static ?string $title = 'Kafedra tarixi';
+
+    public function isReadOnly(): bool
+    {
+        return $this->getOwnerRecord()->page_type !== 'department';
+    }
+
+    public static function canViewForRecord($ownerRecord, string $pageClass): bool
+    {
+        return $ownerRecord->page_type === 'department';
+    }
+
+    public function form(Form $form): Form
+    {
+        return $form
+            ->schema([
+                Tabs::make('Tabs')
+                    ->tabs([
+                        Tabs\Tab::make('Uz')->schema([
+                            RichEditor::make('content_uz')->label('Kontent (UZ)')->required(),
+                        ]),
+                        Tabs\Tab::make('Ru')->schema([
+                            RichEditor::make('content_ru')->label('Kontent (RU)'),
+                        ]),
+                        Tabs\Tab::make('En')->schema([
+                            RichEditor::make('content_en')->label('Kontent (EN)'),
+                        ]),
+                    ])
+                    ->columnSpanFull(),
+            ]);
+    }
+
+    public function table(Table $table): Table
+    {
+        return $table
+            ->columns([
+                TextColumn::make('content_uz')
+                    ->label('Kontent (UZ)')
+                    ->html()
+                    ->limit(100),
+                TextColumn::make('createdBy.name')->label('Yaratuvchi'),
+                TextColumn::make('updatedBy.name')->label('O\'zgartiruvchi'),
+                TextColumn::make('created_at')->label('Yaratilgan')->dateTime('d.m.Y H:i'),
+            ])
+            ->headerActions([
+                Tables\Actions\CreateAction::make(),
+            ])
+            ->actions([
+                Tables\Actions\EditAction::make(),
+                Tables\Actions\DeleteAction::make(),
+            ])
+            ->bulkActions([
+                Tables\Actions\BulkActionGroup::make([
+                    Tables\Actions\DeleteBulkAction::make(),
+                ]),
+            ]);
+    }
+}

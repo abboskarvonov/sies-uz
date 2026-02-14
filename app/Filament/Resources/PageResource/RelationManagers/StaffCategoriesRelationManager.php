@@ -17,6 +17,11 @@ class StaffCategoriesRelationManager extends RelationManager
 
     protected static ?string $title = 'Xodim kategoriyalari';
 
+    public static function canViewForRecord($ownerRecord, string $pageClass): bool
+    {
+        return in_array($ownerRecord->page_type, ['department', 'faculty', 'center', 'section']);
+    }
+
     public function form(Form $form): Form
     {
         return $form

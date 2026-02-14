@@ -11,7 +11,6 @@ use App\Models\Submenu;
 use Filament;
 use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\FileUpload;
-use Filament\Forms\Components\RichEditor;
 use Filament\Forms\Components\Section;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Tabs;
@@ -367,6 +366,7 @@ class PageResource extends Resource
         return [
             PageResource\RelationManagers\StaffCategoriesRelationManager::class,
             PageResource\RelationManagers\StaffMembersRelationManager::class,
+            PageResource\RelationManagers\DepartmentHistoryRelationManager::class,
         ];
     }
 
