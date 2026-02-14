@@ -15,11 +15,12 @@ use Laravel\Jetstream\HasProfilePhoto;
 use Laravel\Sanctum\HasApiTokens;
 use Spatie\Activitylog\LogOptions;
 use Spatie\Activitylog\Traits\LogsActivity;
+use BezhanSalleh\FilamentShield\Traits\HasPanelShield;
 use Spatie\Permission\Traits\HasRoles;
 
 class User extends Authenticatable implements FilamentUser, MustVerifyEmail
 {
-    use HasApiTokens, HasRoles, LogsActivity;
+    use HasApiTokens, HasRoles, HasPanelShield, LogsActivity;
 
     /** @use HasFactory<\Database\Factories\UserFactory> */
     use HasFactory;
@@ -81,6 +82,20 @@ class User extends Authenticatable implements FilamentUser, MustVerifyEmail
     public function staffMember()
     {
         return $this->hasOne(StaffMember::class);
+    }
+
+    public function assignedPages()
+    {
+        return $this->belongsToMany(Page::class, 'page_user');
+    }
+
+    public function hasAccessToPage(Page $page): bool
+    {
+        if ($this->hasAnyRole(['super-admin', 'admin'])) {
+            return true;
+        }
+
+        return $this->assignedPages()->where('pages.id', $page->id)->exists();
     }
 
     public function getActivitylogOptions(): LogOptions

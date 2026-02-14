@@ -22,11 +22,6 @@ class SiteStatResource extends Resource
     protected static ?string $navigationLabel = 'Ko‘rsatkichlar';
     protected static ?string $pluralModelLabel = 'Ko‘rsatkichlar';
 
-    public static function canAccess(): bool
-    {
-        return authUser()?->hasRole('super-admin');
-    }
-
     public static function canCreate(): bool
     {
         return SiteStat::count() === 0;

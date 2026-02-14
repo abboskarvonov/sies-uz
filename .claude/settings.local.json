@@ -9,7 +9,10 @@
       "Bash(curl:*)",
       "Bash(mysql:*)",
       "Bash(find:*)",
-      "Bash(done)"
+      "Bash(done)",
+      "Bash(xargs:*)",
+      "Bash(composer require:*)",
+      "mcp__ide__getDiagnostics"
     ]
   }
 }

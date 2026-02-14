@@ -2,75 +2,83 @@
 
 namespace App\Policies;
 
-use App\Models\Page;
 use App\Models\User;
-use Illuminate\Auth\Access\Response;
+use App\Models\Page;
+use Illuminate\Auth\Access\HandlesAuthorization;
 
 class PagePolicy
 {
-    /**
-     * Determine whether the user can view any models.
-     */
+    use HandlesAuthorization;
+
     public function viewAny(User $user): bool
     {
-        if ($user->hasRole('super-admin') || $user->hasRole('admin')) {
-            return true;
-        }
-
-        return (bool) $user->staffMember;
+        return $user->can('view_any_page');
     }
 
-    /**
-     * Determine whether the user can view the model.
-     */
     public function view(User $user, Page $page): bool
     {
-        if ($user->hasRole('super-admin') || $user->hasRole('admin')) {
-            return true;
+        if (! $user->can('view_page')) {
+            return false;
         }
-        return $user->staffMember?->pages()->whereKey($page->id)->exists() ?? false;
+
+        return $user->hasAccessToPage($page);
     }
 
-    /**
-     * Determine whether the user can create models.
-     */
     public function create(User $user): bool
     {
-        return $user->hasRole('super-admin') || $user->hasRole('admin');
+        return $user->can('create_page');
     }
 
-    /**
-     * Determine whether the user can update the model.
-     */
     public function update(User $user, Page $page): bool
     {
-        if ($user->hasRole('super-admin') || $user->hasRole('admin')) {
-            return true;
+        if (! $user->can('update_page')) {
+            return false;
         }
-        return $user->staffMember?->pages()->whereKey($page->id)->exists() ?? false;
+
+        return $user->hasAccessToPage($page);
     }
 
-    /**
-     * Determine whether the user can delete the model.
-     */
     public function delete(User $user, Page $page): bool
     {
-        return $user->hasRole('super-admin') || $user->hasRole('admin');
+        if (! $user->can('delete_page')) {
+            return false;
+        }
+
+        return $user->hasAccessToPage($page);
     }
 
-    /**
-     * Determine whether the user can restore the model.
-     */
-    public function restore(User $user, Page $page): bool
+    public function deleteAny(User $user): bool
     {
-        return false;
+        return $user->can('delete_any_page');
     }
 
-    /**
-     * Determine whether the user can permanently delete the model.
-     */
     public function forceDelete(User $user, Page $page): bool
     {
-        return false;
+        return $user->can('force_delete_page');
+    }
+
+    public function forceDeleteAny(User $user): bool
+    {
+        return $user->can('force_delete_any_page');
+    }
+
+    public function restore(User $user, Page $page): bool
+    {
+        return $user->can('restore_page');
+    }
+
+    public function restoreAny(User $user): bool
+    {
+        return $user->can('restore_any_page');
+    }
+
+    public function replicate(User $user, Page $page): bool
+    {
+        return $user->can('replicate_page');
+    }
+
+    public function reorder(User $user): bool
+    {
+        return $user->can('reorder_page');
     }
 }

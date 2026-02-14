@@ -39,9 +39,14 @@ class StaffMemberResource extends Resource
     {
         $query = parent::getEloquentQuery();
 
-        return authUser()?->hasRole('super-admin')
-            ? $query
-            : $query->where('user_id', Auth::id());
+        /** @var \App\Models\User $user */
+        $user = Auth::user();
+
+        if ($user->hasAnyRole(['super-admin', 'admin'])) {
+            return $query;
+        }
+
+        return $query->where('user_id', $user->id);
     }
 
     public static function form(Form $form): Form

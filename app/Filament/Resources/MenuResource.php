@@ -35,11 +35,6 @@ class MenuResource extends Resource
 
     protected static SubNavigationPosition $subNavigationPosition = SubNavigationPosition::Top;
 
-    public static function canAccess(): bool
-    {
-        return authUser()?->hasRole('super-admin');
-    }
-
     public static function form(Form $form): Form
     {
         return $form
@@ -101,8 +96,16 @@ class MenuResource extends Resource
                 TextColumn::make('order')->label('Order'),
                 IconColumn::make('status')->boolean(),
 
-                TextColumn::make('createdBy.name')->label('Yaratuvchi'),
-                TextColumn::make('updatedBy.name')->label('O\'zgartiruvchi'),
+                TextColumn::make('submenus_count')
+                    ->counts('submenus')
+                    ->label('Ichki menyular')
+                    ->badge()
+                    ->color('info'),
+                TextColumn::make('multimenus_count')
+                    ->counts('multimenus')
+                    ->label('Multi menyular')
+                    ->badge()
+                    ->color('warning'),
                 ImageColumn::make('image')->label('Rasm'),
             ])->defaultSort(('order'))
             ->filters([
@@ -188,7 +191,8 @@ class MenuResource extends Resource
     public static function getRelations(): array
     {
         return [
-            //
+            MenuResource\RelationManagers\SubmenusRelationManager::class,
+            MenuResource\RelationManagers\MultimenusRelationManager::class,
         ];
     }
 

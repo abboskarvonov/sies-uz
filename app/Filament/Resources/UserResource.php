@@ -4,8 +4,12 @@ namespace App\Filament\Resources;
 
 use App\Filament\Resources\UserResource\Pages;
 use App\Models\User;
+use Filament\Forms\Components\Section;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Form;
+use Filament\Infolists\Components;
+use Filament\Infolists\Infolist;
+use Filament\Pages\SubNavigationPosition;
 use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Columns\TextColumn;
@@ -25,26 +29,39 @@ class UserResource extends Resource
 
     protected static ?int $navigationSort = 1;
 
-    public static function canAccess(): bool
-    {
-        return authUser()?->hasRole('super-admin');
-    }
+    protected static SubNavigationPosition $subNavigationPosition = SubNavigationPosition::Top;
 
     public static function form(Form $form): Form
     {
         return $form
             ->schema([
-                Select::make('roles')
-                    ->label('Rollar')
-                    ->relationship('roles', 'name')
-                    ->multiple()
-                    ->preload(),
+                Section::make('Rollar va huquqlar')
+                    ->schema([
+                        Select::make('roles')
+                            ->label('Rollar')
+                            ->relationship('roles', 'name')
+                            ->multiple()
+                            ->preload(),
 
-                Select::make('permissions')
-                    ->label('Huquqlar')
-                    ->relationship('permissions', 'name')
-                    ->multiple()
-                    ->preload(),
+                        Select::make('permissions')
+                            ->label('Huquqlar')
+                            ->relationship('permissions', 'name')
+                            ->multiple()
+                            ->preload()
+                            ->searchable(),
+                    ])
+                    ->columns(2),
+
+                Section::make('Biriktirilgan sahifalar')
+                    ->description('Foydalanuvchi faqat shu sahifalar va ularga tegishli ma\'lumotlarni (fayllar, xodimlar, kategoriyalar, tarix) tahrirlashi mumkin')
+                    ->schema([
+                        Select::make('assignedPages')
+                            ->label('Sahifalar')
+                            ->relationship('assignedPages', 'title_uz')
+                            ->multiple()
+                            ->preload()
+                            ->searchable(),
+                    ]),
             ]);
     }
 
@@ -52,26 +69,32 @@ class UserResource extends Resource
     {
         return $table
             ->columns([
-                TextColumn::make('name')->label('Ism'),
-                TextColumn::make('email')->label('Email'),
-                TextColumn::make('last_seen_at')
-                    ->label('Oxirgi onlayn')
-                    ->dateTime('d.m.Y H:i')
-                    ->sortable(),
-
+                TextColumn::make('name')->label('Ism')->searchable(),
+                TextColumn::make('email')->label('Email')->searchable(),
+                TextColumn::make('roles.name')
+                    ->label('Rollar')
+                    ->badge()
+                    ->color('primary'),
+                TextColumn::make('assigned_pages_count')
+                    ->counts('assignedPages')
+                    ->label('Sahifalar')
+                    ->badge()
+                    ->color('info'),
                 TextColumn::make('last_seen_at')
                     ->label('Status')
                     ->formatStateUsing(function ($state) {
                         if (empty($state)) {
-                            return '⚫ Offline';
+                            return 'Offline';
                         }
-                        return now()->diffInMinutes($state, true) < 2 ? '🟢 Online' : '⚫ Offline';
+                        return now()->diffInMinutes($state, true) < 2 ? 'Online' : 'Offline';
                     })
-                    ->sortable(),
-
+                    ->badge()
+                    ->color(fn ($state) => ! empty($state) && now()->diffInMinutes($state, true) < 2 ? 'success' : 'gray'),
             ])
             ->filters([
-                //
+                Tables\Filters\SelectFilter::make('roles')
+                    ->label('Rol')
+                    ->relationship('roles', 'name'),
             ])
             ->actions([
                 Tables\Actions\ViewAction::make(),
@@ -85,11 +108,55 @@ class UserResource extends Resource
             ]);
     }
 
+    public static function infolist(Infolist $infolist): Infolist
+    {
+        return $infolist
+            ->schema([
+                Components\Section::make('Foydalanuvchi')
+                    ->schema([
+                        Components\TextEntry::make('name')->label('Ism'),
+                        Components\TextEntry::make('email')->label('Email'),
+                        Components\TextEntry::make('roles.name')
+                            ->label('Rollar')
+                            ->badge()
+                            ->color('primary'),
+                        Components\TextEntry::make('last_seen_at')
+                            ->label('Oxirgi faollik')
+                            ->dateTime('d.m.Y H:i'),
+                    ])
+                    ->columns(2),
+
+                Components\Section::make('Biriktirilgan sahifalar')
+                    ->schema([
+                        Components\RepeatableEntry::make('assignedPages')
+                            ->label('')
+                            ->schema([
+                                Components\TextEntry::make('title_uz')
+                                    ->label('Sahifa')
+                                    ->badge()
+                                    ->color('info'),
+                                Components\TextEntry::make('page_type')
+                                    ->label('Turi')
+                                    ->badge()
+                                    ->color('gray'),
+                            ])
+                            ->columns(2)
+                            ->contained(false),
+                    ]),
+            ]);
+    }
+
+    public static function getRecordSubNavigation(\Filament\Pages\Page $page): array
+    {
+        return $page->generateNavigationItems([
+            Pages\ViewUser::class,
+            Pages\EditUser::class,
+        ]);
+    }
+
     public static function getRelations(): array
     {
-        return [
-            //
-        ];
+        return [];
     }
 
     public static function getPages(): array
@@ -98,6 +165,7 @@ class UserResource extends Resource
             'index' => Pages\ListUsers::route('/'),
             'create' => Pages\CreateUser::route('/create'),
             'edit' => Pages\EditUser::route('/{record}/edit'),
+            'view' => Pages\ViewUser::route('/{record}'),
         ];
     }
 }

@@ -35,10 +35,7 @@ class SubmenuResource extends Resource
 
     protected static SubNavigationPosition $subNavigationPosition = SubNavigationPosition::Top;
 
-    public static function canAccess(): bool
-    {
-        return authUser()?->hasRole('super-admin');
-    }
+    protected static bool $shouldRegisterNavigation = false;
 
     public static function form(Form $form): Form
     {
@@ -182,7 +179,7 @@ class SubmenuResource extends Resource
     public static function getRelations(): array
     {
         return [
-            //
+            SubmenuResource\RelationManagers\MultimenusRelationManager::class,
         ];
     }
 

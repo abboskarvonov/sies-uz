@@ -12,6 +12,7 @@
         "php": "^8.2",
         "alperenersoy/filament-export": "^3.0",
         "awcodes/filament-tiptap-editor": "^3.5",
+        "bezhansalleh/filament-shield": "^3.9",
         "filament/filament": "^3.3",
         "intervention/image": "^3.11",
         "laravel/framework": "^12.0",

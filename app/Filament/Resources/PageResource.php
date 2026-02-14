@@ -57,23 +57,20 @@ class PageResource extends Resource
     {
         $query = parent::getEloquentQuery();
 
+        /** @var \App\Models\User $user */
         $user = Auth::user();
 
-        // Adminlar hammasini ko‘ra oladi
-        if (authUser()?->hasAnyRole(['super-admin', 'admin'])) {
+        // Adminlar hammasini ko'ra oladi
+        if ($user->hasAnyRole(['super-admin', 'admin'])) {
             return $query;
         }
 
-        // StaffMember bo‘lmasa, hech narsa ko‘rmasin:
-        if (!$user->staffMember) {
+        // Faqat biriktirilgan sahifalarni ko'rsatish
+        $pageIds = $user->assignedPages()->pluck('pages.id')->toArray();
+
+        if (empty($pageIds)) {
             return $query->whereRaw('1=0');
         }
-
-        // Pivot orqali bog‘langan Page ID larini filterlaymiz
-        $pageIds = $user->staffMember
-            ->pages()
-            ->pluck('pages.id')
-            ->toArray();
 
         return $query->whereIn('id', $pageIds);
     }
@@ -364,6 +361,7 @@ class PageResource extends Resource
     public static function getRelations(): array
     {
         return [
+            PageResource\RelationManagers\FilesRelationManager::class,
             PageResource\RelationManagers\StaffCategoriesRelationManager::class,
             PageResource\RelationManagers\StaffMembersRelationManager::class,
             PageResource\RelationManagers\DepartmentHistoryRelationManager::class,

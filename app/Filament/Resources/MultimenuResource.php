@@ -38,10 +38,7 @@ class MultimenuResource extends Resource
 
     protected static ?int $navigationSort = 2;
 
-    public static function canAccess(): bool
-    {
-        return authUser()?->hasRole('super-admin');
-    }
+    protected static bool $shouldRegisterNavigation = false;
 
     public static function form(Form $form): Form
     {
