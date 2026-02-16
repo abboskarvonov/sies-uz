@@ -10,7 +10,7 @@
     'title' => __('messages.app_name'),
     'subtitle' => __('messages.hero_text'),
     // Fon rasm
-    'bg' => 'img/hero-bg.webp',
+    'bg' => 'img/hero-bg-1920.webp',
 ])
 
 <section class="relative">

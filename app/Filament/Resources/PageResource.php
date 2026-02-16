@@ -65,8 +65,21 @@ class PageResource extends Resource
             return $query;
         }
 
-        // Faqat biriktirilgan sahifalarni ko'rsatish
+        // view_all_pages permissioni bor userlar hammasini ko'radi
+        if ($user->can('view_all_pages')) {
+            return $query;
+        }
+
+        // Biriktirilgan sahifalar
         $pageIds = $user->assignedPages()->pluck('pages.id')->toArray();
+
+        // view_blog_pages permissioni bo'lsa blog sahifalarni ham ko'rsatish
+        if ($user->can('view_blog_pages')) {
+            return $query->where(function ($q) use ($pageIds) {
+                $q->whereIn('id', $pageIds)
+                  ->orWhere('page_type', 'blog');
+            });
+        }
 
         if (empty($pageIds)) {
             return $query->whereRaw('1=0');

@@ -1,11 +1,23 @@
 @props([
     'metaTitle' => config('app.name'),
-    'metaDescription' =>
-        'Samarqand Iqtisodiyot va Servis Instituti — iqtisodiyot, buxgalteriya, bank ishi, servis, menejment va zamonaviy fanlar bo‘yicha yetakchi oliy ta’lim muassasasi. Talabalarga sifatli ta’lim, ilmiy izlanishlar va amaliyot imkoniyatlarini taqdim etadi.',
-    'metaKeywords' => 'Samarqand, iqtisodiyot, universitet, o‘qish, institut',
+    'metaDescription' => "Samarqand Iqtisodiyot va Servis Instituti — iqtisodiyot, buxgalteriya, bank ishi, servis, menejment va zamonaviy fanlar bo'yicha yetakchi oliy ta'lim muassasasi. Talabalarga sifatli ta'lim, ilmiy izlanishlar va amaliyot imkoniyatlarini taqdim etadi.",
+    'metaKeywords' => "Samarqand, iqtisodiyot, universitet, o'qish, institut",
     'metaImage' => asset('img/og-image.webp'),
     'canonical' => url()->current(),
 ])
+
+@php
+    $ogLocaleMap = ['uz' => 'uz_UZ', 'ru' => 'ru_RU', 'en' => 'en_US'];
+    $currentLocale = app()->getLocale();
+    $ogLocale = $ogLocaleMap[$currentLocale] ?? 'uz_UZ';
+
+    // Ensure metaImage is absolute URL with https
+    $ogImage = $metaImage;
+    if ($ogImage && !str_starts_with($ogImage, 'http')) {
+        $ogImage = asset($ogImage);
+    }
+    $ogImage = str_replace('http://', 'https://', $ogImage);
+@endphp
 
 <!DOCTYPE html>
 <html lang="{{ str_replace('_', '-', app()->getLocale()) }}" class="dark">
@@ -20,41 +32,36 @@
     <meta name="keywords" content="{{ $metaKeywords }}">
     <link rel="canonical" href="{{ $canonical }}">
 
+    @php use Mcamara\LaravelLocalization\Facades\LaravelLocalization; @endphp
+    @foreach(['uz', 'ru', 'en'] as $hrefLocale)
+    <link rel="alternate" hreflang="{{ $hrefLocale }}" href="{{ LaravelLocalization::getLocalizedURL($hrefLocale, null, [], true) }}">
+    @endforeach
+    <link rel="alternate" hreflang="x-default" href="{{ LaravelLocalization::getLocalizedURL('uz', null, [], true) }}">
+
     <meta property="og:type" content="website">
+    <meta property="og:locale" content="{{ $ogLocale }}">
+    @foreach(array_diff_key($ogLocaleMap, [$currentLocale => '']) as $altLocale)
+    <meta property="og:locale:alternate" content="{{ $altLocale }}">
+    @endforeach
     <meta property="og:title" content="{{ $metaTitle }}">
     <meta property="og:description" content="{{ $metaDescription }}">
-    <meta property="og:image" content="{{ $metaImage }}">
+    <meta property="og:image" content="{{ $ogImage }}">
+    <meta property="og:image:width" content="1200">
+    <meta property="og:image:height" content="630">
     <meta property="og:url" content="{{ $canonical }}">
     <meta property="og:site_name" content="SamISI">
 
     <meta name="twitter:card" content="summary_large_image">
     <meta name="twitter:title" content="{{ $metaTitle }}">
     <meta name="twitter:description" content="{{ $metaDescription }}">
-    <meta name="twitter:image" content="{{ $metaImage }}">
+    <meta name="twitter:image" content="{{ $ogImage }}">
 
     <!-- Fonts - Optimized for performance -->
     <link rel="preconnect" href="https://fonts.bunny.net" crossorigin>
-    <link rel="dns-prefetch" href="https://cdnjs.cloudflare.com">
 
     <!-- Preload critical font -->
     <link rel="preload" href="https://fonts.bunny.net/css?family=figtree:400,500,600&display=swap" as="style" onload="this.onload=null;this.rel='stylesheet'">
     <noscript><link href="https://fonts.bunny.net/css?family=figtree:400,500,600&display=swap" rel="stylesheet"></noscript>
-
-    <!-- Font Awesome - Async load -->
-    <link rel="preload" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/7.0.1/css/all.min.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
-    <noscript><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/7.0.1/css/all.min.css" integrity="sha512-2SwdPD6INVrV/lHTZbO2nodKhrnDdJK9/kg2XD1r9uGqPo1cUbujc+IYdlYdEErWNu69gVcYgdxlmVmzTWnetw==" crossorigin="anonymous" referrerpolicy="no-referrer"></noscript>
-    <!-- Google tag (gtag.js) -->
-    <script async src="https://www.googletagmanager.com/gtag/js?id=UA-136882406-1"></script>
-    <script>
-        window.dataLayer = window.dataLayer || [];
-
-        function gtag() {
-            dataLayer.push(arguments);
-        }
-        gtag("js", new Date());
-
-        gtag("config", "UA-136882406-1");
-    </script>
 
     <!-- Preload LCP image for faster rendering -->
     <link rel="preload" as="image" href="{{ asset('img/hero-bg-1920.webp') }}"
@@ -65,8 +72,6 @@
     @vite(['resources/css/app.css', 'resources/js/app.js'])
 
     <!-- Styles -->
-    <link rel="preload" href="https://cdn.jsdelivr.net/npm/@fancyapps/ui/dist/fancybox.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
-    <noscript><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/ui/dist/fancybox.css"></noscript>
     @stack('styles')
     <style>
         .page-header {
@@ -100,7 +105,6 @@
             }
         }
     </style>
-    @livewireStyles
 </head>
 
 <body class="font-sans antialiased text-gray-900 dark:text-white">
@@ -114,7 +118,6 @@
         </main>
         @include('components.main.footer')
     </div>
-    <script src="https://cdn.jsdelivr.net/npm/@fancyapps/ui/dist/fancybox.umd.js"></script>
     <script>
         function copyToClipboard(text) {
             if (navigator.clipboard) {
@@ -140,7 +143,7 @@
             showToast("Link nusxalandi!");
         }
 
-        // Oddiy toast (alert o‘rniga chiroyliroq)
+        // Oddiy toast (alert o'rniga chiroyliroq)
         function showToast(message) {
             let toast = document.createElement('div');
             toast.textContent = message;
@@ -192,7 +195,14 @@
     @stack('modals')
     @stack('scripts')
 
-    @livewireScripts
+    <!-- Google Analytics - loaded after page content -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=UA-136882406-1"></script>
+    <script>
+        window.dataLayer = window.dataLayer || [];
+        function gtag() { dataLayer.push(arguments); }
+        gtag("js", new Date());
+        gtag("config", "UA-136882406-1");
+    </script>
 </body>
 
 </html>

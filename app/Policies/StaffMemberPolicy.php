@@ -23,7 +23,11 @@ class StaffMemberPolicy
      */
     public function view(User $user, StaffMember $staffMember): bool
     {
-        return $user->can('view_staff::member');
+        if ($user->can('view_staff::member')) {
+            return true;
+        }
+
+        return $this->hasAccessViaPage($user, $staffMember);
     }
 
     /**
@@ -31,7 +35,18 @@ class StaffMemberPolicy
      */
     public function create(User $user): bool
     {
-        return $user->can('create_staff::member');
+        if ($user->can('create_staff::member')) {
+            return true;
+        }
+
+        if ($user->can('view_all_pages')) {
+            return true;
+        }
+
+        // Biriktirilgan sahifasi bor userlar staff qo'sha oladi
+        return $user->assignedPages()
+            ->whereIn('pages.page_type', ['department', 'faculty', 'center', 'section'])
+            ->exists();
     }
 
     /**
@@ -39,7 +54,11 @@ class StaffMemberPolicy
      */
     public function update(User $user, StaffMember $staffMember): bool
     {
-        return $user->can('update_staff::member');
+        if ($user->can('update_staff::member')) {
+            return true;
+        }
+
+        return $this->hasAccessViaPage($user, $staffMember);
     }
 
     /**
@@ -47,7 +66,11 @@ class StaffMemberPolicy
      */
     public function delete(User $user, StaffMember $staffMember): bool
     {
-        return $user->can('delete_staff::member');
+        if ($user->can('delete_staff::member')) {
+            return true;
+        }
+
+        return $this->hasAccessViaPage($user, $staffMember);
     }
 
     /**
@@ -55,7 +78,17 @@ class StaffMemberPolicy
      */
     public function deleteAny(User $user): bool
     {
-        return $user->can('delete_any_staff::member');
+        if ($user->can('delete_any_staff::member')) {
+            return true;
+        }
+
+        if ($user->can('view_all_pages')) {
+            return true;
+        }
+
+        return $user->assignedPages()
+            ->whereIn('pages.page_type', ['department', 'faculty', 'center', 'section'])
+            ->exists();
     }
 
     /**
@@ -104,5 +137,21 @@ class StaffMemberPolicy
     public function reorder(User $user): bool
     {
         return $user->can('reorder_staff::member');
+    }
+
+    /**
+     * User biriktirilgan pagega tegishli staffni boshqara oladimi
+     */
+    private function hasAccessViaPage(User $user, StaffMember $staffMember): bool
+    {
+        if ($user->can('view_all_pages')) {
+            return true;
+        }
+
+        if (!$staffMember->page_id) {
+            return false;
+        }
+
+        return $user->assignedPages()->where('pages.id', $staffMember->page_id)->exists();
     }
 }

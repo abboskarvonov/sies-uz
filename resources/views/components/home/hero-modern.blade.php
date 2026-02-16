@@ -10,7 +10,7 @@
     'title' => __('messages.app_name'),
     'subtitle' => __('messages.hero_text'),
     // Fon rasm
-    'bg' => 'img/hero-bg.webp',
+    'bg' => 'img/hero-bg-1920.webp',
 ])
 
 <section class="relative overflow-hidden">
@@ -25,16 +25,16 @@
         {{-- Modern gradient overlay --}}
         <div class="absolute inset-0 bg-gradient-to-br from-blue-900/80 via-blue-800/60 to-purple-900/70"></div>
 
-        {{-- Animated shapes --}}
-        <div class="absolute inset-0 overflow-hidden opacity-20">
+        {{-- Animated shapes (reduced opacity + blur for GPU performance) --}}
+        <div class="absolute inset-0 overflow-hidden opacity-10">
             <div
-                class="absolute top-20 left-10 w-72 h-72 bg-blue-500 rounded-full mix-blend-multiply filter blur-3xl animate-blob">
+                class="absolute top-20 left-10 w-72 h-72 bg-blue-500 rounded-full mix-blend-multiply filter blur-xl animate-blob">
             </div>
             <div
-                class="absolute top-40 right-10 w-72 h-72 bg-purple-500 rounded-full mix-blend-multiply filter blur-3xl animate-blob animation-delay-2000">
+                class="absolute top-40 right-10 w-72 h-72 bg-purple-500 rounded-full mix-blend-multiply filter blur-xl animate-blob animation-delay-2000">
             </div>
             <div
-                class="absolute -bottom-8 left-20 w-72 h-72 bg-pink-500 rounded-full mix-blend-multiply filter blur-3xl animate-blob animation-delay-4000">
+                class="absolute -bottom-8 left-20 w-72 h-72 bg-pink-500 rounded-full mix-blend-multiply filter blur-xl animate-blob animation-delay-4000">
             </div>
         </div>
 
@@ -189,104 +189,23 @@
     </div>
 </section>
 
-{{-- Custom styles for animations --}}
-<style>
-    @keyframes blob {
-
-        0%,
-        100% {
-            transform: translate(0, 0) scale(1);
-        }
-
-        33% {
-            transform: translate(30px, -50px) scale(1.1);
-        }
-
-        66% {
-            transform: translate(-20px, 20px) scale(0.9);
-        }
-    }
-
-    .animate-blob {
-        animation: blob 7s infinite;
-    }
-
-    .animation-delay-2000 {
-        animation-delay: 2s;
-    }
-
-    .animation-delay-4000 {
-        animation-delay: 4s;
-    }
-
-    @keyframes fade-in {
-        from {
-            opacity: 0;
-        }
-
-        to {
-            opacity: 1;
-        }
-    }
-
-    @keyframes fade-in-up {
-        from {
-            opacity: 0;
-            transform: translateY(20px);
-        }
-
-        to {
-            opacity: 1;
-            transform: translateY(0);
-        }
-    }
-
-    .animate-fade-in {
-        animation: fade-in 0.6s ease-out;
-    }
-
-    .animate-fade-in-up {
-        animation: fade-in-up 0.8s ease-out;
-    }
-
-    .animation-delay-200 {
-        animation-delay: 0.2s;
-        opacity: 0;
-        animation-fill-mode: forwards;
-    }
-
-    .animation-delay-400 {
-        animation-delay: 0.4s;
-        opacity: 0;
-        animation-fill-mode: forwards;
-    }
-
-    .animation-delay-600 {
-        animation-delay: 0.6s;
-        opacity: 0;
-        animation-fill-mode: forwards;
-    }
-
-    /* Parallax effect */
-    @media (prefers-reduced-motion: no-preference) {
-        .hero-parallax {
-            transition: transform 0.5s cubic-bezier(0.22, 1, 0.36, 1);
-        }
-    }
-</style>
-
-{{-- Parallax JavaScript --}}
+{{-- Parallax JavaScript (wrapped in requestAnimationFrame) --}}
 @push('scripts')
     <script>
-        // Parallax scroll effect
         if (window.matchMedia('(prefers-reduced-motion: no-preference)').matches) {
             const parallaxElement = document.querySelector('.hero-parallax');
             if (parallaxElement) {
+                let ticking = false;
                 window.addEventListener('scroll', () => {
-                    const scrolled = window.pageYOffset;
-                    const rate = scrolled * 0.3;
-                    parallaxElement.style.transform = `translateY(${rate}px) scale(1.1)`;
-                });
+                    if (!ticking) {
+                        requestAnimationFrame(() => {
+                            const rate = window.pageYOffset * 0.3;
+                            parallaxElement.style.transform = `translateY(${rate}px) scale(1.1)`;
+                            ticking = false;
+                        });
+                        ticking = true;
+                    }
+                }, { passive: true });
             }
         }
     </script>

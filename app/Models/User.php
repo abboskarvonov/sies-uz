@@ -30,7 +30,11 @@ class User extends Authenticatable implements FilamentUser, MustVerifyEmail
 
     public function canAccessPanel(Panel $panel): bool
     {
-        return ! is_null($this->email_verified_at) && $this->hasAnyRole(['super-admin', 'admin', 'user']);
+        if ($this->hasRole('super-admin')) {
+            return true;
+        }
+
+        return ! is_null($this->email_verified_at) && $this->can('access_filament_panel');
     }
 
     /**
@@ -92,6 +96,16 @@ class User extends Authenticatable implements FilamentUser, MustVerifyEmail
     public function hasAccessToPage(Page $page): bool
     {
         if ($this->hasAnyRole(['super-admin', 'admin'])) {
+            return true;
+        }
+
+        // Barcha sahifalarni ko'rish permissioni
+        if ($this->can('view_all_pages')) {
+            return true;
+        }
+
+        // Blog sahifalarni ko'rish permissioni
+        if ($page->page_type === 'blog' && $this->can('view_blog_pages')) {
             return true;
         }
 
