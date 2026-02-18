@@ -5,6 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Storage;
 use Spatie\Activitylog\LogOptions;
 use Spatie\Activitylog\Traits\LogsActivity;
@@ -55,6 +56,16 @@ class Menu extends Model implements Sortable
                 Storage::disk('public')->delete($menu->image);
             }
         });
+
+        static::saved(fn () => static::clearApiMenuCache());
+        static::deleted(fn () => static::clearApiMenuCache());
+    }
+
+    public static function clearApiMenuCache(): void
+    {
+        foreach (['uz', 'ru', 'en'] as $locale) {
+            Cache::forget("api:menu_tree_{$locale}");
+        }
     }
 
     public function getSlug($locale = null)

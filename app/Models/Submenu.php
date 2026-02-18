@@ -5,6 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Storage;
 use Spatie\Activitylog\LogOptions;
 use Spatie\Activitylog\Traits\LogsActivity;
@@ -56,6 +57,9 @@ class Submenu extends Model implements Sortable
                 Storage::disk('public')->delete($submenu->image);
             }
         });
+
+        static::saved(fn () => Menu::clearApiMenuCache());
+        static::deleted(fn () => Menu::clearApiMenuCache());
     }
 
     public function getSlug($locale = null)

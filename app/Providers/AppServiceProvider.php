@@ -4,6 +4,9 @@ namespace App\Providers;
 
 use App\Models\Menu;
 use App\Models\Symbol;
+use Illuminate\Cache\RateLimiting\Limit;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\URL;
 use Illuminate\Support\Facades\View;
@@ -74,5 +77,18 @@ class AppServiceProvider extends ServiceProvider
         if (app()->isProduction()) {
             URL::forceScheme('https');
         }
+
+        // API Rate Limiters
+        RateLimiter::for('api-public', function (Request $request) {
+            return Limit::perMinute(60)->by($request->ip());
+        });
+
+        RateLimiter::for('api-auth', function (Request $request) {
+            return Limit::perMinute(120)->by($request->user()?->id ?: $request->ip());
+        });
+
+        RateLimiter::for('api-login', function (Request $request) {
+            return Limit::perMinute(5)->by($request->input('email', $request->ip()));
+        });
     }
 }
