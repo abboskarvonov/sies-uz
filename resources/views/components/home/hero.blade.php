@@ -42,7 +42,7 @@
                 <div
                     class="rounded-xl bg-white dark:bg-gray-800 p-6 shadow-sm flex flex-col items-start group transition hover:-translate-y-1 hover:shadow-md">
                     <div class="flex items-center gap-3">
-                        <img src="{{ asset('img/icons/graduating-student.png') }}" class="w-6 h-6 dark:invert"
+                        <img src="{{ asset('img/icons/graduating-student.webp') }}" class="w-6 h-6 dark:invert"
                             alt="">
                         <p class="text-sm uppercase tracking-wide text-gray-600 dark:text-gray-300">
                             {{ __('messages.students') }}</p>
@@ -70,7 +70,7 @@
                 <div
                     class="rounded-xl bg-white dark:bg-gray-800 p-6 shadow-sm flex flex-col items-start group transition hover:-translate-y-1 hover:shadow-md">
                     <div class="flex items-center gap-3">
-                        <img src="{{ asset('img/icons/university.png') }}" class="w-6 h-6 dark:invert" alt="">
+                        <img src="{{ asset('img/icons/university.webp') }}" class="w-6 h-6 dark:invert" alt="">
                         <p class="text-sm uppercase tracking-wide text-gray-600 dark:text-gray-300">
                             {{ __('messages.faculty') }}</p>
                     </div>

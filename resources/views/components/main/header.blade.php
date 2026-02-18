@@ -54,7 +54,7 @@
                     </a>
                 </x-button>
                 <x-button>
-                    <a href="http://arm.sies.uz/" class="flex items-center gap-1 text-xs font-bold uppercase"
+                    <a href="https://arm.sies.uz/" class="flex items-center gap-1 text-xs font-bold uppercase"
                         target="_blank">
                         <img src="/img/icons/004-book.webp" alt="Book icon" width="16px" height="16px"
                             class="w-4 h-4 dark:invert" />
@@ -62,7 +62,7 @@
                     </a>
                 </x-button>
                 <x-button>
-                    <a href="http://sdg.sies.uz/" class="flex items-center gap-1 text-xs font-bold uppercase"
+                    <a href="https://sdg.sies.uz/" class="flex items-center gap-1 text-xs font-bold uppercase"
                         target="_blank">
                         <img src="/img/icons/sdg.webp" alt="SDG icon" width="16px" height="16px"
                             class="w-4 h-4 dark:invert" />

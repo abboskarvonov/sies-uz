@@ -153,6 +153,16 @@ img[loading="lazy"]:not([src=""]) {
     animation-fill-mode: forwards;
 }
 
+/* Disable heavy animations on mobile */
+@media (max-width: 768px) {
+    .animate-blob {
+        animation: none;
+    }
+    .animate-bounce {
+        animation: none;
+    }
+}
+
 /* Parallax effect */
 @media (prefers-reduced-motion: no-preference) {
     .hero-parallax {

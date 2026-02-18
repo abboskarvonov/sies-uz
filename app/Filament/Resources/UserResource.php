@@ -6,6 +6,8 @@ use App\Filament\Resources\UserResource\Pages;
 use App\Models\User;
 use Filament\Forms\Components\Section;
 use Filament\Forms\Components\Select;
+use Filament\Forms\Components\TextInput;
+use Filament\Forms\Components\Toggle;
 use Filament\Forms\Form;
 use Filament\Infolists\Components;
 use Filament\Infolists\Infolist;
@@ -14,6 +16,7 @@ use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
+use Illuminate\Support\Facades\Hash;
 
 class UserResource extends Resource
 {
@@ -35,6 +38,38 @@ class UserResource extends Resource
     {
         return $form
             ->schema([
+                Section::make('Shaxsiy ma\'lumotlar')
+                    ->schema([
+                        TextInput::make('name')
+                            ->label('Ism')
+                            ->required()
+                            ->maxLength(255),
+
+                        TextInput::make('email')
+                            ->label('Email')
+                            ->email()
+                            ->required()
+                            ->maxLength(255)
+                            ->unique(ignoreRecord: true),
+
+                        TextInput::make('password')
+                            ->label('Parol')
+                            ->password()
+                            ->revealable()
+                            ->dehydrateStateUsing(fn ($state) => filled($state) ? Hash::make($state) : null)
+                            ->dehydrated(fn ($state) => filled($state))
+                            ->required(fn (string $operation): bool => $operation === 'create')
+                            ->minLength(8)
+                            ->helperText(fn (string $operation) => $operation === 'edit' ? 'O\'zgartirmasangiz bo\'sh qoldiring' : null),
+
+                        Toggle::make('email_verified')
+                            ->label('Email tasdiqlangan')
+                            ->dehydrated(false)
+                            ->afterStateHydrated(fn ($component, $record) => $component->state($record?->email_verified_at !== null))
+                            ->visible(fn (): bool => authUser()?->hasRole('super-admin')),
+                    ])
+                    ->columns(2),
+
                 Section::make('Rollar va huquqlar')
                     ->schema([
                         Select::make('roles')
@@ -80,6 +115,14 @@ class UserResource extends Resource
                     ->label('Sahifalar')
                     ->badge()
                     ->color('info'),
+                Tables\Columns\IconColumn::make('email_verified_at')
+                    ->label('Tasdiqlangan')
+                    ->boolean(),
+                TextColumn::make('created_at')
+                    ->label('Yaratilgan')
+                    ->dateTime('d.m.Y')
+                    ->sortable()
+                    ->toggleable(isToggledHiddenByDefault: true),
                 TextColumn::make('last_seen_at')
                     ->label('Status')
                     ->formatStateUsing(function ($state) {
@@ -116,10 +159,20 @@ class UserResource extends Resource
                     ->schema([
                         Components\TextEntry::make('name')->label('Ism'),
                         Components\TextEntry::make('email')->label('Email'),
+                        Components\IconEntry::make('email_verified_at')
+                            ->label('Email tasdiqlangan')
+                            ->boolean(),
+                        Components\TextEntry::make('created_at')
+                            ->label('Ro\'yxatdan o\'tgan')
+                            ->dateTime('d.m.Y H:i'),
                         Components\TextEntry::make('roles.name')
                             ->label('Rollar')
                             ->badge()
                             ->color('primary'),
+                        Components\TextEntry::make('permissions.name')
+                            ->label('Maxsus huquqlar')
+                            ->badge()
+                            ->color('warning'),
                         Components\TextEntry::make('last_seen_at')
                             ->label('Oxirgi faollik')
                             ->dateTime('d.m.Y H:i'),

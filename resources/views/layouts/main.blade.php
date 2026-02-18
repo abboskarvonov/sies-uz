@@ -195,6 +195,28 @@
     @stack('modals')
     @stack('scripts')
 
+    <!-- Lazy-load Google Maps -->
+    <script>
+    (function(){
+        var mc = document.getElementById('map-container');
+        if (!mc) return;
+        var ob = new IntersectionObserver(function(e) {
+            if (e[0].isIntersecting) {
+                var f = document.createElement('iframe');
+                f.src = mc.dataset.mapSrc;
+                f.width = '100%';
+                f.height = '100%';
+                f.title = 'SamISI Location';
+                f.allowFullscreen = true;
+                mc.innerHTML = '';
+                mc.appendChild(f);
+                ob.disconnect();
+            }
+        }, {rootMargin: '200px'});
+        ob.observe(mc);
+    })();
+    </script>
+
     <!-- Google Analytics - loaded after page content -->
     <script async src="https://www.googletagmanager.com/gtag/js?id=UA-136882406-1"></script>
     <script>

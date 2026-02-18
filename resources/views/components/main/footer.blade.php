@@ -1,10 +1,11 @@
 <footer class="w-full bg-white dark:bg-gray-800 border-t-8 border-gray-900 dark:border-gray-700">
 
-    {{-- Katta Xarita Qismi (Eng Yuqorida) --}}
-    <div class="w-full h-[450px] overflow-hidden">
-        <iframe
-            src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3602.795078633065!2d66.95965593203682!3d39.652679673533754!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x3f4d18d09d2a9295%3A0x5642746f9fcbed8!2sSamarkand%20State%20Institute%20of%20Economics%20and%20Service!5e0!3m2!1sen!2s!4v1710216853970!5m2!1sen!2s"
-            width="100%" height="100%" title="SamISI Location" loading="lazy" allowfullscreen></iframe>
+    {{-- Katta Xarita Qismi (Eng Yuqorida) - IntersectionObserver bilan lazy-load --}}
+    <div class="w-full h-[450px] overflow-hidden bg-gray-200 dark:bg-gray-700" id="map-container"
+         data-map-src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3602.795078633065!2d66.95965593203682!3d39.652679673533754!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x3f4d18d09d2a9295%3A0x5642746f9fcbed8!2sSamarkand%20State%20Institute%20of%20Economics%20and%20Service!5e0!3m2!1sen!2s!4v1710216853970!5m2!1sen!2s">
+        <div class="flex items-center justify-center h-full text-gray-400">
+            <svg class="w-12 h-12 animate-pulse" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
+        </div>
     </div>
 
     <div class="w-full bg-gray-200 dark:bg-gray-950">

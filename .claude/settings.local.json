@@ -12,7 +12,14 @@
       "Bash(done)",
       "Bash(xargs:*)",
       "Bash(composer require:*)",
-      "mcp__ide__getDiagnostics"
+      "mcp__ide__getDiagnostics",
+      "Bash(ls:*)",
+      "Bash(cwebp:*)",
+      "Bash(npm install:*)",
+      "Bash(npm run build:*)",
+      "Bash(npm ls:*)",
+      "Bash(git add:*)",
+      "Bash(git commit:*)"
     ]
   }
 }

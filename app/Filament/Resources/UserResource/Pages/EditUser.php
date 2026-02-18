@@ -17,6 +17,17 @@ class EditUser extends EditRecord
         ];
     }
 
+    protected function afterSave(): void
+    {
+        $emailVerified = $this->data['email_verified'] ?? null;
+
+        if ($emailVerified && !$this->record->email_verified_at) {
+            $this->record->update(['email_verified_at' => now()]);
+        } elseif (!$emailVerified && $this->record->email_verified_at) {
+            $this->record->update(['email_verified_at' => null]);
+        }
+    }
+
     protected function getRedirectUrl(): string
     {
         return $this->getResource()::getUrl('index');

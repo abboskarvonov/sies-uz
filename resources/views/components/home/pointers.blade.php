@@ -22,7 +22,7 @@
                     <span class="countup" data-target="{{ (int) ($stat['campus_area'] ?? 0) }}">0</span>
                     <span class="text-2xl">m<sup>2</sup></span>
                 </p>
-                <img src="/img/icons/square.png" alt="SamISI" class="absolute right-0 w-2/4 opacity-20 dark:invert">
+                <img src="/img/icons/square.webp" alt="SamISI" class="absolute right-0 w-2/4 opacity-20 dark:invert">
             </div>
 
             {{-- Yashil maydon --}}
@@ -35,7 +35,7 @@
                     <span class="countup" data-target="{{ (int) ($stat['green_area'] ?? 0) }}">0</span>
                     <span class="text-2xl">m<sup>2</sup></span>
                 </p>
-                <img src="/img/icons/tree.png" alt="SamISI" class="absolute right-0 w-2/4 opacity-20 dark:invert">
+                <img src="/img/icons/tree.webp" alt="SamISI" class="absolute right-0 w-2/4 opacity-20 dark:invert">
             </div>
 
             {{-- Fakultetlar, bo‘limlar va markazlar --}}
@@ -60,7 +60,7 @@
                                 data-target="{{ (int) ($stat['centers'] ?? 0) }}">0</span></p>
                     </div>
                 </div>
-                <img src="/img/icons/university.png" alt="SamISI"
+                <img src="/img/icons/university.webp" alt="SamISI"
                     class="absolute right-6 top-1 w-16 opacity-70 dark:invert lg:w-20">
             </div>
 
@@ -94,7 +94,7 @@
                                 data-target="{{ (int) ($stat['technical'] ?? 0) }}">0</span></p>
                     </div>
                 </div>
-                <img src="/img/icons/recruiting.png" alt="SamISI"
+                <img src="/img/icons/recruiting.webp" alt="SamISI"
                     class="absolute right-6 top-1 w-16 opacity-70 dark:invert lg:w-20">
             </div>
 
@@ -120,7 +120,7 @@
                                 data-target="{{ (int) ($stat['female_students'] ?? 0) }}">0</span></p>
                     </div>
                 </div>
-                <img src="/img/icons/graduating-student.png" alt="SamISI"
+                <img src="/img/icons/graduating-student.webp" alt="SamISI"
                     class="absolute right-6 top-1 w-16 opacity-70 dark:invert lg:w-20">
             </div>
 
@@ -190,7 +190,7 @@
                                 data-target="{{ (int) ($stat['monograph'] ?? 0) }}">0</span></p>
                     </div>
                 </div>
-                <img src="/img/icons/library.png" alt="SamISI"
+                <img src="/img/icons/library.webp" alt="SamISI"
                     class="absolute right-6 top-1 w-16 opacity-70 dark:invert lg:w-20">
             </div>
 

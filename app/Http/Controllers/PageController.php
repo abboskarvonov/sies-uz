@@ -106,12 +106,23 @@ class PageController extends Controller
         $submenuModel = $this->findModelBySlug(Submenu::class, $slugCol, $submenu, ['menu_id' => $menuModel->id]);
         $multimenuModel = $this->findModelBySlug(Multimenu::class, $slugCol, $multimenu, ['submenu_id' => $submenuModel->id]);
 
+        // Multimenu bo'yicha sahifalarni olish (asosiy multimenu_id YOKI pivot orqali biriktirilgan)
+        $multimenuId = $multimenuModel->id;
+        $pageScope = fn ($query) => $query
+            ->where(function ($q) use ($menuModel, $submenuModel, $multimenuId) {
+                $q->where([
+                    'menu_id' => $menuModel->id,
+                    'submenu_id' => $submenuModel->id,
+                    'multimenu_id' => $multimenuId,
+                ]);
+            })
+            ->orWhereHas('multimenus', fn ($q) => $q->where('multimenus.id', $multimenuId));
+
         // Minimal select bilan birinchi page'ni olish
-        $firstPage = Page::where([
-            'menu_id' => $menuModel->id,
-            'submenu_id' => $submenuModel->id,
-            'multimenu_id' => $multimenuModel->id,
-        ])->select(['id', 'page_type', 'title_uz', 'title_ru', 'title_en', 'content_uz', 'content_ru', 'content_en', 'date', 'image', 'views', 'images'])
+        $firstPage = Page::where(function ($query) use ($pageScope) {
+                $pageScope($query);
+            })
+            ->select(['id', 'page_type', 'title_uz', 'title_ru', 'title_en', 'content_uz', 'content_ru', 'content_en', 'date', 'image', 'views', 'images'])
             ->first();
 
         if (!$firstPage) {
@@ -122,12 +133,10 @@ class PageController extends Controller
 
         // List view uchun (blog, faculty, department)
         if (in_array($pageType, ['blog', 'faculty', 'department'])) {
-            $pages = Page::where([
-                'menu_id' => $menuModel->id,
-                'submenu_id' => $submenuModel->id,
-                'multimenu_id' => $multimenuModel->id,
-            ])
-                ->select(['id', 'title_uz', 'title_ru', 'title_en', 'slug_uz', 'slug_ru', 'slug_en', 'content_uz', 'content_ru', 'content_en', 'image', 'date', 'views'])
+            $pages = Page::where(function ($query) use ($pageScope) {
+                    $pageScope($query);
+                })
+                ->select(['id', 'title_uz', 'title_ru', 'title_en', 'slug_uz', 'slug_ru', 'slug_en', 'content_uz', 'content_ru', 'content_en', 'image', 'date', 'views', 'menu_id', 'submenu_id', 'multimenu_id'])
                 ->orderByDesc('date')
                 ->orderByDesc('id')
                 ->paginate(config('site.pagination.per_page', 9));
@@ -145,11 +154,11 @@ class PageController extends Controller
         }
 
         // Single page view uchun
-        $page = Page::where([
-            'menu_id' => $menuModel->id,
-            'submenu_id' => $submenuModel->id,
-            'multimenu_id' => $multimenuModel->id,
-        ])->with(['files'])->first();
+        $page = Page::where(function ($query) use ($pageScope) {
+                $pageScope($query);
+            })
+            ->with(['files'])
+            ->first();
 
         // Lazy load - faqat kerak bo'lsa
         if (in_array($pageType, ['center', 'section'])) {
@@ -176,8 +185,8 @@ class PageController extends Controller
             'metaTitle' => $page->{"title_{$locale}"},
             'metaDescription' => Str::limit(strip_tags($page->{"content_{$locale}"}), config('site.meta.description_limit', 150)),
             'metaImage' => $page->image
-                ? url('storage/' . $page->image)
-                : url(config('site.meta.default_image', 'img/og-image.webp')),
+                ? asset('storage/' . $page->image)
+                : asset(config('site.meta.default_image', 'img/og-image.webp')),
         ]);
     }
 
@@ -193,11 +202,16 @@ class PageController extends Controller
         $submenuModel = $this->findModelBySlug(Submenu::class, $slugCol, $submenu, ['menu_id' => $menuModel->id]);
         $multimenuModel = $this->findModelBySlug(Multimenu::class, $slugCol, $multimenu, ['submenu_id' => $submenuModel->id]);
 
-        $pageModel = Page::where([
-            'menu_id' => $menuModel->id,
-            'submenu_id' => $submenuModel->id,
-            'multimenu_id' => $multimenuModel->id,
-        ])
+        $multimenuId = $multimenuModel->id;
+
+        $pageModel = Page::where(function ($q) use ($menuModel, $submenuModel, $multimenuId) {
+                $q->where([
+                    'menu_id' => $menuModel->id,
+                    'submenu_id' => $submenuModel->id,
+                    'multimenu_id' => $multimenuId,
+                ])
+                ->orWhereHas('multimenus', fn ($mq) => $mq->where('multimenus.id', $multimenuId));
+            })
             ->where(function ($q) use ($slugCol, $page) {
                 // Avval slug bo'yicha qidirish
                 $q->where($slugCol, $page);
