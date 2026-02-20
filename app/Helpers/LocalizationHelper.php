@@ -480,7 +480,14 @@ if (! function_exists('lc_name')) {
 if (! function_exists('lc_content')) {
     function lc_content(object $model, ?string $locale = null): ?string
     {
-        return localized_field($model, 'content', $locale);
+        $content = localized_field($model, 'content', $locale);
+
+        // Mixed content oldini olish: http:// → https://
+        if ($content && app()->isProduction()) {
+            $content = str_replace('http://sies.uz', 'https://sies.uz', $content);
+        }
+
+        return $content;
     }
 }
 

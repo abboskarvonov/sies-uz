@@ -6,7 +6,6 @@ use App\Jobs\IncrementPageViews;
 use App\Models\Menu;
 use App\Models\Multimenu;
 use App\Models\Page;
-use App\Models\SiteStat;
 use App\Models\StaffMember;
 use App\Models\Submenu;
 use App\Models\Tag;
@@ -113,7 +112,7 @@ class PageController extends Controller
 
         // Multimenu bo'yicha sahifalarni olish (asosiy multimenu_id YOKI pivot orqali biriktirilgan)
         $multimenuId = $multimenuModel->id;
-        $pageScope = fn ($query) => $query
+        $pageScope = fn($query) => $query
             ->where(function ($q) use ($menuModel, $submenuModel, $multimenuId) {
                 $q->where([
                     'menu_id' => $menuModel->id,
@@ -121,12 +120,12 @@ class PageController extends Controller
                     'multimenu_id' => $multimenuId,
                 ]);
             })
-            ->orWhereHas('multimenus', fn ($q) => $q->where('multimenus.id', $multimenuId));
+            ->orWhereHas('multimenus', fn($q) => $q->where('multimenus.id', $multimenuId));
 
         // Minimal select bilan birinchi page'ni olish
         $firstPage = Page::where(function ($query) use ($pageScope) {
-                $pageScope($query);
-            })
+            $pageScope($query);
+        })
             ->select(['id', 'page_type', 'title_uz', 'title_ru', 'title_en', 'content_uz', 'content_ru', 'content_en', 'date', 'image', 'views', 'images'])
             ->first();
 
@@ -139,8 +138,8 @@ class PageController extends Controller
         // List view uchun (blog, faculty, department)
         if (in_array($pageType, ['blog', 'faculty', 'department'])) {
             $pages = Page::where(function ($query) use ($pageScope) {
-                    $pageScope($query);
-                })
+                $pageScope($query);
+            })
                 ->select(['id', 'title_uz', 'title_ru', 'title_en', 'slug_uz', 'slug_ru', 'slug_en', 'content_uz', 'content_ru', 'content_en', 'image', 'date', 'views', 'menu_id', 'submenu_id', 'multimenu_id'])
                 ->orderByDesc('date')
                 ->orderByDesc('id')
@@ -160,8 +159,8 @@ class PageController extends Controller
 
         // Single page view uchun
         $page = Page::where(function ($query) use ($pageScope) {
-                $pageScope($query);
-            })
+            $pageScope($query);
+        })
             ->with(['files'])
             ->first();
 
@@ -210,13 +209,13 @@ class PageController extends Controller
         $multimenuId = $multimenuModel->id;
 
         $pageModel = Page::where(function ($q) use ($menuModel, $submenuModel, $multimenuId) {
-                $q->where([
-                    'menu_id' => $menuModel->id,
-                    'submenu_id' => $submenuModel->id,
-                    'multimenu_id' => $multimenuId,
-                ])
-                ->orWhereHas('multimenus', fn ($mq) => $mq->where('multimenus.id', $multimenuId));
-            })
+            $q->where([
+                'menu_id' => $menuModel->id,
+                'submenu_id' => $submenuModel->id,
+                'multimenu_id' => $multimenuId,
+            ])
+                ->orWhereHas('multimenus', fn($mq) => $mq->where('multimenus.id', $multimenuId));
+        })
             ->where(function ($q) use ($slugCol, $page) {
                 // Avval slug bo'yicha qidirish
                 $q->where($slugCol, $page);
