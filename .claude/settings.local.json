@@ -19,7 +19,11 @@
       "Bash(npm run build:*)",
       "Bash(npm ls:*)",
       "Bash(git add:*)",
-      "Bash(git commit:*)"
+      "Bash(git commit:*)",
+      "Bash(wc:*)",
+      "Bash(composer remove:*)",
+      "Bash(php /Users/abbos/Desktop/Laravel/sies/artisan vendor:publish:*)",
+      "Bash(php:*)"
     ]
   }
 }

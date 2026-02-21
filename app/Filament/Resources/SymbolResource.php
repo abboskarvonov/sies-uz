@@ -12,6 +12,7 @@ use Filament\Forms\Form;
 use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Table;
+use AmidEsfahani\FilamentTinyEditor\TinyEditor;
 
 class SymbolResource extends Resource
 {
@@ -43,21 +44,21 @@ class SymbolResource extends Resource
                                         Forms\Components\TextInput::make('slug_uz')
                                             ->required()
                                             ->unique(ignorable: fn($record) => $record),
-                                        Forms\Components\RichEditor::make('content_uz'),
+                                        TinyEditor::make('content_uz')->showMenuBar()->columnSpanFull(),
                                     ]),
                                 Tabs\Tab::make('Русский')
                                     ->schema([
                                         Forms\Components\TextInput::make('title_ru'),
                                         Forms\Components\TextInput::make('slug_ru')
                                             ->unique(ignorable: fn($record) => $record),
-                                        Forms\Components\RichEditor::make('content_ru'),
+                                        TinyEditor::make('content_ru')->showMenuBar()->columnSpanFull(),
                                     ]),
                                 Tabs\Tab::make('English')
                                     ->schema([
                                         Forms\Components\TextInput::make('title_en'),
                                         Forms\Components\TextInput::make('slug_en')
                                             ->unique(ignorable: fn($record) => $record),
-                                        Forms\Components\RichEditor::make('content_en'),
+                                        TinyEditor::make('content_en')->showMenuBar()->columnSpanFull(),
                                     ]),
 
 

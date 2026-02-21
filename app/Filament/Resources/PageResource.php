@@ -28,11 +28,10 @@ use Filament\Tables\Columns\ImageColumn;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Table;
-use FilamentTiptapEditor\TiptapEditor;
+use AmidEsfahani\FilamentTinyEditor\TinyEditor;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
-use Mohamedsabil83\FilamentFormsTinyeditor\Components\TinyEditor;
 
 class PageResource extends Resource
 {
@@ -98,15 +97,15 @@ class PageResource extends Resource
                             ->tabs([
                                 Tabs\Tab::make('Uz')->schema([
                                     TextInput::make('title_uz')->required(),
-                                    TinyEditor::make('content_uz'),
+                                    TinyEditor::make('content_uz')->showMenuBar()->columnSpanFull(),
                                 ]),
                                 Tabs\Tab::make('Ru')->schema([
                                     TextInput::make('title_ru')->nullable(),
-                                    TinyEditor::make('content_ru'),
+                                    TinyEditor::make('content_ru')->showMenuBar()->columnSpanFull(),
                                 ]),
                                 Tabs\Tab::make('En')->schema([
                                     TextInput::make('title_en')->nullable(),
-                                    TinyEditor::make('content_en'),
+                                    TinyEditor::make('content_en')->showMenuBar()->columnSpanFull(),
                                 ]),
                             ])
                             ->columnSpanFull(),

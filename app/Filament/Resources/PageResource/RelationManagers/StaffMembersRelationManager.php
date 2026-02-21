@@ -2,9 +2,9 @@
 
 namespace App\Filament\Resources\PageResource\RelationManagers;
 
+use AmidEsfahani\FilamentTinyEditor\TinyEditor;
 use App\Models\StaffCategory;
 use Filament\Forms\Components\FileUpload;
-use Filament\Forms\Components\RichEditor;
 use Filament\Forms\Components\Section;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Tabs;
@@ -39,17 +39,17 @@ class StaffMembersRelationManager extends RelationManager
                                 Tabs\Tab::make('Uz')->schema([
                                     TextInput::make('name_uz')->label('Ism (UZ)')->required(),
                                     TextInput::make('position_uz')->label('Lavozim (UZ)')->required(),
-                                    RichEditor::make('content_uz'),
+                                    TinyEditor::make('content_uz')->showMenuBar()->columnSpanFull(),
                                 ]),
                                 Tabs\Tab::make('Ru')->schema([
                                     TextInput::make('name_ru')->label('Ism (RU)'),
                                     TextInput::make('position_ru')->label('Lavozim (RU)'),
-                                    RichEditor::make('content_ru'),
+                                    TinyEditor::make('content_ru')->showMenuBar()->columnSpanFull(),
                                 ]),
                                 Tabs\Tab::make('En')->schema([
                                     TextInput::make('name_en')->label('Ism (EN)'),
                                     TextInput::make('position_en')->label('Lavozim (EN)'),
-                                    RichEditor::make('content_en'),
+                                    TinyEditor::make('content_en')->showMenuBar()->columnSpanFull(),
                                 ]),
                             ])
                             ->columnSpanFull(),

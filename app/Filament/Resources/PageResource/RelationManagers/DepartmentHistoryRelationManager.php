@@ -2,7 +2,7 @@
 
 namespace App\Filament\Resources\PageResource\RelationManagers;
 
-use Filament\Forms\Components\RichEditor;
+use AmidEsfahani\FilamentTinyEditor\TinyEditor;
 use Filament\Forms\Components\Tabs;
 use Filament\Forms\Form;
 use Filament\Resources\RelationManagers\RelationManager;
@@ -33,13 +33,13 @@ class DepartmentHistoryRelationManager extends RelationManager
                 Tabs::make('Tabs')
                     ->tabs([
                         Tabs\Tab::make('Uz')->schema([
-                            RichEditor::make('content_uz')->label('Kontent (UZ)')->required(),
+                            TinyEditor::make('content_uz')->label('Kontent (UZ)')->showMenuBar()->required()->columnSpanFull(),
                         ]),
                         Tabs\Tab::make('Ru')->schema([
-                            RichEditor::make('content_ru')->label('Kontent (RU)'),
+                            TinyEditor::make('content_ru')->label('Kontent (RU)')->showMenuBar()->columnSpanFull(),
                         ]),
                         Tabs\Tab::make('En')->schema([
-                            RichEditor::make('content_en')->label('Kontent (EN)'),
+                            TinyEditor::make('content_en')->label('Kontent (EN)')->showMenuBar()->columnSpanFull(),
                         ]),
                     ])
                     ->columnSpanFull(),
