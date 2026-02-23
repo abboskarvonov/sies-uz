@@ -3,15 +3,14 @@
 namespace App\Providers;
 
 use App\Models\Menu;
+use App\Models\SiteSettings;
 use App\Models\Symbol;
 use Illuminate\Cache\RateLimiting\Limit;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\RateLimiter;
-use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\URL;
 use Illuminate\Support\Facades\View;
 use Illuminate\Support\ServiceProvider;
-use Livewire\Livewire;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -28,15 +27,6 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
-        Livewire::setUpdateRoute(function ($handle) {
-            return Route::post('/livewire/update', $handle)
-                ->middleware([
-                    'web',
-                    \Illuminate\Session\Middleware\StartSession::class,
-                    \Illuminate\Cookie\Middleware\AddQueuedCookiesToResponse::class,
-                ]);
-        });
-
         View::composer('components.main.navbar', function ($view) {
             $menus = Menu::with(['submenus.multimenus'])
                 ->where('status', true)
@@ -45,6 +35,12 @@ class AppServiceProvider extends ServiceProvider
                 ->get();
 
             $view->with('menus', $menus);
+        });
+
+        View::composer(['components.main.header', 'components.main.footer', 'components.main.nav-logo'], function ($view) {
+            static $settings = null;
+            $settings ??= SiteSettings::first();
+            $view->with('siteSettings', $settings);
         });
 
         View::composer('components.main.quick-links', function ($view) {

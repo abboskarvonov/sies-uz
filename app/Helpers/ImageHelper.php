@@ -125,12 +125,19 @@ class ImageHelper
                 $cachedPath = $cacheDir . DIRECTORY_SEPARATOR . $cachedName;
 
                 if (!File::exists($cachedPath)) {
+                    // Atomic write: avval temp faylga yozib, keyin rename
+                    $tempPath = $cachedPath . '.tmp.' . getmypid();
                     $img = self::manager()->read($absolutePath);
                     $img->scaleDown(width: $w);
-                    $img->toWebp(quality: $quality)->save($cachedPath);
-
-                    // Memory tozalash
+                    $img->toWebp(quality: $quality)->save($tempPath);
                     unset($img);
+
+                    // Agar boshqa process allaqachon yaratgan bo'lsa — o'zimiznikini o'chiramiz
+                    if (!File::exists($cachedPath)) {
+                        rename($tempPath, $cachedPath);
+                    } else {
+                        @unlink($tempPath);
+                    }
                 }
             }
         } catch (\Throwable $e) {
@@ -139,15 +146,12 @@ class ImageHelper
     }
 
     /**
-     * Vaqtinchalik srcset (cache qilinmaguncha original)
+     * Vaqtinchalik srcset (katta fayl background'da ishlanmaguncha original qaytariladi)
      */
     protected static function temporarySrcset(string $src, array $widths): string
     {
-        $srcset = [];
-        foreach ($widths as $w) {
-            $srcset[] = asset($src) . " {$w}w";
-        }
-        return implode(', ', $srcset);
+        // Bitta entry — browser bitta aniq faylni yuklaydi, chalkashlik yo'q
+        return asset($src) . ' ' . max($widths) . 'w';
     }
 
     /**
@@ -155,10 +159,11 @@ class ImageHelper
      */
     public static function fallbackSrcset(array $widths = [640, 1280, 1920]): string
     {
-        static $cached = null;
+        static $cache = [];
 
-        if ($cached !== null) {
-            return $cached;
+        $key = implode(',', $widths);
+        if (isset($cache[$key])) {
+            return $cache[$key];
         }
 
         try {
@@ -166,7 +171,7 @@ class ImageHelper
             $fallbackAbsolute = public_path($fallbackRelative);
 
             if (!File::exists($fallbackAbsolute)) {
-                return $cached = asset($fallbackRelative);
+                return $cache[$key] = asset($fallbackRelative);
             }
 
             $cacheDir = public_path('cache/images');
@@ -189,9 +194,10 @@ class ImageHelper
                 $srcset[] = asset('cache/images/' . $cachedName) . " {$w}w";
             }
 
-            return $cached = implode(', ', $srcset);
+            return $cache[$key] = implode(', ', $srcset);
         } catch (\Throwable $e) {
-            return $cached = asset('img/noimage.webp');
+            Log::error('Fallback srcset error: ' . $e->getMessage());
+            return $cache[$key] = asset('img/noimage.webp');
         }
     }
 

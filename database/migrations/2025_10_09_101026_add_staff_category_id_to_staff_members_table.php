@@ -11,6 +11,10 @@ return new class extends Migration
      */
     public function up(): void
     {
+        if (Schema::hasColumn('staff_members', 'staff_category_id')) {
+            return;
+        }
+
         Schema::table('staff_members', function (Blueprint $table) {
             $table->foreignId('staff_category_id')->nullable()->constrained()->nullOnDelete()->after('image');
         });

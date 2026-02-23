@@ -55,21 +55,7 @@ class PageController extends Controller
 
     public function show(int $id)
     {
-        $page = Page::with([
-            'tags:id,name,slug',
-            'files:id,page_id,name,file',
-            'menu',
-            'submenu',
-            'multimenu',
-            'staffCategories' => function ($query) {
-                $query->whereNull('parent_id')
-                    ->with([
-                        'staffMembers:id,name_uz,name_ru,name_en,position_uz,position_ru,position_en,image,staff_category_id,page_id',
-                        'children' => fn ($q) => $q->with('staffMembers:id,name_uz,name_ru,name_en,position_uz,position_ru,position_en,image,staff_category_id,page_id'),
-                    ]);
-            },
-            'departmentHistory',
-        ])->find($id);
+        $page = Page::with($this->pageDetailRelations())->find($id);
 
         if (!$page) {
             return $this->notFoundResponse('Page not found');
@@ -145,21 +131,7 @@ class PageController extends Controller
                     $q->orWhere('id', (int) $page);
                 }
             })
-            ->with([
-                'tags:id,name,slug',
-                'files:id,page_id,name,file',
-                'menu',
-                'submenu',
-                'multimenu',
-                'staffCategories' => function ($query) {
-                    $query->whereNull('parent_id')
-                        ->with([
-                            'staffMembers:id,name_uz,name_ru,name_en,position_uz,position_ru,position_en,image,staff_category_id,page_id',
-                            'children' => fn ($q) => $q->with('staffMembers:id,name_uz,name_ru,name_en,position_uz,position_ru,position_en,image,staff_category_id,page_id'),
-                        ]);
-                },
-                'departmentHistory',
-            ])
+            ->with($this->pageDetailRelations())
             ->first();
 
         if (!$pageModel) {
@@ -169,6 +141,25 @@ class PageController extends Controller
         $this->incrementViewOnce($pageModel);
 
         return $this->successResponse(new PageDetailResource($pageModel));
+    }
+
+    private function pageDetailRelations(): array
+    {
+        return [
+            'tags:id,name,slug',
+            'files:id,page_id,name,file',
+            'menu',
+            'submenu',
+            'multimenu',
+            'staffCategories' => function ($query) {
+                $query->whereNull('parent_id')
+                    ->with([
+                        'staffMembers:id,name_uz,name_ru,name_en,position_uz,position_ru,position_en,image,staff_category_id,page_id',
+                        'children' => fn ($q) => $q->with('staffMembers:id,name_uz,name_ru,name_en,position_uz,position_ru,position_en,image,staff_category_id,page_id'),
+                    ]);
+            },
+            'departmentHistory',
+        ];
     }
 
     private function findBySlug(string $modelClass, string $locale, string $slug, array $where = [])

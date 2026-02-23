@@ -22,258 +22,157 @@ if (!function_exists('localized_url')) {
             return LaravelLocalization::getLocalizedURL($locale, url('/'));
         }
 
-        $currentLocale = app()->getLocale();
+        $currentLocale  = app()->getLocale();
+        $slugColCurrent = 'slug_' . $currentLocale;
+        $slugColTarget  = 'slug_' . $locale;
 
         $Menu      = \App\Models\Menu::class;
         $Submenu   = \App\Models\Submenu::class;
         $Multimenu = \App\Models\Multimenu::class;
         $Page      = \App\Models\Page::class;
-        $Staff     = \App\Models\StaffMember::class;
-
-        $slugColCurrent = 'slug_' . $currentLocale;
-        $slugColTarget  = 'slug_' . $locale;
-
-        $getSlug = function ($model, $targetLocale) {
-            if (!$model) return null;
-            $col = 'slug_' . $targetLocale;
-            return $model->{$col} ?? $model->slug_uz ?? null;
-        };
 
         $fallback = fn() => LaravelLocalization::getLocalizedURL($locale, url()->current());
 
         // lang prefixni olib tashlaymiz:
         $parts = array_values(array_slice($segments, 1));
 
-        try {
-            if (count($parts) === 1) {
-                [$menuSlug] = $parts;
+        // ── Request-level model cache ──────────────────────────────────────
+        // localized_url() til almashtirish uchun 2-3 marta chaqiriladi (har bir til uchun).
+        // Bir so'rov ichida bir xil slugni qayta DB dan olmaslik uchun static cache.
+        static $modelCache = [];
 
-                $menu = $Menu::where($slugColCurrent, $menuSlug)->first();
+        $resolve = function (string $class, string $slug, array $where = []) use (&$modelCache, $slugColCurrent) {
+            $key = $class . '|' . $slugColCurrent . '|' . $slug . '|' . serialize($where);
+            return $modelCache[$key] ??= $class::where($slugColCurrent, $slug)->where($where)->first();
+        };
+
+        // Slug olish: target locale → slug_uz fallback
+        $getSlug = fn($model) => $model ? ($model->{'slug_' . $locale} ?? $model->slug_uz ?? null) : null;
+
+        // Page uchun target slug aniqlash (fallback zanjiri bilan)
+        $pageTargetSlug = function ($page) use ($slugColTarget, $locale) {
+            $s = $page->{$slugColTarget};
+            if ($s !== null && $s !== '') return $s;
+
+            $s = $page->slug_uz;
+            if ($s !== null && $s !== '') return $s;
+
+            return $page->{'title_' . $locale}
+                ? Str::slug($page->{'title_' . $locale}) . '-' . $page->id
+                : (string) $page->id;
+        };
+
+        // Page qidirish: slug, slug-id, numeric ID, boshqa til sluglari
+        $findPage = function ($menuId, $submenuId, $multimenuId, string $pageSlug) use ($Page, $slugColCurrent) {
+            return $Page::query()
+                ->where('menu_id', $menuId)
+                ->where('submenu_id', $submenuId)
+                ->where('multimenu_id', $multimenuId)
+                ->where(function ($q) use ($slugColCurrent, $pageSlug) {
+                    $q->where($slugColCurrent, $pageSlug);
+
+                    preg_match('/-(\d+)$/', $pageSlug, $m);
+                    $id = (int) ($m[1] ?? 0);
+                    if ($id > 0) $q->orWhere('id', $id);
+
+                    if (is_numeric($pageSlug)) $q->orWhere('id', (int) $pageSlug);
+
+                    $q->orWhere('slug_uz', $pageSlug)
+                        ->orWhere('slug_ru', $pageSlug)
+                        ->orWhere('slug_en', $pageSlug);
+                })
+                ->first();
+        };
+
+        try {
+            // 1 segment: /menu
+            if (count($parts) === 1) {
+                $menu = $resolve($Menu, $parts[0]);
                 if (!$menu) return $fallback();
 
-                $url = route('pages.show', [
-                    'menu' => $getSlug($menu, $locale),
-                ], false);
-
-                return LaravelLocalization::getLocalizedURL($locale, $url);
+                return LaravelLocalization::getLocalizedURL(
+                    $locale,
+                    route('pages.show', ['menu' => $getSlug($menu)], false)
+                );
             }
 
+            // 2 segment: /menu/submenu
             if (count($parts) === 2) {
                 [$menuSlug, $submenuSlug] = $parts;
-
-                $menu = $Menu::where($slugColCurrent, $menuSlug)->first();
+                $menu = $resolve($Menu, $menuSlug);
                 if (!$menu) return $fallback();
 
-                $submenu = $Submenu::where($slugColCurrent, $submenuSlug)
-                    ->where('menu_id', $menu->id)->first();
+                $submenu = $resolve($Submenu, $submenuSlug, ['menu_id' => $menu->id]);
                 if (!$submenu) return $fallback();
 
-                $url = route('submenu.index', [
-                    'menu'    => $getSlug($menu, $locale),
-                    'submenu' => $getSlug($submenu, $locale),
-                ], false);
-
-                return LaravelLocalization::getLocalizedURL($locale, $url);
+                return LaravelLocalization::getLocalizedURL(
+                    $locale,
+                    route('submenu.index', ['menu' => $getSlug($menu), 'submenu' => $getSlug($submenu)], false)
+                );
             }
 
+            // 3+ segment: menu/submenu/multimenu umumiy qismi
+            [$menuSlug, $submenuSlug, $multimenuSlug] = $parts;
+            $menu = $resolve($Menu, $menuSlug);
+            if (!$menu) return $fallback();
+
+            $submenu = $resolve($Submenu, $submenuSlug, ['menu_id' => $menu->id]);
+            if (!$submenu) return $fallback();
+
+            $multimenu = $resolve($Multimenu, $multimenuSlug, [
+                'menu_id' => $menu->id,
+                'submenu_id' => $submenu->id,
+            ]);
+            if (!$multimenu) return $fallback();
+
+            // 3 segment: /menu/submenu/multimenu
             if (count($parts) === 3) {
-                [$menuSlug, $submenuSlug, $multimenuSlug] = $parts;
-
-                $menu = $Menu::where($slugColCurrent, $menuSlug)->first();
-                if (!$menu) return $fallback();
-
-                $submenu = $Submenu::where($slugColCurrent, $submenuSlug)
-                    ->where('menu_id', $menu->id)->first();
-                if (!$submenu) return $fallback();
-
-                $multimenu = $Multimenu::where($slugColCurrent, $multimenuSlug)
-                    ->where('menu_id', $menu->id)
-                    ->where('submenu_id', $submenu->id)->first();
-                if (!$multimenu) return $fallback();
-
-                $url = route('pages.show', [
-                    'menu'       => $getSlug($menu, $locale),
-                    'submenu'    => $getSlug($submenu, $locale),
-                    'multimenu'  => $getSlug($multimenu, $locale),
-                ], false);
-
-                return LaravelLocalization::getLocalizedURL($locale, $url);
+                return LaravelLocalization::getLocalizedURL($locale, route('pages.show', [
+                    'menu'      => $getSlug($menu),
+                    'submenu'   => $getSlug($submenu),
+                    'multimenu' => $getSlug($multimenu),
+                ], false));
             }
 
+            // 4 segment: /menu/submenu/multimenu/{page}
             if (count($parts) === 4) {
-                // /menu/submenu/multimenu/{page}
-                [$menuSlug, $submenuSlug, $multimenuSlug, $pageSlug] = $parts;
-
-                $menu = $Menu::where($slugColCurrent, $menuSlug)->first();
-                if (!$menu) return $fallback();
-
-                $submenu = $Submenu::where($slugColCurrent, $submenuSlug)
-                    ->where('menu_id', $menu->id)->first();
-                if (!$submenu) return $fallback();
-
-                $multimenu = $Multimenu::where($slugColCurrent, $multimenuSlug)
-                    ->where('menu_id', $menu->id)
-                    ->where('submenu_id', $submenu->id)->first();
-                if (!$multimenu) return $fallback();
-
-                // Page topish: slug yoki ID bo'yicha
-                $page = $Page::query()
-                    ->where('menu_id', $menu->id)
-                    ->where('submenu_id', $submenu->id)
-                    ->where('multimenu_id', $multimenu->id)
-                    ->where(function ($q) use ($slugColCurrent, $pageSlug) {
-                        // Avval joriy tildagi slug bo'yicha
-                        $q->where($slugColCurrent, $pageSlug);
-
-                        // Agar slug-id formatida bo'lsa ID ni ajratib olish
-                        $id = (int) preg_replace('/^.*-(\d+)$/', '$1', $pageSlug);
-                        if ($id > 0) {
-                            $q->orWhere('id', $id);
-                        }
-
-                        // Agar faqat raqam bo'lsa
-                        if (is_numeric($pageSlug)) {
-                            $q->orWhere('id', (int) $pageSlug);
-                        }
-
-                        // Fallback: boshqa tillardagi sluglar bo'yicha ham qidirish
-                        $q->orWhere('slug_uz', $pageSlug)
-                          ->orWhere('slug_ru', $pageSlug)
-                          ->orWhere('slug_en', $pageSlug);
-                    })
-                    ->first();
+                $page = $findPage($menu->id, $submenu->id, $multimenu->id, $parts[3]);
                 if (!$page) return $fallback();
 
-                // Target til uchun slug olish (fallback: uz -> title-id formatida)
-                $targetPageSlug = $page->{$slugColTarget};
-
-                if (empty($targetPageSlug)) {
-                    // Agar slug mavjud bo'lmasa, fallback sifatida slug_uz ishlatamiz
-                    $targetPageSlug = $page->slug_uz;
-                }
-
-                if (empty($targetPageSlug)) {
-                    // Agar slug_uz ham bo'lmasa, title-id formatida yaratamiz
-                    $targetPageSlug = ($page->{'title_' . $locale} ?? null)
-                        ? \Illuminate\Support\Str::slug($page->{'title_' . $locale}) . '-' . $page->id
-                        : $page->id;
-                }
-
-                $url = route('pages.detail', [
-                    'menu'       => $getSlug($menu, $locale),
-                    'submenu'    => $getSlug($submenu, $locale),
-                    'multimenu'  => $getSlug($multimenu, $locale),
-                    'page'       => $targetPageSlug,
-                ], false);
-
-                return LaravelLocalization::getLocalizedURL($locale, $url);
+                return LaravelLocalization::getLocalizedURL($locale, route('pages.detail', [
+                    'menu'      => $getSlug($menu),
+                    'submenu'   => $getSlug($submenu),
+                    'multimenu' => $getSlug($multimenu),
+                    'page'      => $pageTargetSlug($page),
+                ], false));
             }
 
-            // 5) Staff variantlari:
-            if (count($parts) === 5) {
-                // /menu/submenu/multimenu/staff/{staff}
-                // yoki /menu/submenu/multimenu/{page}/staff/{staff} (praktikada 6 segment bo‘ladi, lekin
-                // ayrim rewriteda 5 ko‘rinishi ham mumkin — shuning uchun tekshirib olamiz)
-                [$menuSlug, $submenuSlug, $multimenuSlug, $fourth, $fifth] = $parts;
-
-                $menu = $Menu::where($slugColCurrent, $menuSlug)->first();
-                if (!$menu) return $fallback();
-
-                $submenu = $Submenu::where($slugColCurrent, $submenuSlug)
-                    ->where('menu_id', $menu->id)->first();
-                if (!$submenu) return $fallback();
-
-                $multimenu = $Multimenu::where($slugColCurrent, $multimenuSlug)
-                    ->where('menu_id', $menu->id)
-                    ->where('submenu_id', $submenu->id)->first();
-                if (!$multimenu) return $fallback();
-
-                // A) simple: .../staff/{staff}
-                if ($fourth === 'staff') {
-                    $staffId = $fifth; // id sifatida qoldiramiz
-                    $url = route('staff.show.simple', [
-                        'menu'       => $getSlug($menu, $locale),
-                        'submenu'    => $getSlug($submenu, $locale),
-                        'multimenu'  => $getSlug($multimenu, $locale),
-                        'staff'      => $staffId,
-                    ], false);
-
-                    return LaravelLocalization::getLocalizedURL($locale, $url);
-                }
-
-                // B) with page: .../{page}/staff/{staff}  (ideal ko‘rinishi 6 segment)
-                // Agar server rewrite 5 segmentga tushirgan bo‘lsa, bu yerda aniqlash qiyin bo‘ladi.
-                // Tavsiya: haqiqiy 6 segment holatini ham qo‘llab-quvvatlang (quyida).
-                return $fallback();
+            // 5 segment: /menu/submenu/multimenu/staff/{id}
+            if (count($parts) === 5 && $parts[3] === 'staff') {
+                return LaravelLocalization::getLocalizedURL($locale, route('staff.show.simple', [
+                    'menu'      => $getSlug($menu),
+                    'submenu'   => $getSlug($submenu),
+                    'multimenu' => $getSlug($multimenu),
+                    'staff'     => $parts[4],
+                ], false));
             }
 
-            // 6) /menu/submenu/multimenu/{page}/staff/{staff}
-            if (count($parts) === 6) {
-                [$menuSlug, $submenuSlug, $multimenuSlug, $pageSlug, $staffLiteral, $staffId] = $parts;
-                if ($staffLiteral !== 'staff') return $fallback();
-
-                $menu = $Menu::where($slugColCurrent, $menuSlug)->first();
-                if (!$menu) return $fallback();
-
-                $submenu = $Submenu::where($slugColCurrent, $submenuSlug)
-                    ->where('menu_id', $menu->id)->first();
-                if (!$submenu) return $fallback();
-
-                $multimenu = $Multimenu::where($slugColCurrent, $multimenuSlug)
-                    ->where('menu_id', $menu->id)
-                    ->where('submenu_id', $submenu->id)->first();
-                if (!$multimenu) return $fallback();
-
-                // Page topish: slug yoki ID bo'yicha
-                $page = $Page::query()
-                    ->where('menu_id', $menu->id)
-                    ->where('submenu_id', $submenu->id)
-                    ->where('multimenu_id', $multimenu->id)
-                    ->where(function ($q) use ($slugColCurrent, $pageSlug) {
-                        $q->where($slugColCurrent, $pageSlug);
-
-                        $id = (int) preg_replace('/^.*-(\d+)$/', '$1', $pageSlug);
-                        if ($id > 0) {
-                            $q->orWhere('id', $id);
-                        }
-
-                        if (is_numeric($pageSlug)) {
-                            $q->orWhere('id', (int) $pageSlug);
-                        }
-
-                        $q->orWhere('slug_uz', $pageSlug)
-                          ->orWhere('slug_ru', $pageSlug)
-                          ->orWhere('slug_en', $pageSlug);
-                    })
-                    ->first();
+            // 6 segment: /menu/submenu/multimenu/{page}/staff/{id}
+            if (count($parts) === 6 && $parts[4] === 'staff') {
+                $page = $findPage($menu->id, $submenu->id, $multimenu->id, $parts[3]);
                 if (!$page) return $fallback();
 
-                // Target til uchun slug olish (fallback: uz -> title-id formatida)
-                $targetPageSlug = $page->{$slugColTarget};
-
-                if (empty($targetPageSlug)) {
-                    $targetPageSlug = $page->slug_uz;
-                }
-
-                if (empty($targetPageSlug)) {
-                    $targetPageSlug = ($page->{'title_' . $locale} ?? null)
-                        ? Str::slug($page->{'title_' . $locale}) . '-' . $page->id
-                        : $page->id;
-                }
-
-                $url = route('staff.show.withPage', [
-                    'menu'       => $getSlug($menu, $locale),
-                    'submenu'    => $getSlug($submenu, $locale),
-                    'multimenu'  => $getSlug($multimenu, $locale),
-                    'page'       => $targetPageSlug,
-                    'staff'      => $staffId, // id o‘zgarmaydi
-                ], false);
-
-                return LaravelLocalization::getLocalizedURL($locale, $url);
+                return LaravelLocalization::getLocalizedURL($locale, route('staff.show.withPage', [
+                    'menu'      => $getSlug($menu),
+                    'submenu'   => $getSlug($submenu),
+                    'multimenu' => $getSlug($multimenu),
+                    'page'      => $pageTargetSlug($page),
+                    'staff'     => $parts[5],
+                ], false));
             }
 
             return $fallback();
-        } catch (\Throwable $e) {
+        } catch (\Throwable) {
             return $fallback();
         }
     }
@@ -324,7 +223,7 @@ if (!function_exists('localized_page_route')) {
             if (empty($pageSlug)) {
                 $pageSlug = $page->{'title_' . $locale}
                     ? Str::slug($page->{'title_' . $locale}) . '-' . $page->id
-                    : null;
+                    : (string) $page->id;
             }
         }
 
@@ -387,7 +286,7 @@ if (!function_exists('localized_staff_url')) {
             return $model->{$slugCol} ?? $model->slug_uz ?? null;
         };
 
-        // Staff ID (model bo‘lsa id, bo‘lmasa integerga cast)
+        // Staff ID (model bo'lsa id, bo'lmasa integerga cast)
         $staffId = is_object($staff) ? $staff->id : (int) $staff;
 
         if ($page) {
@@ -441,22 +340,24 @@ if (!function_exists('localized_tag_url')) {
 if (! function_exists('localized_field')) {
     /**
      * Modeldan tilga mos maydonni qaytaradi.
-     * Agar mavjud bo‘lmasa → uz tilidagi qiymatni qaytaradi.
+     * Agar mavjud bo'lmasa → uz tilidagi qiymatni qaytaradi.
      *
      * @param  object      $model   - Eloquent model (Page, StaffMember va h.k.)
      * @param  string      $base    - "title", "name" yoki "content"
-     * @param  string|null $locale  - kerakli til (agar null bo‘lsa app()->getLocale())
+     * @param  string|null $locale  - kerakli til (agar null bo'lsa app()->getLocale())
      * @return string|null
      */
     function localized_field(object $model, string $base, ?string $locale = null): ?string
     {
         $locale ??= app()->getLocale();
 
-        $field = $base . '_' . $locale;
+        $field    = $base . '_' . $locale;
         $fallback = $base . '_uz';
 
-        if (!empty($model->{$field})) {
-            return $model->{$field};
+        // !empty() o'rniga aniq tekshiruv: "0" ham to'g'ri qiymat
+        $value = $model->{$field} ?? null;
+        if ($value !== null && $value !== '') {
+            return $value;
         }
 
         return $model->{$fallback} ?? null;
@@ -484,7 +385,10 @@ if (! function_exists('lc_content')) {
 
         // Mixed content oldini olish: http:// → https://
         if ($content && app()->isProduction()) {
-            $content = str_replace('http://sies.uz', 'https://sies.uz', $content);
+            $host = parse_url(config('app.url'), PHP_URL_HOST) ?? '';
+            if ($host) {
+                $content = str_replace("http://{$host}", "https://{$host}", $content);
+            }
         }
 
         return $content;

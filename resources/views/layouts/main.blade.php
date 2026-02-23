@@ -4,6 +4,7 @@
     'metaKeywords' => "Samarqand, iqtisodiyot, universitet, o'qish, institut",
     'metaImage' => asset('img/og-image.webp'),
     'canonical' => url()->current(),
+    'preloadHero' => false,
 ])
 
 @php
@@ -64,10 +65,12 @@
     <link rel="preload" href="https://fonts.bunny.net/css?family=figtree:400,500,600&display=swap" as="style" onload="this.onload=null;this.rel='stylesheet'">
     <noscript><link href="https://fonts.bunny.net/css?family=figtree:400,500,600&display=swap" rel="stylesheet"></noscript>
 
-    <!-- Preload LCP image for faster rendering -->
+    @if($preloadHero)
+    <!-- Preload LCP image — faqat bosh sahifada -->
     <link rel="preload" as="image" href="{{ asset('img/hero-bg-1920.webp') }}"
           imagesrcset="{{ asset('img/hero-bg-640.webp') }} 640w, {{ asset('img/hero-bg-1280.webp') }} 1280w, {{ asset('img/hero-bg-1920.webp') }} 1920w"
           imagesizes="100vw" fetchpriority="high">
+    @endif
 
     <!-- Scripts -->
     @vite(['resources/css/app.css', 'resources/js/app.js'])
@@ -78,12 +81,6 @@
         .page-header {
             background-size: cover;
             background-position: center;
-            background-image: image-set(
-                url("{{ asset('img/hero-bg-640.webp') }}") 1x,
-                url("{{ asset('img/hero-bg-1280.webp') }}") 2x,
-                url("{{ asset('img/hero-bg-1920.webp') }}") 3x
-            );
-            /* Fallback for older browsers */
             background-image: url("{{ asset('img/hero-bg-1280.webp') }}");
         }
 

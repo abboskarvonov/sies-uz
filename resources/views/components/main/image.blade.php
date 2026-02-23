@@ -6,7 +6,7 @@
     'width' => null,
     'height' => null,
     'srcset' => null,
-    'sizes' => '(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 640px',
+    'sizes' => '(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw',
     'fallback' => 'img/noimage.webp',
     'eager' => false, // LCP uchun
     'quality' => 70,

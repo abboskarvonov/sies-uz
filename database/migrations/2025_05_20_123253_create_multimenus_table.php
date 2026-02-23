@@ -11,6 +11,10 @@ return new class extends Migration
      */
     public function up(): void
     {
+        if (Schema::hasTable('multimenus')) {
+            return;
+        }
+
         Schema::create('multimenus', function (Blueprint $table) {
             $table->id();
             $table->unsignedBigInteger('old_id')->nullable();

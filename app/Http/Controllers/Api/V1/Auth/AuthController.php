@@ -60,7 +60,7 @@ class AuthController extends Controller
         $data = $request->only(['name', 'email']);
 
         if ($request->filled('password')) {
-            $data['password'] = $request->password;
+            $data['password'] = Hash::make($request->password);
         }
 
         $user->update($data);

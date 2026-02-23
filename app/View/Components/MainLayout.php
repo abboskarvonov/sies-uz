@@ -7,6 +7,10 @@ use Illuminate\View\View;
 
 class MainLayout extends Component
 {
+    public function __construct(
+        public bool $preloadHero = false,
+    ) {}
+
     /**
      * Get the view / contents that represents the component.
      */

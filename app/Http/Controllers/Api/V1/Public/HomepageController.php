@@ -43,12 +43,25 @@ class HomepageController extends Controller
             ->take(10)
             ->get();
 
+        $announcementsLimit = config('site.pagination.home.announcements', 11);
+        $activityLimit = config('site.pagination.home.announcements_with_activity', 6);
+
         $announcementPages = Page::ofType('blog')
             ->inMenu($announcementsConfig['menu_id'], $announcementsConfig['submenu_id'], $announcementsConfig['multimenu_id'])
             ->with('tags:id,name,slug')
             ->orderByDesc('date')
             ->orderByDesc('id')
-            ->take(11)
+            ->take($announcementsLimit)
+            ->get();
+
+        // activity=true sahifalar alohida DB query — take() chegarasidan tashqarida qolmasin
+        $announcementsWithActivity = Page::ofType('blog')
+            ->inMenu($announcementsConfig['menu_id'], $announcementsConfig['submenu_id'], $announcementsConfig['multimenu_id'])
+            ->where('activity', true)
+            ->with('tags:id,name,slug')
+            ->orderByDesc('date')
+            ->orderByDesc('id')
+            ->take($activityLimit)
             ->get();
 
         $galleryPages = Page::ofType('blog')
@@ -85,10 +98,8 @@ class HomepageController extends Controller
         return [
             'latest_news' => $newsPages->first() ? new PageListResource($newsPages->first()) : null,
             'other_news' => PageListResource::collection($newsPages->skip(1)->take(config('site.pagination.home.other_news', 6))),
-            'announcements' => PageListResource::collection($announcementPages->take(config('site.pagination.home.announcements', 11))),
-            'announcements_with_activity' => PageListResource::collection(
-                $announcementPages->where('activity', true)->take(config('site.pagination.home.announcements_with_activity', 6))
-            ),
+            'announcements' => PageListResource::collection($announcementPages),
+            'announcements_with_activity' => PageListResource::collection($announcementsWithActivity),
             'gallery_images' => $galleryImages,
             'faculties' => PageListResource::collection($faculties),
             'departments' => PageListResource::collection($departments),

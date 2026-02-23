@@ -112,9 +112,9 @@ class PageController extends Controller
 
         // Multimenu bo'yicha sahifalarni olish (asosiy multimenu_id YOKI pivot orqali biriktirilgan)
         $multimenuId = $multimenuModel->id;
-        $pageScope = fn($query) => $query
-            ->where(function ($q) use ($menuModel, $submenuModel, $multimenuId) {
-                $q->where([
+        $baseQuery = fn($q) => $q
+            ->where(function ($inner) use ($menuModel, $submenuModel, $multimenuId) {
+                $inner->where([
                     'menu_id' => $menuModel->id,
                     'submenu_id' => $submenuModel->id,
                     'multimenu_id' => $multimenuId,
@@ -122,24 +122,16 @@ class PageController extends Controller
             })
             ->orWhereHas('multimenus', fn($q) => $q->where('multimenus.id', $multimenuId));
 
-        // Minimal select bilan birinchi page'ni olish
-        $firstPage = Page::where(function ($query) use ($pageScope) {
-            $pageScope($query);
-        })
-            ->select(['id', 'page_type', 'title_uz', 'title_ru', 'title_en', 'content_uz', 'content_ru', 'content_en', 'date', 'image', 'views', 'images'])
-            ->first();
+        // page_type ni aniqlash uchun minimal query
+        $pageType = Page::where($baseQuery)->value('page_type');
 
-        if (!$firstPage) {
+        if (!$pageType) {
             return view('pages.updating', compact('menuModel', 'submenuModel', 'multimenuModel'));
         }
 
-        $pageType = $firstPage->page_type;
-
         // List view uchun (blog, faculty, department)
         if (in_array($pageType, ['blog', 'faculty', 'department'])) {
-            $pages = Page::where(function ($query) use ($pageScope) {
-                $pageScope($query);
-            })
+            $pages = Page::where($baseQuery)
                 ->select(['id', 'title_uz', 'title_ru', 'title_en', 'slug_uz', 'slug_ru', 'slug_en', 'content_uz', 'content_ru', 'content_en', 'image', 'date', 'views', 'menu_id', 'submenu_id', 'multimenu_id'])
                 ->orderByDesc('date')
                 ->orderByDesc('id')
@@ -157,26 +149,21 @@ class PageController extends Controller
             ]);
         }
 
-        // Single page view uchun
-        $page = Page::where(function ($query) use ($pageScope) {
-            $pageScope($query);
-        })
-            ->with(['files'])
-            ->first();
+        // Single page — to'liq ma'lumotni bitta query da olamiz (type allaqachon ma'lum)
+        $staffRelations = in_array($pageType, ['center', 'section']) ? [
+            'staffCategories' => function ($query) {
+                $query->whereNull('parent_id')
+                    ->select(['id', 'title_uz', 'title_ru', 'title_en', 'page_id', 'parent_id'])
+                    ->with([
+                        'staffMembers:id,name_uz,name_ru,name_en,position_uz,position_ru,position_en,image,staff_category_id,page_id',
+                        'children.staffMembers:id,name_uz,name_ru,name_en,position_uz,position_ru,position_en,image,staff_category_id,page_id',
+                    ]);
+            },
+        ] : [];
 
-        // Lazy load - faqat kerak bo'lsa
-        if (in_array($pageType, ['center', 'section'])) {
-            $page->load([
-                'staffCategories' => function ($query) {
-                    $query->whereNull('parent_id')
-                        ->select(['id', 'title_uz', 'title_ru', 'title_en', 'page_id', 'parent_id'])
-                        ->with([
-                            'staffMembers:id,name_uz,name_ru,name_en,position_uz,position_ru,position_en,image,staff_category_id,page_id',
-                            'children.staffMembers:id,name_uz,name_ru,name_en,position_uz,position_ru,position_en,image,staff_category_id,page_id',
-                        ]);
-                },
-            ]);
-        }
+        $page = Page::where($baseQuery)
+            ->with(['files', ...$staffRelations])
+            ->first();
 
         $this->incrementViewOnce($page);
 

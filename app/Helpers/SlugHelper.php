@@ -6,25 +6,43 @@ use Illuminate\Support\Str;
 
 class SlugHelper
 {
-    public static function generateUniqueSlug(string $modelClass, string $field, ?string $value, $ignoreId = null): string
-    {
-        $baseSlug = Str::slug($value);
-        $slug = $baseSlug;
-        $counter = 1;
+    /**
+     * Modelda unikal slug generatsiya qiladi.
+     *
+     * Optimizatsiya: N ta loop query o'rniga 1 ta LIKE query + PHP memory check.
+     */
+    public static function generateUniqueSlug(
+        string $modelClass,
+        string $field,
+        ?string $value,
+        mixed $ignoreId = null
+    ): string {
+        $baseSlug = Str::slug($value ?? '');
 
-        $query = $modelClass::where($field, $slug);
-        if ($ignoreId) {
+        // Bo'sh base slug bo'lsa fallback
+        if ($baseSlug === '') {
+            $baseSlug = 'item';
+        }
+
+        // Barcha mos sluglarni BITTA query bilan olish
+        $query = $modelClass::where($field, 'LIKE', $baseSlug . '%');
+
+        // !== null: $ignoreId = 0 bo'lsa ham ishlaydi
+        if ($ignoreId !== null) {
             $query->where('id', '!=', $ignoreId);
         }
 
-        while ($query->exists()) {
-            $slug = $baseSlug . '-' . $counter++;
-            $query = $modelClass::where($field, $slug);
-            if ($ignoreId) {
-                $query->where('id', '!=', $ignoreId);
-            }
+        $existing = $query->pluck($field)->flip()->all(); // O(1) lookup uchun flip
+
+        if (!isset($existing[$baseSlug])) {
+            return $baseSlug;
         }
 
-        return $slug;
+        $counter = 1;
+        while (isset($existing[$baseSlug . '-' . $counter])) {
+            $counter++;
+        }
+
+        return $baseSlug . '-' . $counter;
     }
 }

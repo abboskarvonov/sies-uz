@@ -24,46 +24,52 @@
             </div>
 
             <div class="hidden auto-cols-max grid-flow-col items-center gap-1 lg:grid">
+                @if ($siteSettings?->phone_primary)
+                    <x-icon-button>
+                        <a href="tel:{{ $siteSettings->phone_primary }}" aria-label="Telefon">
+                            <img src="{{ asset('img/icons/003-phone-call.webp') }}" alt="Phone icon"
+                                class="w-4 h-4 dark:invert" width="16px" height="16px" />
+                        </a>
+                    </x-icon-button>
+                @endif
+                @if ($siteSettings?->email_primary)
+                    <x-icon-button>
+                        <a href="mailto:{{ $siteSettings->email_primary }}" aria-label="Email">
+                            <img src="{{ asset('img/icons/001-envelope.webp') }}" alt="Email icon"
+                                class="w-4 h-4 dark:invert" width="16px" height="16px" />
+                        </a>
+                    </x-icon-button>
+                @endif
                 <x-icon-button>
-                    <a href="tel:+998662311253">
-                        <img src="{{ asset('img/icons/003-phone-call.webp') }}" alt="Phone icon"
-                            class="w-4 dark:invert" />
-                    </a>
-                </x-icon-button>
-                <x-icon-button>
-                    <a href="mailto:sies_info@edu.uz">
-                        <img src="{{ asset('img/icons/001-envelope.webp') }}" alt="Envelope icon"
-                            class="w-4 dark:invert" />
-                    </a>
-                </x-icon-button>
-                <x-icon-button>
-                    <a href="/sitemap">
+                    <a href="/sitemap" aria-label="Sayt xaritasi">
+                        {{-- Sitemap SVG --}}
                         <img src="{{ asset('img/icons/004-sitemap.webp') }}" alt="Sitemap icon"
-                            class="w-4 dark:invert" />
+                            class="w-4 h-4 dark:invert" width="16px" height="16px" />
                     </a>
                 </x-icon-button>
             </div>
 
             <div class="hidden auto-cols-max grid-flow-col items-center gap-1 text-foreground md:grid">
                 <x-button>
-                    <a href="https://student.sies.uz/dashboard/login"
+                    <a href="{{ $siteSettings?->hemis_url ?? 'https://student.sies.uz/dashboard/login' }}"
                         class="flex items-center gap-1 text-xs font-bold uppercase" target="_blank">
-                        <img src="/img/icons/001-user.webp" alt="User icon" width="16px" height="16px"
-                            class="w-4 h-4 dark:invert" />
+                        <img src="{{ asset('img/icons/001-user.webp') }}" alt="Hemis icon" class="w-4 h-4 dark:invert"
+                            width="16px" height="16px" />
                         Hemis
                     </a>
                 </x-button>
                 <x-button>
-                    <a href="https://arm.sies.uz/" class="flex items-center gap-1 text-xs font-bold uppercase"
-                        target="_blank">
-                        <img src="/img/icons/004-book.webp" alt="Book icon" width="16px" height="16px"
-                            class="w-4 h-4 dark:invert" />
+                    <a href="{{ $siteSettings?->arm_url ?? 'https://arm.sies.uz/' }}"
+                        class="flex items-center gap-1 text-xs font-bold uppercase" target="_blank">
+                        {{-- Book SVG --}}
+                        <img src="{{ asset('img/icons/004-book.webp') }}" alt="Book icon" class="w-4 h-4 dark:invert"
+                            width="16px" height="16px" />
                         Arm
                     </a>
                 </x-button>
                 <x-button>
-                    <a href="https://sdg.sies.uz/" class="flex items-center gap-1 text-xs font-bold uppercase"
-                        target="_blank">
+                    <a href="{{ $siteSettings?->sdg_url ?? 'https://sdg.sies.uz/' }}"
+                        class="flex items-center gap-1 text-xs font-bold uppercase" target="_blank">
                         <img src="/img/icons/sdg.webp" alt="SDG icon" width="16px" height="16px"
                             class="w-4 h-4 dark:invert" />
                         SDG
@@ -72,30 +78,39 @@
             </div>
 
             <div class="hidden md:grid auto-cols-max grid-flow-col items-center gap-1">
-                <x-icon-button>
-                    <a href="https://t.me/siesuz" target="_blank" aria-label="Telegram">
-                        <img src="{{ asset('img/icons/telegram.webp') }}" alt="Telegram icon" class="w-5 h-5"
-                            width="20px" height="20px" />
-                    </a>
-                </x-icon-button>
-                <x-icon-button>
-                    <a href="https://t.me/siesuz" target="_blank" aria-label="Telegram">
-                        <img src="{{ asset('img/icons/facebook.webp') }}" alt="Telegram icon" class="w-5 h-5"
-                            width="20px" height="20px" />
-                    </a>
-                </x-icon-button>
-                <x-icon-button>
-                    <a href="https://t.me/siesuz" target="_blank" aria-label="Telegram">
-                        <img src="{{ asset('img/icons/instagram.webp') }}" alt="Telegram icon" class="w-5 h-5"
-                            width="20px" height="20px" />
-                    </a>
-                </x-icon-button>
-                <x-icon-button>
-                    <a href="https://t.me/siesuz" target="_blank" aria-label="Telegram">
-                        <img src="{{ asset('img/icons/youtube.webp') }}" alt="Telegram icon" class="w-5 h-5"
-                            width="20px" height="20px" />
-                    </a>
-                </x-icon-button>
+                @if ($siteSettings?->telegram_url)
+                    <x-icon-button>
+                        <a href="{{ $siteSettings->telegram_url }}" target="_blank" aria-label="Telegram">
+                            {{-- Telegram brand SVG --}}
+                            <img src="{{ asset('img/icons/telegram.webp') }}" alt="Telegram icon" class="w-5 h-5"
+                                width="20px" height="20px" />
+                        </a>
+                    </x-icon-button>
+                @endif
+                @if ($siteSettings?->facebook_url)
+                    <x-icon-button>
+                        <a href="{{ $siteSettings->facebook_url }}" target="_blank" aria-label="Facebook">
+                            <img src="{{ asset('img/icons/facebook.webp') }}" alt="Facebook icon" class="w-5 h-5"
+                                width="20px" height="20px" />
+                        </a>
+                    </x-icon-button>
+                @endif
+                @if ($siteSettings?->instagram_url)
+                    <x-icon-button>
+                        <a href="{{ $siteSettings->instagram_url }}" target="_blank" aria-label="Instagram">
+                            <img src="{{ asset('img/icons/instagram.webp') }}" alt="Instagram icon" class="w-5 h-5"
+                                width="20px" height="20px" />
+                        </a>
+                    </x-icon-button>
+                @endif
+                @if ($siteSettings?->youtube_url)
+                    <x-icon-button>
+                        <a href="{{ $siteSettings->youtube_url }}" target="_blank" aria-label="YouTube">
+                            <img src="{{ asset('img/icons/youtube.webp') }}" alt="YouTube icon" class="w-5 h-5"
+                                width="20px" height="20px" />
+                        </a>
+                    </x-icon-button>
+                @endif
             </div>
 
             <div class="grid auto-cols-max grid-flow-col items-center gap-1">
