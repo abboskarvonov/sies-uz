@@ -153,9 +153,11 @@ class PageController extends Controller
         $staffRelations = in_array($pageType, ['center', 'section']) ? [
             'staffCategories' => function ($query) {
                 $query->whereNull('parent_id')
-                    ->select(['id', 'title_uz', 'title_ru', 'title_en', 'page_id', 'parent_id'])
+                    ->select(['id', 'title_uz', 'title_ru', 'title_en', 'page_id', 'parent_id', 'order'])
+                    ->orderBy('order')
                     ->with([
                         'staffMembers:id,name_uz,name_ru,name_en,position_uz,position_ru,position_en,image,staff_category_id,page_id',
+                        'children' => fn($q) => $q->select(['id', 'title_uz', 'title_ru', 'title_en', 'parent_id', 'page_id', 'order'])->orderBy('order'),
                         'children.staffMembers:id,name_uz,name_ru,name_en,position_uz,position_ru,position_en,image,staff_category_id,page_id',
                     ]);
             },
@@ -222,10 +224,11 @@ class PageController extends Controller
                 'files:id,page_id,name,file,created_at,updated_at',
                 'staffCategories' => function ($query) {
                     $query->whereNull('parent_id')
-                        ->select(['id', 'title_uz', 'title_ru', 'title_en', 'page_id', 'parent_id'])
+                        ->select(['id', 'title_uz', 'title_ru', 'title_en', 'page_id', 'parent_id', 'order'])
+                        ->orderBy('order')
                         ->with([
                             'staffMembers:id,name_uz,name_ru,name_en,position_uz,position_ru,position_en,image,staff_category_id,page_id',
-                            'children:id,title_uz,title_ru,title_en,parent_id,page_id',
+                            'children' => fn($q) => $q->select(['id', 'title_uz', 'title_ru', 'title_en', 'parent_id', 'page_id', 'order'])->orderBy('order'),
                             'children.staffMembers:id,name_uz,name_ru,name_en,position_uz,position_ru,position_en,image,staff_category_id,page_id',
                         ]);
                 },

@@ -1,77 +1,55 @@
 <x-main-layout :metaTitle="$metaTitle" :metaDescription="$metaDescription" :metaImage="$metaImage">
-    <div class="bg-gray-100 dark:bg-gray-950 px-4 lg:px-0">
-        <div class="container mx-auto py-10">
-            <nav class="flex" aria-label="Breadcrumb">
-                <ol class="inline-flex items-center space-x-1 md:space-x-2 rtl:space-x-reverse">
-                    {{-- Home --}}
-                    <li class="inline-flex items-center">
-                        <a href="{{ route('home') }}"
-                            class="inline-flex items-center text-sm font-medium text-gray-700 hover:text-gray-900 dark:text-gray-400 dark:hover:text-white">
-                            <img alt="Home" src="{{ asset('img/icons/home.webp') }}" class="w-4 dark:invert">
-                        </a>
-                    </li>
 
-                    <li>
-                        <div class="flex items-center">
-                            <span class="text-gray-400">
-                                <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none"
-                                    viewBox="0 0 24 24" stroke="currentColor">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                        d="M9 5l7 7-7 7" />
-                                </svg>
-                            </span>
-                            <span
-                                class="ms-1 text-sm font-medium text-gray-700 hover:text-gray-900 dark:text-gray-400 dark:hover:text-white md:ms-2">
-                                {{ lc_title($data) }}
-                            </span>
+    {{-- Inline breadcrumb (no $menuModel hierarchy) --}}
+    <div class="bg-teal-950 px-4 lg:px-0 py-10">
+        <div class="container mx-auto">
+            <ol class="inline-flex flex-wrap items-center gap-1.5">
+                <li>
+                    <a href="{{ route('home') }}"
+                        class="card-shine relative inline-flex items-center justify-center w-9 h-9 rounded-lg overflow-hidden
+                               border border-teal-700/40 hover:border-teal-400/60 bg-teal-800/60 backdrop-blur-md
+                               hover:-translate-y-0.5 transition-transform duration-200"
+                        style="box-shadow: inset 0 1px 0 rgba(255,255,255,0.06);" aria-label="Home">
+                        <img alt="Home" src="{{ asset('img/icons/home.webp') }}" class="w-4 invert opacity-80">
+                    </a>
+                </li>
+                <li class="text-teal-600 select-none">
+                    <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M9 5l7 7-7 7" />
+                    </svg>
+                </li>
+                <li>
+                    <span
+                        class="relative inline-flex items-center px-3 py-1.5 rounded-lg text-sm font-medium
+                                 text-white border border-teal-500/50 bg-teal-700/70 backdrop-blur-md"
+                        style="box-shadow: inset 0 1px 0 rgba(255,255,255,0.10);">
+                        {{ lc_title($data) }}
+                    </span>
+                </li>
+            </ol>
+        </div>
+    </div>
+
+    {{-- ══ HEADER ══ --}}
+    <x-page.show-header
+        :title="lc_title($data)"
+        :image="asset('storage/' . $data->image)"
+    />
+
+    {{-- ══ CONTENT ══ --}}
+    <div class="bg-gray-100 px-4 lg:px-0 py-10" x-data x-intersect.once.threshold.10="$el.classList.add('footer-in')">
+        <div class="container mx-auto">
+            <div class="grid grid-cols-4 gap-6">
+                <div class="col-span-4 md:col-span-3 flex flex-col">
+                    <div class="footer-anim rounded-2xl bg-white border border-gray-200 p-6 md:p-8 flex-1"
+                        style="transition-delay: 0.10s;">
+                        <div class="prose max-w-none text-gray-700 text-justify indent-10">
+                            {!! lc_content($data) !!}
                         </div>
-                    </li>
-                </ol>
-            </nav>
-        </div>
-    </div>
-
-    <div class="dark:bg-gray-6 page-header relative mb-4 w-full bg-gray-200">
-        <div class="absolute z-10 h-full w-full bg-white/75 dark:bg-gray-950/80"></div>
-        <div class="container mx-auto relative z-20 grid grid-cols-5 gap-5 py-6 px-4 lg:px-0">
-            <div class="col-span-5 grid place-content-center justify-start space-y-5 md:col-span-3">
-                <h1 class="text-2xl font-medium uppercase tracking-tight">
-                    {{ lc_title($data) }}
-                </h1>
-
-                <div class="flex items-center gap-2">
-                    <div class="flex space-x-2">
-                        <x-icon-button
-                            onclick="window.open('https://t.me/share/url?url={{ urlencode(url()->current()) }}&text={{ urlencode(lc_title($data)) }}','_blank')">
-                            <img src="{{ asset('img/icons/telegram.webp') }}" class="w-5 h-5" alt="Telegram icon">
-                        </x-icon-button>
-                        <x-icon-button
-                            onclick="window.open('https://www.facebook.com/sharer/sharer.php?u={{ urlencode(url()->current()) }}','_blank')">
-                            <img src="{{ asset('img/icons/facebook.webp') }}" class="w-5 h-5" alt="Facebook icon">
-                        </x-icon-button>
-                    </div>
-                    <x-icon-button onclick="copyToClipboard('{{ url()->current() }}')">
-                        <img src="{{ asset('/img/icons/send.webp') }}" alt="Send img" class="w-4 dark:invert" />
-                    </x-icon-button>
-                </div>
-            </div>
-            <div class="col-span-5 md:col-span-2">
-                <x-main.image src="{{ asset('storage/' . $data->image) }}" alt="{{ lc_title($data) }}"
-                    class="max-h-[480px] w-full rounded-lg object-cover shadow" />
-            </div>
-        </div>
-    </div>
-
-    <div class="container mx-auto my-10 rounded-lg bg-gray-100 py-6 shadow dark:bg-gray-700">
-        <div class="grid grid-cols-4 gap-4 px-4">
-            <div class="col-span-4 rounded-xl bg-background md:col-span-3">
-                <div class="rounded-xl bg-white dark:bg-gray-800 shadow p-4">
-                    <div class="my-4 text-justify indent-10 prose max-w-none dark:prose-invert">
-                        {!! lc_content($data) !!}
                     </div>
                 </div>
+                <x-main.sidebar />
             </div>
-            <x-main.sidebar />
         </div>
     </div>
 </x-main-layout>

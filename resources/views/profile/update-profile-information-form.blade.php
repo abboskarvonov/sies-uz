@@ -10,7 +10,16 @@
     <x-slot name="form">
         <!-- Profile Photo -->
         @if (Laravel\Jetstream\Jetstream::managesProfilePhotos())
-            <div x-data="{photoName: null, photoPreview: null}" class="col-span-6 sm:col-span-4">
+            <div x-data="{
+                    photoName: null,
+                    photoPreview: null,
+                    uploading: false,
+                }"
+                x-on:livewire-upload-start="uploading = true"
+                x-on:livewire-upload-finish="uploading = false"
+                x-on:livewire-upload-error="uploading = false"
+                class="col-span-6 sm:col-span-4">
+
                 <!-- Profile Photo File Input -->
                 <input type="file" id="photo" class="hidden"
                             wire:model.live="photo"
@@ -36,6 +45,15 @@
                     <span class="block rounded-full size-20 bg-cover bg-no-repeat bg-center"
                           x-bind:style="'background-image: url(\'' + photoPreview + '\');'">
                     </span>
+                </div>
+
+                <!-- Upload progress indicator -->
+                <div x-show="uploading" class="mt-2 flex items-center gap-2 text-sm text-gray-500">
+                    <svg class="animate-spin h-4 w-4 text-teal-600" fill="none" viewBox="0 0 24 24">
+                        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                        <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8z"></path>
+                    </svg>
+                    Rasm yuklanmoqda...
                 </div>
 
                 <x-secondary-button class="mt-2 me-2" type="button" x-on:click.prevent="$refs.photo.click()">
@@ -88,7 +106,14 @@
             {{ __('Saved.') }}
         </x-action-message>
 
-        <x-button wire:loading.attr="disabled" wire:target="photo">
+        <x-button
+            x-data="{ uploading: false }"
+            x-on:livewire-upload-start.window="uploading = true"
+            x-on:livewire-upload-finish.window="uploading = false"
+            x-on:livewire-upload-error.window="uploading = false"
+            x-bind:disabled="uploading"
+            wire:loading.attr="disabled"
+            wire:target="_startUpload,_finishUpload,photo">
             {{ __('Save') }}
         </x-button>
     </x-slot>

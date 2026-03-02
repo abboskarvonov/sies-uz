@@ -98,7 +98,7 @@ class MultimenuResource extends Resource
 
                 Section::make('Rasm')
                     ->schema([
-                        FileUpload::make('image')->image()->directory('multimenus')->nullable(),
+                        FileUpload::make('image')->directory('multimenus')->nullable(),
                     ])
                     ->columns(1)
                     ->collapsed(false),

@@ -1,5 +1,5 @@
 <x-main-layout :preloadHero="true">
-    @include('components.home.hero-modern')
+    @include('components.home.hero', ['stat' => $stat, 'galleryImages' => $heroGalleryImages ?? collect()])
     <x-home.news :latestNews="$latestNews" :otherNews="$otherNews" :announcements="$announcements" />
     @include('components.home.edu-links')
     <x-home.research-activities :announcementsWithActivity="$announcementsWithActivity" />

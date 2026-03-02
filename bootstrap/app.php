@@ -36,7 +36,13 @@ return Application::configure(basePath: dirname(__DIR__))
             'set.locale'              => \App\Http\Middleware\SetLocale::class,
         ]);
         $middleware->append([
+            // TrustProxies must run first so proxy-forwarded Host is resolved
+            // before TrustHosts validates it.
             \App\Http\Middleware\TrustProxies::class,
+            // Security fix: reject requests with untrusted Host headers
+            \App\Http\Middleware\TrustHosts::class,
+            // Security fix: append hardened security headers to every response
+            \App\Http\Middleware\SecurityHeaders::class,
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions) {

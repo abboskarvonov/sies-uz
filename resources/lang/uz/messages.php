@@ -13,6 +13,7 @@ return [
     'sc_activity' => 'Ilmiy faoliyat',
     'faculty' => 'Fakultetlar',
     'all_faculties' => 'Barcha fakultetlar',
+    'more' => 'Batafsil',
     'all_departments' => 'Barcha kafedralar',
     'statistics' => 'Institutning asosiy ko\'rsatkichlari',
     'area' => 'Maydon',
@@ -43,7 +44,8 @@ return [
     'warning' => "Sayt materiallaridan to'liq yoki qisman foydalanilganda ushbu manbani ko'rsatish majburiy",
     'copyright' => 'Samarqand iqtisodiyot va servis instituti. Barcha huquqlar himoyalangan',
     'read_more' => 'Batafsil',
-    'year_name' => '2025-yil "Atrof-muhitni asrash va „yashil" iqtisodiyot yili"',
+    'files' => 'Fayllar',
+    'year_name' => '2026-yil "Mahallani rivojlantirish va jamiyatni yuksaltirish yili"',
     'menu' => 'Menyular',
     'welcome' => 'Xush kelibsiz',
     'learn_more' => 'Batafsil ma\'lumot',
@@ -65,4 +67,5 @@ return [
     'staff_error' => 'Hozircha xodimlar maʼlumoti mavjud emas.',
     'search' => 'Qidiruv natijalari',
     'search_text' => 'Izlash',
+    'copy_link' => 'Havolani nusxalash',
 ];

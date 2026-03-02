@@ -1,7 +1,9 @@
-<div class="w-full bg-gray-200 py-3 px-2 dark:bg-gray-950">
-    <div class="container mx-auto">
+<div class="relative z-50 w-full py-3 px-2 backdrop-blur-xl border-b bg-teal-950"
+    style="box-shadow: inset 0 1px 0 rgba(255,255,255,0.08), 0 4px 24px rgba(0,0,0,0.25);">
+
+    <div class="container mx-auto header-glass">
         <div class="flex items-center justify-between">
-            <div class="grid auto-cols-max grid-flow-col items-center gap-1">
+            <div class="grid auto-cols-max grid-flow-col items-center gap-1 header-btn-anim" style="animation-delay:50ms">
                 <x-icon-button>
                     <a href='{{ route('symbol.show', ['symbol' => $symbolSlugs['flag']]) }}' aria-label="Uzb flag">
                         <img src="{{ asset('img/flags/uz.png') }}" alt="Uzb flag" class="w-5 h-5" width="20px"
@@ -18,42 +20,46 @@
                 <x-icon-button>
                     <a href='{{ route('symbol.show', ['symbol' => $symbolSlugs['anthem']]) }}' aria-label="Music icon">
                         <img src="{{ asset('img/icons/002-musical-note.webp') }}" alt="Music icon"
-                            class="w-4 h-4 dark:invert" width="16px" height="16px" />
+                            class="w-4 h-4 invert" width="16px" height="16px" />
                     </a>
                 </x-icon-button>
             </div>
 
-            <div class="hidden auto-cols-max grid-flow-col items-center gap-1 lg:grid">
+            <div class="hidden auto-cols-max grid-flow-col items-center gap-1 lg:grid header-btn-anim"
+                style="animation-delay:150ms">
                 @if ($siteSettings?->phone_primary)
                     <x-icon-button>
                         <a href="tel:{{ $siteSettings->phone_primary }}" aria-label="Telefon">
                             <img src="{{ asset('img/icons/003-phone-call.webp') }}" alt="Phone icon"
-                                class="w-4 h-4 dark:invert" width="16px" height="16px" />
+                                class="w-4 h-4 invert" width="16px" height="16px" />
                         </a>
                     </x-icon-button>
                 @endif
                 @if ($siteSettings?->email_primary)
+                    {{-- Security fix (CWE-200): href is built by JS from base64 data attribute --}}
                     <x-icon-button>
-                        <a href="mailto:{{ $siteSettings->email_primary }}" aria-label="Email">
+                        <span class="obf-email-icon" data-e="{{ base64_encode($siteSettings->email_primary) }}"
+                            aria-label="Email" role="link" tabindex="0" style="cursor:pointer">
                             <img src="{{ asset('img/icons/001-envelope.webp') }}" alt="Email icon"
-                                class="w-4 h-4 dark:invert" width="16px" height="16px" />
-                        </a>
+                                class="w-4 h-4 invert" width="16px" height="16px" />
+                        </span>
                     </x-icon-button>
                 @endif
                 <x-icon-button>
                     <a href="/sitemap" aria-label="Sayt xaritasi">
                         {{-- Sitemap SVG --}}
-                        <img src="{{ asset('img/icons/004-sitemap.webp') }}" alt="Sitemap icon"
-                            class="w-4 h-4 dark:invert" width="16px" height="16px" />
-                    </a>
+                        <img src="{{ asset('img/icons/004-sitemap.webp') }}" alt="Sitemap icon" class="w-4 h-4 invert"
+                            width="16px" height="16px" />
+                    </a>∫
                 </x-icon-button>
             </div>
 
-            <div class="hidden auto-cols-max grid-flow-col items-center gap-1 text-foreground md:grid">
+            <div class="hidden auto-cols-max grid-flow-col items-center gap-1 text-foreground md:grid header-btn-anim"
+                style="animation-delay:250ms">
                 <x-button>
                     <a href="{{ $siteSettings?->hemis_url ?? 'https://student.sies.uz/dashboard/login' }}"
                         class="flex items-center gap-1 text-xs font-bold uppercase" target="_blank">
-                        <img src="{{ asset('img/icons/001-user.webp') }}" alt="Hemis icon" class="w-4 h-4 dark:invert"
+                        <img src="{{ asset('img/icons/001-user.webp') }}" alt="Hemis icon" class="w-4 h-4 invert"
                             width="16px" height="16px" />
                         Hemis
                     </a>
@@ -62,7 +68,7 @@
                     <a href="{{ $siteSettings?->arm_url ?? 'https://arm.sies.uz/' }}"
                         class="flex items-center gap-1 text-xs font-bold uppercase" target="_blank">
                         {{-- Book SVG --}}
-                        <img src="{{ asset('img/icons/004-book.webp') }}" alt="Book icon" class="w-4 h-4 dark:invert"
+                        <img src="{{ asset('img/icons/004-book.webp') }}" alt="Book icon" class="w-4 h-4 invert"
                             width="16px" height="16px" />
                         Arm
                     </a>
@@ -71,13 +77,14 @@
                     <a href="{{ $siteSettings?->sdg_url ?? 'https://sdg.sies.uz/' }}"
                         class="flex items-center gap-1 text-xs font-bold uppercase" target="_blank">
                         <img src="/img/icons/sdg.webp" alt="SDG icon" width="16px" height="16px"
-                            class="w-4 h-4 dark:invert" />
+                            class="w-4 h-4 invert" />
                         SDG
                     </a>
                 </x-button>
             </div>
 
-            <div class="hidden md:grid auto-cols-max grid-flow-col items-center gap-1">
+            <div class="hidden md:grid auto-cols-max grid-flow-col items-center gap-1 header-btn-anim"
+                style="animation-delay:350ms">
                 @if ($siteSettings?->telegram_url)
                     <x-icon-button>
                         <a href="{{ $siteSettings->telegram_url }}" target="_blank" aria-label="Telegram">
@@ -113,13 +120,16 @@
                 @endif
             </div>
 
-            <div class="grid auto-cols-max grid-flow-col items-center gap-1">
+            <div class="grid auto-cols-max grid-flow-col items-center gap-1 header-btn-anim"
+                style="animation-delay:450ms">
                 @include('components.main.search')
                 @include('components.main.language-switcher')
-                @include('components.main.dark-mode-toggle')
+                {{-- @include('components.main.dark-mode-toggle') --}}
 
                 @if (Auth::check())
-                    <x-dropdown align="right" width="48">
+                    <x-dropdown align="right" width="48"
+                        contentClasses="py-1 bg-teal-800/85 backdrop-blur-xl [&_a]:text-teal-100 [&_a:hover]:bg-teal-700/60 [&_a:hover]:text-white"
+                        dropdownClasses="border border-teal-700/40 rounded-xl overflow-hidden">
                         <x-slot name="trigger">
                             @if (Laravel\Jetstream\Jetstream::managesProfilePhotos())
                                 <button
@@ -147,7 +157,7 @@
 
                         <x-slot name="content">
                             <!-- Account Management -->
-                            <div class="block px-4 py-2 text-xs text-gray-400">
+                            <div class="block px-4 py-2 text-xs text-teal-400/70">
                                 {{ __('Manage Account') }}
                             </div>
 
@@ -175,7 +185,7 @@
                                 </x-dropdown-link>
                             @endif
 
-                            <div class="border-t border-gray-200 dark:border-gray-600"></div>
+                            <div class="border-t border-teal-700/40"></div>
 
                             <!-- Authentication -->
                             <form method="POST" action="{{ route('logout') }}" x-data>
@@ -191,13 +201,13 @@
                     <x-icon-button>
                         <a href="{{ route('login') }}">
                             <img src="{{ asset('img/icons/002-enter.webp') }}" alt="User icon"
-                                class="w-4 h-4 dark:invert" width="16px" height="16px" />
+                                class="w-4 h-4 invert" width="16px" height="16px" />
                         </a>
                     </x-icon-button>
                     <x-icon-button>
                         <a href="{{ route('register') }}">
                             <img src="{{ asset('img/icons/003-add-user.webp') }}" alt="User icon"
-                                class="w-4 h-4 dark:invert" width="16px" height="16px" />
+                                class="w-4 h-4 invert" width="16px" height="16px" />
                         </a>
                     </x-icon-button>
                 @endif

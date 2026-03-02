@@ -1,5 +1,5 @@
 @if ($quickLinks && $quickLinks->count() > 0)
-    <div class="bg-gradient-to-r from-blue-600 to-indigo-700 dark:from-blue-800 dark:to-indigo-900 py-3 px-2">
+    <div class="bg-linear-to-r from-teal-700 to-teal-800 dark:from-teal-800 dark:to-teal-900 py-3 px-2">
         <div class="container mx-auto">
             <div class="flex flex-wrap items-center justify-end gap-2">
                 <!-- Quick Links Label -->
@@ -17,7 +17,8 @@
                 <div class="flex flex-wrap items-center justify-end gap-2">
                     @foreach ($quickLinks as $link)
                         <a href="{{ $link->link ?: '#' }}" target="{{ $link->link ? '_blank' : '_self' }}"
-                            class="group flex items-center gap-2 px-4 py-2 bg-white/10 hover:bg-white/20 dark:bg-gray-800/50 dark:hover:bg-gray-700/70 text-white rounded-lg transition-all duration-300 transform border border-white/20 dark:border-gray-600">
+                            class="card-shine group flex items-center gap-2 px-4 py-2 overflow-hidden bg-white/10 hover:bg-white/20 dark:bg-gray-800/50 dark:hover:bg-gray-700/70 text-white rounded-lg transition-all duration-300 transform border border-white/20 dark:border-gray-600 header-btn-anim"
+                            style="animation-delay: {{ 400 + $loop->index * 70 }}ms">
                             @if ($link->image)
                                 <img src="{{ asset('storage/' . $link->image) }}"
                                     alt="{{ $link->{'title_' . app()->getLocale()} }}"

@@ -12,6 +12,7 @@ class StaffCategory extends Model
         'title_uz',
         'title_ru',
         'title_en',
+        'order',
     ];
 
     public function parent()

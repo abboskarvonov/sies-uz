@@ -189,11 +189,10 @@ class PageResource extends Resource
 
                 Section::make('Rasmlar')
                     ->schema([
-                        FileUpload::make('image')->image()->directory('pages')->nullable(),
+                        FileUpload::make('image')->directory('pages')->nullable(),
                         FileUpload::make('images')
                             ->label('Galereya')
                             ->multiple()
-                            ->image()
                             ->directory('pages/gallery')
                             ->reorderable()
                             ->getUploadedFileNameForStorageUsing(fn($file) => $file->hashName())

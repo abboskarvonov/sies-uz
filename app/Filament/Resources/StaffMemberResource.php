@@ -124,8 +124,7 @@ class StaffMemberResource extends Resource
                         FileUpload::make('image')
                             ->label('Rasm')
                             ->disk('public')
-                            ->directory('staff_members')
-                            ->preserveFilenames(),
+                            ->directory('staff_members'),
                     ]),
             ]);
     }
@@ -141,7 +140,7 @@ class StaffMemberResource extends Resource
                 TextColumn::make('page.title_uz')->label('Tegishli sahifa'),
                 TextColumn::make('createdBy.name')->label('Yaratuvchi'),
                 TextColumn::make('updatedBy.name')->label('O\'zgartiruvchi'),
-                ImageColumn::make('image')->label('Rasm'),
+                ImageColumn::make('image')->label('Rasm')->disk('public'),
             ])
             ->filters([
                 SelectFilter::make('page_id')

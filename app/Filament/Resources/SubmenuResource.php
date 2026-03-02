@@ -81,7 +81,7 @@ class SubmenuResource extends Resource
                     ->columns(3),
                 Section::make('Rasm')
                     ->schema([
-                        FileUpload::make('image')->image()->directory('submenus'),
+                        FileUpload::make('image')->directory('submenus'),
                     ])
                     ->columns(1),
             ]);

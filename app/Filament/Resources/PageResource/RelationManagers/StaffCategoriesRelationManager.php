@@ -50,13 +50,21 @@ class StaffCategoriesRelationManager extends RelationManager
                     ->searchable()
                     ->preload()
                     ->nullable(),
+
+                TextInput::make('order')
+                    ->label('Tartib')
+                    ->numeric()
+                    ->default(0),
             ]);
     }
 
     public function table(Table $table): Table
     {
         return $table
+            ->reorderable('order')
+            ->defaultSort('order')
             ->columns([
+                TextColumn::make('order')->label('#')->sortable(),
                 TextColumn::make('title_uz')->label('Nomi (UZ)')->searchable(),
                 TextColumn::make('title_ru')->label('Nomi (RU)'),
                 TextColumn::make('title_en')->label('Nomi (EN)'),

@@ -1,6 +1,19 @@
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+@import "tailwindcss";
+
+/* Class-based dark mode for Tailwind v4 */
+@custom-variant dark (&:where(.dark, .dark *));
+
+@theme {
+    --font-sans:
+        "Figtree", ui-sans-serif, system-ui, sans-serif, "Apple Color Emoji",
+        "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
+}
+
+@plugin "@tailwindcss/forms";
+@plugin "@tailwindcss/typography";
+
+@source "../../vendor/laravel/framework/src/Illuminate/Pagination/resources/views";
+@source "../../vendor/laravel/jetstream";
 
 [x-cloak] {
     display: none !important;
@@ -50,8 +63,8 @@ img[loading="lazy"] {
     }
 }
 
-/* Loaded holatda */
-img[loading="lazy"]:not([src=""]) {
+/* Loaded holatda — JS orqali .img-loaded klassi qo'shiladi */
+img[loading="lazy"].img-loaded {
     animation: none;
     background: none;
 }
@@ -112,8 +125,12 @@ img[loading="lazy"]:not([src=""]) {
 }
 
 @keyframes fade-in {
-    from { opacity: 0; }
-    to { opacity: 1; }
+    from {
+        opacity: 0;
+    }
+    to {
+        opacity: 1;
+    }
 }
 
 @keyframes fade-in-up {
@@ -153,6 +170,49 @@ img[loading="lazy"]:not([src=""]) {
     animation-fill-mode: forwards;
 }
 
+/* ── Header buttons staggered entrance ──────────────────────── */
+.header-btn-anim {
+    animation: fade-in-up 0.5s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .header-btn-anim {
+        animation: none;
+    }
+}
+
+/* ── Header / Navbar entrance animation ─────────────────────── */
+@keyframes slide-down {
+    from {
+        transform: translateY(-100%);
+        opacity: 0;
+    }
+    to {
+        transform: translateY(0);
+        opacity: 1;
+    }
+}
+
+.animate-slide-down {
+    animation: slide-down 0.45s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+.animate-slide-down-delayed {
+    animation: slide-down 0.45s cubic-bezier(0.22, 1, 0.36, 1) 0.18s both;
+}
+
+.animate-slide-down-delayed-2 {
+    animation: slide-down 0.45s cubic-bezier(0.22, 1, 0.36, 1) 0.32s both;
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .animate-slide-down,
+    .animate-slide-down-delayed,
+    .animate-slide-down-delayed-2 {
+        animation: none;
+    }
+}
+
 /* Disable heavy animations on mobile */
 @media (max-width: 768px) {
     .animate-blob {
@@ -178,5 +238,217 @@ img[loading="lazy"]:not([src=""]) {
         animation-duration: 0.01ms !important;
         animation-iteration-count: 1 !important;
         transition-duration: 0.01ms !important;
+    }
+}
+
+/* ── Header glass buttons (colorless / transparent) ─────────── */
+.header-glass button {
+    background: rgba(255, 255, 255, 0.1) !important;
+    border-color: rgba(255, 255, 255, 0.18) !important;
+    color: #ffffff !important;
+    box-shadow:
+        inset 0 1px 0 rgba(255, 255, 255, 0.15),
+        0 1px 4px rgba(0, 0, 0, 0.2) !important;
+    transition:
+        background 0.15s ease,
+        border-color 0.15s ease,
+        box-shadow 0.15s ease !important;
+}
+
+.header-glass button:hover {
+    background: rgba(255, 255, 255, 0.2) !important;
+    border-color: rgba(255, 255, 255, 0.35) !important;
+    color: #ffffff !important;
+    box-shadow:
+        inset 0 1px 0 rgba(255, 255, 255, 0.22),
+        0 2px 10px rgba(0, 0, 0, 0.25) !important;
+}
+
+.header-glass button:active {
+    background: rgba(255, 255, 255, 0.08) !important;
+    box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.2) !important;
+    color: #ffffff !important;
+}
+
+/* ── Navbar glass buttons (indigo-600/700 bg) ───────────────── */
+.nav-glass button {
+    border-color: oklch(38.6% 0.063 188.416) !important;
+    color: #000000 !important;
+
+    transition:
+        background 0.15s ease,
+        border-color 0.15s ease,
+        box-shadow 0.15s ease !important;
+}
+
+.nav-glass button:hover {
+    background: rgba(255, 255, 255, 0.22) !important;
+    border-color: oklch(38.751% 0.06312 188.762 / 0.705) !important;
+    color: #1d1a1a !important;
+    box-shadow:
+        inset 0 1px 0 rgba(255, 255, 255, 0.22),
+        0 2px 10px rgba(0, 0, 0, 0.2) !important;
+}
+
+.nav-glass button:active {
+    background: rgba(255, 255, 255, 0.08) !important;
+    box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.18) !important;
+    color: #ffffff !important;
+}
+
+/* ── Dark mode global overrides ─────────────────────────────── */
+.dark .bg-gray-100 {
+    background-color: rgb(3 7 18); /* gray-950 */
+}
+
+.dark .bg-white {
+    background-color: rgb(3 7 18);
+}
+
+/* ── Page header entrance animations (page-load, no scroll) ─── */
+@keyframes pageSlideLeft {
+    from { opacity: 0; transform: translateX(-36px); }
+    to   { opacity: 1; transform: translateX(0); }
+}
+@keyframes pageSlideRight {
+    from { opacity: 0; transform: translateX(36px); }
+    to   { opacity: 1; transform: translateX(0); }
+}
+@keyframes pageSlideUp {
+    from { opacity: 0; transform: translateY(20px); }
+    to   { opacity: 1; transform: translateY(0); }
+}
+@keyframes pageFadeIn {
+    from { opacity: 0; }
+    to   { opacity: 1; }
+}
+
+.page-anim-left  { animation: pageSlideLeft  0.65s cubic-bezier(0.22, 1, 0.36, 1) both; }
+.page-anim-right { animation: pageSlideRight 0.65s cubic-bezier(0.22, 1, 0.36, 1) both; }
+.page-anim-up    { animation: pageSlideUp    0.55s cubic-bezier(0.22, 1, 0.36, 1) both; }
+.page-anim-fade  { animation: pageFadeIn     0.55s ease both; }
+
+.page-anim-d1 { animation-delay: 0.05s; }
+.page-anim-d2 { animation-delay: 0.15s; }
+.page-anim-d3 { animation-delay: 0.25s; }
+.page-anim-d4 { animation-delay: 0.38s; }
+.page-anim-d5 { animation-delay: 0.52s; }
+
+@media (prefers-reduced-motion: reduce) {
+    .page-anim-left,
+    .page-anim-right,
+    .page-anim-up,
+    .page-anim-fade { animation: none; }
+}
+
+/* ── Footer scroll-triggered animations ─────────────────────── */
+.footer-anim {
+    opacity: 0;
+    transform: translateY(28px);
+    transition:
+        opacity 0.65s cubic-bezier(0.22, 1, 0.36, 1),
+        transform 0.65s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.footer-in .footer-anim {
+    opacity: 1;
+    transform: none;
+}
+
+.footer-anim-d1 {
+    transition-delay: 0.2s;
+}
+.footer-anim-d2 {
+    transition-delay: 0.42s;
+}
+.footer-anim-d3 {
+    transition-delay: 0.64s;
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .footer-anim {
+        opacity: 1;
+        transform: none;
+        transition: none;
+    }
+}
+
+/* ── Glass card shine sweep on hover ────────────────────────── */
+.card-shine {
+    position: relative;
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.06);
+}
+
+.card-shine:hover {
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.12);
+}
+
+.card-shine::after {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 60%;
+    height: 100%;
+    background: linear-gradient(
+        to right,
+        transparent 0%,
+        rgba(255, 255, 255, 0.22) 50%,
+        transparent 100%
+    );
+    transform: skewX(-15deg);
+    pointer-events: none;
+    z-index: 2;
+    transition: left 0s;
+}
+
+.card-shine:hover::after {
+    left: 140%;
+    transition: left 1s cubic-bezier(0.55, 1, 0.36, 1);
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .card-shine::after {
+        display: none;
+    }
+}
+
+/* ── Header / Navbar button shine ───────────────────────────── */
+.header-glass button,
+.header-btn-anim > button {
+    position: relative !important;
+    overflow: hidden !important;
+}
+
+.header-glass button::after,
+.header-btn-anim > button::after {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: -80%;
+    width: 45%;
+    height: 100%;
+    background: linear-gradient(
+        to right,
+        transparent 0%,
+        rgba(255, 255, 255, 0.18) 50%,
+        transparent 100%
+    );
+    transform: skewX(-15deg);
+    pointer-events: none;
+    z-index: 1;
+    transition: left 0s;
+}
+
+.header-glass button:hover::after,
+.header-btn-anim > button:hover::after {
+    left: 130%;
+    transition: left 0.45s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .header-glass button::after,
+    .header-btn-anim > button::after {
+        display: none;
     }
 }

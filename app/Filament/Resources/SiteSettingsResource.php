@@ -118,12 +118,10 @@ class SiteSettingsResource extends Resource
                 ->schema([
                     FileUpload::make('logo')
                         ->label('Sayt logosi')
-                        ->image()
                         ->disk('public')
                         ->directory('site')
                         ->imagePreviewHeight('80')
-                        ->maxSize(2048)
-                        ->acceptedFileTypes(['image/png', 'image/webp', 'image/svg+xml', 'image/jpeg']),
+                        ->maxSize(2048),
                 ]),
 
             Section::make('Google Maps')

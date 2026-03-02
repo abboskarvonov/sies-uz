@@ -43,33 +43,33 @@ step "Maintenance mode yoqilmoqda..."
 php artisan down --retry=60 2>/dev/null || warn "Maintenance mode ishlamadi, davom etilmoqda..."
 
 # =============================================================================
-# 2. Composer — faqat install (update EMAS!)
+# 2. Storage papkalari va ruxsatlar — ENG AVVAL (boshqa hamma narsadan oldin)
 # =============================================================================
-# MUHIM: Serverda hech qachon `composer update` ishlatilmaydi!
-# `composer update` — local dev muhiti uchun (lock file yangilanadi)
-# `composer install` — server uchun (lock file'dagi aniq versiyalar o'rnatiladi)
-step "Composer paketlari o'rnatilmoqda (--no-dev)..."
-composer install \
-    --no-dev \
-    --no-interaction \
-    --prefer-dist \
-    --optimize-autoloader
+step "Storage papkalari yaratilmoqda..."
+mkdir -p storage/framework/cache/data
+mkdir -p storage/framework/sessions
+mkdir -p storage/framework/views
+mkdir -p storage/framework/testing
+mkdir -p storage/logs
+mkdir -p storage/app/public
+mkdir -p storage/app/private
+mkdir -p storage/app/private/livewire-tmp
+mkdir -p storage/app/livewire-tmp
+mkdir -p storage/backups
+mkdir -p bootstrap/cache
+
+step "Fayl ruxsatlari (permissions) to'g'irlanmoqda..."
+chmod -R 777 storage/framework/views
+chmod -R 777 storage/framework/cache
+chmod -R 777 storage/framework/sessions
+chmod -R 777 storage/logs
+chmod -R 777 bootstrap/cache
+chmod -R 775 storage/app
+chown -R www-data:www-data storage bootstrap/cache 2>/dev/null \
+    || chown -R "$(whoami):$(whoami)" storage bootstrap/cache 2>/dev/null || true
 
 # =============================================================================
-# 3. NPM build (Node.js mavjud bo'lsa)
-# =============================================================================
-if [ "$HAS_NODE" = true ]; then
-    step "NPM paketlari o'rnatilmoqda..."
-    npm ci --prefer-offline
-
-    step "Vite production build..."
-    npm run build
-else
-    warn "NPM build o'tkazib yuborildi — public/build papkasi allaqachon mavjud bo'lishi kerak"
-fi
-
-# =============================================================================
-# 4. .env fayl mavjudligini tekshirish
+# 3. .env fayl mavjudligini tekshirish
 # =============================================================================
 step ".env fayl tekshirilmoqda..."
 [ -f ".env" ] || fail ".env fayl topilmadi! .env.example dan nusxa ko'chiring va to'ldiring"
@@ -80,7 +80,41 @@ APP_DEBUG_VAL=$(grep "^APP_DEBUG=" .env | cut -d'=' -f2)
 [ "$APP_DEBUG_VAL" = "false" ]    || warn ".env da APP_DEBUG=false emas! Hozirgi: $APP_DEBUG_VAL — xatolar saytda ko'rinishi mumkin!"
 
 # =============================================================================
-# 5. Ma'lumotlar bazasi migratsiyasi
+# 4. Composer — faqat install (update EMAS!)
+# =============================================================================
+step "Composer paketlari o'rnatilmoqda (--no-dev)..."
+composer install \
+    --no-dev \
+    --no-interaction \
+    --prefer-dist \
+    --optimize-autoloader
+
+# =============================================================================
+# 5. NPM build (Node.js mavjud bo'lsa)
+# =============================================================================
+if [ "$HAS_NODE" = true ]; then
+    step "NPM paketlari o'rnatilmoqda..."
+    npm ci --prefer-offline
+
+    step "Vite production build..."
+    npm run build
+else
+    warn "NPM build o'tkazib yuborildi — public/build papkasi allaqachon mavjud bo'lishi kerak"
+    [ -d "public/build" ] || warn "public/build papkasi yo'q! Frontend ishlashi mumkin emas."
+fi
+
+# =============================================================================
+# 6. Cache tozalash (migration oldidan)
+# =============================================================================
+step "Cache tozalanmoqda..."
+php artisan cache:clear
+php artisan config:clear
+php artisan route:clear
+php artisan view:clear
+php artisan event:clear
+
+# =============================================================================
+# 7. Ma'lumotlar bazasi migratsiyasi
 # =============================================================================
 step "Pending migratsiyalar tekshirilmoqda..."
 PENDING=$(php artisan migrate:status --pending 2>/dev/null | grep -c "Pending" || true)
@@ -94,7 +128,6 @@ if [ "$PENDING" -gt 0 ] 2>/dev/null || php artisan migrate:status 2>/dev/null | 
 
         if [ -n "$DB_DATABASE" ]; then
             BACKUP_FILE="storage/backups/db_$(date +%Y%m%d_%H%M%S).sql"
-            mkdir -p storage/backups
             step "DB backup olinmoqda: $BACKUP_FILE"
             mysqldump -u"$DB_USERNAME" -p"$DB_PASSWORD" "$DB_DATABASE" > "$BACKUP_FILE" 2>/dev/null \
                 && echo "  Backup muvaffaqiyatli: $BACKUP_FILE" \
@@ -109,85 +142,78 @@ else
 fi
 
 # =============================================================================
-# 6. Storage symbolic link
+# 8. Storage symbolic link
 # =============================================================================
 step "Storage link tekshirilmoqda..."
 if [ ! -L "public/storage" ]; then
     php artisan storage:link
     echo "  Storage link yaratildi"
+elif [ ! -e "public/storage" ]; then
+    # Symlink mavjud lekin broken (target yo'q) — qayta yaratish
+    rm "public/storage"
+    php artisan storage:link
+    echo "  Broken storage link tuzatildi"
 else
-    echo "  Storage link allaqachon mavjud"
+    echo "  Storage link allaqachon mavjud va ishlayapti"
 fi
 
 # =============================================================================
-# 7. Cache tozalash va qayta qurish
+# 9. Cache qayta qurish (production optimization)
 # =============================================================================
-step "Cache tozalanmoqda..."
-php artisan cache:clear
-php artisan config:clear
-php artisan route:clear
-php artisan view:clear
-php artisan event:clear
-
 step "Cache qurilmoqda (production optimization)..."
 php artisan config:cache
-php artisan route:cache
-php artisan view:cache
+
+if php artisan route:cache 2>/dev/null; then
+    echo "  route:cache OK"
+else
+    warn "route:cache ishlamadi (closure route bo'lishi mumkin) — cached bo'lmaydi"
+    php artisan route:clear 2>/dev/null || true
+fi
+
+if php artisan view:cache 2>/dev/null; then
+    echo "  view:cache OK"
+else
+    warn "view:cache ishlamadi — view:clear ishlatilib davom etilmoqda"
+    php artisan view:clear 2>/dev/null || true
+fi
+
 php artisan event:cache
 
 # =============================================================================
-# 8. Filament (admin panel)
+# 10. Filament (admin panel)
 # =============================================================================
 step "Filament upgradelanmoqda..."
 php artisan filament:upgrade
 
-# Filament icon cache
 php artisan icons:cache 2>/dev/null || warn "icons:cache ishlamadi (katta xato emas)"
 
 # =============================================================================
-# 9. Permissions (spatie)
+# 11. Permissions (spatie)
 # =============================================================================
 step "Permission cache yangilanmoqda..."
 php artisan permission:cache-reset 2>/dev/null || warn "permission:cache-reset ishlamadi"
 
 # =============================================================================
-# 10. Rasm cache tozalash (ixtiyoriy)
+# 12. Rasm cache tozalash (ixtiyoriy)
 # =============================================================================
 step "Rasm cache tozalanmoqda..."
 php artisan images:clear-cache --force 2>/dev/null || warn "images:clear-cache ishlamadi"
 
 # =============================================================================
-# 11. Fayl ruxsatlarini to'g'rilash
-# =============================================================================
-step "Storage papkalari yaratilmoqda..."
-mkdir -p storage/framework/cache/data
-mkdir -p storage/framework/sessions
-mkdir -p storage/framework/views
-mkdir -p storage/framework/testing
-mkdir -p storage/logs
-mkdir -p storage/app/public
-mkdir -p bootstrap/cache
-
-step "Fayl ruxsatlari (permissions) to'g'irlanmoqda..."
-chmod -R 775 storage bootstrap/cache
-chown -R www-data:www-data storage bootstrap/cache 2>/dev/null \
-    || chown -R $(whoami):$(whoami) storage bootstrap/cache
-
-# =============================================================================
-# 12. Queue worker qayta ishga tushirish
+# 13. Queue worker qayta ishga tushirish
 # =============================================================================
 step "Queue worker qayta ishga tushirilmoqda..."
 php artisan queue:restart
 echo "  Queue restart signali yuborildi"
 
 # =============================================================================
-# 13. Sitemap yangilash (ixtiyoriy)
+# 14. Sitemap yangilash (ixtiyoriy)
 # =============================================================================
 step "Sitemap yangilanmoqda..."
 php artisan sitemap:generate 2>/dev/null || warn "sitemap:generate ishlamadi"
 
 # =============================================================================
-# 14. Maintenance mode o'chirish
+# 15. Maintenance mode o'chirish
 # =============================================================================
 step "Maintenance mode o'chirilmoqda..."
 php artisan up

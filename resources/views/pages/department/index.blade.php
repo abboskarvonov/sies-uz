@@ -1,23 +1,30 @@
 <x-main-layout :metaTitle="$metaTitle" :metaImage="$metaImage">
     <x-breadcrumb :menu="$menuModel" :submenu="$submenuModel ?? null" :multimenu="$multimenuModel ?? null" />
-    <div class="container mx-auto my-10 rounded-lg bg-gray-50 py-6 shadow dark:bg-gray-700 px-4">
-        <h1 class="text-xl font-medium uppercase tracking-tight">
-            {{ lc_title($multimenuModel) }}
-        </h1>
-        <div class="grid grid-cols-4 gap-4 py-5">
-            <div class="col-span-4 md:col-span-3">
-                <div class="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
-                    @if ($pages->count() > 0)
+
+    <div class="px-4 lg:px-0 py-10" x-data x-intersect.once.threshold.10="$el.classList.add('footer-in')">
+        <div class="container mx-auto">
+            <h1
+                class="flex items-center gap-3 text-xl font-medium uppercase md:text-2xl text-teal-800 mb-8 footer-anim footer-anim-d1">
+                <span
+                    class="flex items-center justify-center w-10 h-10 rounded-xl bg-teal-700/10 border border-teal-700/20 shrink-0">
+                    <img src="{{ asset('img/icons/010-ssd.webp') }}" alt="Icon" class="w-5 h-5" />
+                </span>
+                {{ lc_title($multimenuModel ?? ($submenuModel ?? $menuModel)) }}
+            </h1>
+            <div class="grid grid-cols-4 gap-6">
+                <div class="col-span-4 md:col-span-3">
+                    <div class="grid grid-cols-1 gap-5 md:grid-cols-2 lg:grid-cols-3">
                         @foreach ($pages as $page)
-                            <x-card.card :page="$page" :menuModel="$menuModel" :submenuModel="$submenuModel" :multimenuModel="$multimenuModel" />
+                            <div class="footer-anim h-full"
+                                style="transition-delay: {{ number_format(0.1 + min($loop->index, 8) * 0.1, 2) }}s;">
+                                <x-card.card :page="$page" :menuModel="$menuModel" :submenuModel="$submenuModel" :multimenuModel="$multimenuModel" />
+                            </div>
                         @endforeach
-                    @endif
+                    </div>
+                    <div class="mt-8">{{ $pages->links() }}</div>
                 </div>
-                <div class="mt-6">
-                    {{ $pages->links() }}
-                </div>
+                <x-main.sidebar />
             </div>
-            <x-main.sidebar />
         </div>
     </div>
 </x-main-layout>

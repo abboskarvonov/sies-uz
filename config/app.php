@@ -56,6 +56,25 @@ return [
 
     /*
     |--------------------------------------------------------------------------
+    | Trusted Hosts
+    |--------------------------------------------------------------------------
+    |
+    | Security fix: Host Header Attack (CVSS 5.3)
+    |
+    | Only requests with these hostnames will be accepted. The TrustHosts
+    | middleware also auto-derives a pattern from APP_URL, so listing the
+    | primary domain here adds explicit coverage for www and any aliases.
+    | Extra hosts can be added via APP_TRUSTED_HOSTS as comma-separated values.
+    |
+    */
+
+    'trusted_hosts' => array_filter(array_merge(
+        ['sies.uz', 'www.sies.uz'],
+        array_filter(explode(',', env('APP_TRUSTED_HOSTS', '')))
+    )),
+
+    /*
+    |--------------------------------------------------------------------------
     | Application Timezone
     |--------------------------------------------------------------------------
     |

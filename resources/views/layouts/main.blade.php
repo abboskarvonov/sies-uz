@@ -21,7 +21,7 @@
 @endphp
 
 <!DOCTYPE html>
-<html lang="{{ str_replace('_', '-', app()->getLocale()) }}" class="dark">
+<html lang="{{ str_replace('_', '-', app()->getLocale()) }}">
 
 <head>
     <meta charset="utf-8">
@@ -72,6 +72,9 @@
           imagesizes="100vw" fetchpriority="high">
     @endif
 
+    <!-- Dark mode: apply before CSS loads to prevent flash -->
+    <script>(function(){var t=localStorage.getItem('theme');if(t==='dark'||(!t&&window.matchMedia('(prefers-color-scheme: dark)').matches)){document.documentElement.classList.add('dark');}})();</script>
+
     <!-- Scripts -->
     @vite(['resources/css/app.css', 'resources/js/app.js'])
 
@@ -105,9 +108,9 @@
     </style>
 </head>
 
-<body class="font-sans antialiased text-gray-900 dark:text-white">
+<body class="font-sans antialiased text-gray-900 dark:text-gray-100 dark:bg-gray-950">
 
-    <div class="min-h-screen bg-white dark:bg-gray-900">
+    <div class="min-h-screen bg-white dark:bg-gray-950">
         @include('components.main.header')
         @include('components.main.navbar')
         @include('components.main.quick-links')
@@ -116,6 +119,53 @@
         </main>
         @include('components.main.footer')
     </div>
+
+    {{-- Scroll to top button --}}
+    <button id="scroll-top-btn"
+        onclick="window.scrollTo({ top: 0, behavior: 'smooth' })"
+        aria-label="Scroll to top"
+        style="position:fixed; bottom:1.5rem; right:1.5rem; z-index:9999;
+               display:none; opacity:0; transform:translateY(12px);
+               transition: opacity 0.3s ease, transform 0.3s ease;">
+        <span class="card-shine flex items-center justify-center
+                     w-11 h-11 rounded-xl overflow-hidden
+                     bg-teal-700 hover:bg-teal-800
+                     border border-teal-600/60 hover:border-teal-500
+                     text-white shadow-lg
+                     transition-colors duration-300">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 15l7-7 7 7" />
+            </svg>
+        </span>
+    </button>
+    <script>
+    (function () {
+        var btn = document.getElementById('scroll-top-btn');
+        var visible = false;
+        window.addEventListener('scroll', function () {
+            var should = window.scrollY > 320;
+            if (should === visible) return;
+            visible = should;
+            if (should) {
+                btn.style.display = 'block';
+                requestAnimationFrame(function () {
+                    btn.style.opacity = '1';
+                    btn.style.transform = 'translateY(0)';
+                });
+            } else {
+                btn.style.opacity = '0';
+                btn.style.transform = 'translateY(12px)';
+                setTimeout(function () { btn.style.display = 'none'; }, 300);
+            }
+        }, { passive: true });
+    })();
+    </script>
+    <script>
+        function toggleTheme() {
+            var isDark = document.documentElement.classList.toggle('dark');
+            localStorage.setItem('theme', isDark ? 'dark' : 'light');
+        }
+    </script>
     <script>
         function copyToClipboard(text) {
             if (navigator.clipboard) {
@@ -206,12 +256,43 @@
                 f.height = '100%';
                 f.title = 'SamISI Location';
                 f.allowFullscreen = true;
+                // Security fix (CWE-829): sandbox restricts iframe capabilities
+                f.setAttribute('sandbox', 'allow-scripts allow-same-origin allow-forms allow-popups');
                 mc.innerHTML = '';
                 mc.appendChild(f);
                 ob.disconnect();
             }
         }, {rootMargin: '200px'});
         ob.observe(mc);
+    })();
+    </script>
+
+    <!-- Security fix (CWE-200): decode obfuscated email links at runtime -->
+    <script>
+    (function () {
+        // Decode base64 emails stored in data-e attributes and build mailto links
+        document.querySelectorAll('.obf-email').forEach(function (el) {
+            try {
+                var em = atob(el.dataset.e);
+                var a = document.createElement('a');
+                a.href = 'mailto:' + em;
+                a.textContent = em;
+                a.className = 'hover:underline';
+                el.replaceWith(a);
+            } catch (e) { /* silently ignore decode errors */ }
+        });
+
+        // Email icon links in the header (icon-only, no visible text)
+        document.querySelectorAll('.obf-email-icon').forEach(function (el) {
+            try {
+                var em = atob(el.dataset.e);
+                var a = document.createElement('a');
+                a.href = 'mailto:' + em;
+                a.setAttribute('aria-label', 'Email');
+                a.innerHTML = el.innerHTML;
+                el.replaceWith(a);
+            } catch (e) { /* silently ignore decode errors */ }
+        });
     })();
     </script>
 

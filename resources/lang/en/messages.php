@@ -13,6 +13,7 @@ return [
     'sc_activity' => 'Scientific Activity',
     'faculty' => 'Faculties',
     'all_faculties' => 'All Faculties',
+    'more' => 'More details',
     'all_departments' => 'All Departments',
     'statistics' => 'Main Indicators of the Institute',
     'area' => 'Area',
@@ -43,7 +44,8 @@ return [
     'warning' => 'When using site materials fully or partially, citing this source is mandatory',
     'copyright' => 'Samarkand Institute of Economics and Service. All rights reserved',
     'read_more' => 'Read more',
-    'year_name' => '2025 – The Year of Environmental Protection and the "Green" Economy',
+    'files' => 'Files',
+    'year_name' => '2026 – The Year of Developing Mahalla and Elevating Society',
     'menu' => 'Menus',
     'welcome' => 'Welcome',
     'learn_more' => 'Learn More',
@@ -65,4 +67,5 @@ return [
     'staff_error' => 'Staff information is not available at the moment.',
     'search' => 'Search Results',
     'search_text' => 'Search',
+    'copy_link' => 'Copy link',
 ];

@@ -169,7 +169,9 @@ return [
     |
     */
 
-    'secure' => env('SESSION_SECURE_COOKIE'),
+    // Security fix: session cookie sent over HTTPS only.
+    // Override with SESSION_SECURE_COOKIE=false in local .env if not using HTTPS.
+    'secure' => env('SESSION_SECURE_COOKIE', true),
 
     /*
     |--------------------------------------------------------------------------

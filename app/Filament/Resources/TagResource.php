@@ -45,7 +45,7 @@ class TagResource extends Resource
                     ->default('active')
                     ->required(),
                 TextInput::make('order')->numeric()->default(0),
-                FileUpload::make('image')->image()->directory('tags'),
+                FileUpload::make('image')->directory('tags'),
             ]);
     }
 

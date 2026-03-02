@@ -52,7 +52,7 @@ class MultimenusRelationManager extends RelationManager
 
                 Section::make('Rasm')
                     ->schema([
-                        FileUpload::make('image')->image()->directory('multimenus')->nullable(),
+                        FileUpload::make('image')->directory('multimenus')->nullable(),
                     ]),
             ]);
     }

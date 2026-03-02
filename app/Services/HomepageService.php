@@ -54,6 +54,23 @@ class HomepageService
             ->shuffle()
             ->take(config('site.pagination.home.gallery_images', 12));
 
+        // Hero uchun: faqat oxirgi 4 ta yangilik rasmlaridan random 6 ta
+        $heroGalleryImages = Page::ofType('blog')
+            ->inMenu($newsConfig['menu_id'], $newsConfig['submenu_id'], $newsConfig['multimenu_id'])
+            ->whereNotNull('images')
+            ->where('images', '!=', '[]')
+            ->where('images', '!=', 'null')
+            ->select(['images'])
+            ->orderByDesc('date')
+            ->take(4)
+            ->get()
+            ->flatMap(function ($item) {
+                $images = is_array($item->images) ? $item->images : json_decode($item->images, true);
+                if (!is_array($images)) return [];
+                return collect($images)->map(fn($img) => asset('storage/' . $img));
+            })
+            ->values(); // shuffle blade da har render qilinda amalga oshiriladi
+
         $faculties = Page::ofType('faculty')
             ->select(['id', 'title_uz', 'title_ru', 'title_en', 'slug_uz', 'slug_ru', 'slug_en', 'content_uz', 'content_ru', 'content_en', 'image', 'date', 'menu_id', 'submenu_id', 'multimenu_id'])
             ->orderBy('date')
@@ -77,7 +94,7 @@ class HomepageService
 
         return compact(
             'latestNews', 'otherNews', 'announcements', 'announcementsWithActivity',
-            'faculties', 'departments', 'galleryImages', 'tags', 'stat'
+            'faculties', 'departments', 'galleryImages', 'heroGalleryImages', 'tags', 'stat'
         );
     }
 }

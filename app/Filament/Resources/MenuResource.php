@@ -76,7 +76,7 @@ class MenuResource extends Resource
                     ->columns(3),
                 Section::make('Rasm')
                     ->schema([
-                        FileUpload::make('image')->image()->directory('menus')->nullable(),
+                        FileUpload::make('image')->directory('menus')->nullable(),
                     ])
                     ->columns(1)
                     ->collapsed(false)

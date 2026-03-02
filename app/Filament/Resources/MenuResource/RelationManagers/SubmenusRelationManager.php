@@ -58,7 +58,7 @@ class SubmenusRelationManager extends RelationManager
 
                 Section::make('Rasm')
                     ->schema([
-                        FileUpload::make('image')->image()->directory('submenus'),
+                        FileUpload::make('image')->directory('submenus'),
                     ]),
             ]);
     }

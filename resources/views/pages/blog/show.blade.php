@@ -1,79 +1,112 @@
 <x-main-layout :metaTitle="$metaTitle" :metaDescription="$metaDescription" :metaImage="$metaImage">
     <x-breadcrumb :menu="$menuModel" :submenu="$submenuModel ?? null" :multimenu="$multimenuModel ?? null" :page="$page ?? null" />
-    <div class="dark:bg-gray-6 page-header relative mb-4 w-full bg-gray-200">
-        <div class="absolute z-10 h-full w-full bg-white/75 dark:bg-gray-950/80"></div>
-        <div class="container mx-auto relative z-20 grid grid-cols-5 gap-5 py-6 px-4 lg:px-0">
-            <div class="col-span-5 grid place-content-center justify-start space-y-5 md:col-span-3">
-                <h1 class="text-2xl font-medium uppercase tracking-tight">
-                    {{ lc_title($page) }}
-                </h1>
-                <div class="flex items-center gap-6">
-                    <div class="flex items-center gap-1">
-                        <img src="/img/icons/011-clock.webp" alt="Book icon" class="w-3 dark:invert" />
-                        {{ $page->date?->format('Y-m-d') }}
-                    </div>
-                    <div class="flex items-center gap-1">
-                        <img src="/img/icons/012-user.webp" alt="Book icon" class="w-3 dark:invert" />
-                        {{ $page->views ?? 0 }}
-                    </div>
-                </div>
-                <div class="flex items-center gap-2">
-                    <div class="flex space-x-2">
-                        <x-icon-button
-                            onclick="window.open('https://t.me/share/url?url={{ urlencode(url()->current()) }}&text={{ urlencode(lc_title($page)) }}','_blank')">
-                            <img src="{{ asset('img/icons/telegram.webp') }}" class="w-5 h-5" alt="Telegram icon">
-                        </x-icon-button>
-                        <x-icon-button
-                            onclick="window.open('https://www.facebook.com/sharer/sharer.php?u={{ urlencode(url()->current()) }}','_blank')">
-                            <img src="{{ asset('img/icons/facebook.webp') }}" class="w-5 h-5" alt="Facebook icon">
-                        </x-icon-button>
-                    </div>
-                    <x-icon-button onclick="copyToClipboard('{{ url()->current() }}')">
-                        <img src="{{ asset('/img/icons/send.webp') }}" alt="Send img" class="w-4 dark:invert" />
-                    </x-icon-button>
-                </div>
-            </div>
-            <div class="col-span-5 md:col-span-2">
-                <x-main.image src="{{ asset('storage/' . $page->image) }}" alt="{{ lc_title($page) }}"
-                    class="max-h-[480px] w-full rounded-lg object-cover shadow" />
-            </div>
-        </div>
-    </div>
-    <div class="container mx-auto my-10 rounded-lg bg-gray-100 py-6 shadow dark:bg-gray-700">
-        <div class="grid grid-cols-4 gap-4 px-4">
-            <div class="col-span-4 rounded-xl bg-background md:col-span-3">
-                <div class="rounded-xl bg-white dark:bg-gray-800 shadow p-4">
-                    <div class="my-4 text-justify indent-10 prose max-w-none dark:prose-invert">
-                        {!! lc_content($page) !!}
-                    </div>
-                    @if (!empty($images) && is_array($images))
-                        <div class="mt-3 grid grid-cols-2 md:grid-cols-3 gap-1 lg:grid-cols-4">
-                            @foreach ($images as $i => $url)
-                                <a data-fancybox="gallery" href="{{ $url }}" aria-label="Photo gallery">
-                                    <x-main.image src="{{ $url }}" :lazy="true"
-                                        alt="Gallery image {{ $i + 1 }}"
-                                        class="h-[250px] w-full overflow-hidden rounded-lg object-cover" />
-                                </a>
-                            @endforeach
+
+    {{-- ══ HEADER ══ --}}
+    <x-page.show-header
+        :title="lc_title($page)"
+        :image="asset('storage/' . $page->image)"
+        :date="$page->date?->format('Y-m-d')"
+        :views="$page->views ?? 0"
+    />
+
+    {{-- ══ CONTENT ══ --}}
+    <div class="bg-gray-100 px-4 lg:px-0 py-10" x-data
+        x-intersect.once.threshold.10="$el.classList.add('footer-in')">
+        <div class="container mx-auto">
+            <div class="grid grid-cols-4 gap-6">
+
+                {{-- Main content --}}
+                <div class="col-span-4 md:col-span-3 flex flex-col">
+                    <div class="footer-anim rounded-2xl bg-white border border-gray-200 p-6 md:p-8 flex-1"
+                        style="transition-delay: 0.10s;">
+
+                        {{-- Prose --}}
+                        <div class="prose max-w-none text-gray-700 text-justify indent-10">
+                            {!! lc_content($page) !!}
                         </div>
-                    @endif
-                    @if ($page->files->isNotEmpty())
-                        <div class="my-5 grid grid-cols-3 gap-5 md:grid-cols-4 lg:grid-cols-6">
-                            @foreach ($page->files as $file)
-                                <div
-                                    class="rounded-lg border border-gray-400 bg-gray-300 px-2 py-5 text-center dark:bg-gray-800">
-                                    <a href="{{ asset('storage/' . $file->file) }}" download
-                                        class="flex flex-col items-center gap-2">
-                                        <img src="/img/icons/file.webp" alt="Download icon" class="w-10 dark:invert" />
-                                        {{ $file->name ?? basename($file->file) }}
+
+                        {{-- Inline gallery --}}
+                        @if (!empty($images) && is_array($images))
+                            <div class="mt-6 grid grid-cols-2 md:grid-cols-3 gap-2 lg:grid-cols-4">
+                                @foreach ($images as $i => $url)
+                                    <a data-fancybox="gallery" href="{{ $url }}" aria-label="Photo gallery"
+                                        class="card-shine group relative block overflow-hidden rounded-xl
+                                               border border-gray-200 hover:border-teal-800">
+                                        <x-main.image src="{{ $url }}" :lazy="true"
+                                            alt="Gallery image {{ $i + 1 }}"
+                                            class="h-50 w-full object-cover transition duration-500 group-hover:scale-105" />
+                                        <div
+                                            class="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition
+                                                    flex items-center justify-center">
+                                            <div
+                                                class="w-9 h-9 rounded-full bg-white/20 backdrop-blur-sm border border-white/40
+                                                        flex items-center justify-center">
+                                                <svg class="w-4 h-4 text-white" fill="none" stroke="currentColor"
+                                                    viewBox="0 0 24 24">
+                                                    <path stroke-linecap="round" stroke-linejoin="round"
+                                                        stroke-width="2"
+                                                        d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0zM10 7v3m0 0v3m0-3h3m-3 0H7" />
+                                                </svg>
+                                            </div>
+                                        </div>
                                     </a>
+                                @endforeach
+                            </div>
+                        @endif
+
+                        {{-- File downloads --}}
+                        @if ($page->files->isNotEmpty())
+                            <div class="mt-6 pt-5 border-t border-gray-200">
+                                <h3 class="text-sm font-semibold text-gray-500 uppercase tracking-wider mb-3">
+                                    {{ __('messages.files') ?? 'Fayllar' }}
+                                </h3>
+                                <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3">
+                                    @foreach ($page->files as $file)
+                                        <a href="{{ asset('storage/' . $file->file) }}" download
+                                            class="card-shine group flex flex-col items-center gap-2 rounded-xl p-4 overflow-hidden
+                                                   bg-gray-100 border border-gray-200 hover:border-teal-800
+                                                   text-center transition-colors">
+                                            <img src="/img/icons/file.webp" alt=""
+                                                class="w-8 opacity-60 group-hover:opacity-90 transition" />
+                                            <span
+                                                class="line-clamp-2 text-xs text-gray-600 group-hover:text-teal-800 transition-colors">
+                                                {{ $file->name ?? basename($file->file) }}
+                                            </span>
+                                        </a>
+                                    @endforeach
                                 </div>
-                            @endforeach
-                        </div>
-                    @endif
+                            </div>
+                        @endif
+
+                    </div>
                 </div>
+
+                {{-- Sidebar --}}
+                <x-main.sidebar />
+
             </div>
-            <x-main.sidebar />
         </div>
     </div>
+
+    @if (!empty($images) && is_array($images))
+        @push('styles')
+            <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/ui/dist/fancybox.css" />
+        @endpush
+        @push('scripts')
+            <script src="https://cdn.jsdelivr.net/npm/@fancyapps/ui/dist/fancybox.umd.js"></script>
+            <script>
+                document.addEventListener("DOMContentLoaded", function() {
+                    Fancybox.bind("[data-fancybox='gallery']", {
+                        Thumbs: {
+                            autoStart: true
+                        },
+                        Toolbar: {
+                            display: ["close"]
+                        },
+                    });
+                });
+            </script>
+        @endpush
+    @endif
+
 </x-main-layout>

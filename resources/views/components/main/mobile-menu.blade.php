@@ -3,7 +3,7 @@
 
     <!-- Hamburger button -->
     <button @click="mobileMenuOpen = !mobileMenuOpen"
-        class="p-2 rounded-md text-gray-700 dark:text-gray-300 focus:outline-none focus:ring focus:ring-gray-500">
+        class="p-2 rounded-md text-white focus:outline-none focus:ring focus:ring-indigo-300">
         <!-- Heroicon Hamburger -->
         <svg x-show="!mobileMenuOpen" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
             stroke="currentColor" class="w-6 h-6">

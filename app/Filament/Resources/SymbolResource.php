@@ -66,7 +66,6 @@ class SymbolResource extends Resource
                         FileUpload::make('image')
                             ->label('Rasm')
                             ->directory('symbols')
-                            ->image()
                             ->imageEditor()
                             ->imagePreviewHeight('150')
                             ->downloadable()

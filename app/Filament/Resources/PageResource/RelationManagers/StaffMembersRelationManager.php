@@ -74,8 +74,7 @@ class StaffMembersRelationManager extends RelationManager
                         FileUpload::make('image')
                             ->label('Rasm')
                             ->disk('public')
-                            ->directory('staff_members')
-                            ->preserveFilenames(),
+                            ->directory('staff_members'),
                     ])
                     ->columns(2),
             ]);
@@ -89,7 +88,7 @@ class StaffMembersRelationManager extends RelationManager
                 TextColumn::make('position_uz')->label('Lavozim'),
                 TextColumn::make('staffCategory.title_uz')->label('Kategoriya'),
                 TextColumn::make('user.name')->label('Foydalanuvchi'),
-                ImageColumn::make('image')->label('Rasm'),
+                ImageColumn::make('image')->label('Rasm')->disk('public'),
             ])
             ->filters([
                 SelectFilter::make('staff_category_id')

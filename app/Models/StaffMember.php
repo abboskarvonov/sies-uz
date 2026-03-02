@@ -132,10 +132,9 @@ class StaffMember extends Model
      */
     public function setImageAttribute($value): void
     {
-        // Agar file object bo'lsa
-        if ($value && !is_string($value)) {
-            $this->attributes['image'] = $value;
-            return;
+        // Filament FileUpload array qaytarishi mumkin — birinchi elementni olamiz
+        if (is_array($value)) {
+            $value = $value[0] ?? null;
         }
 
         // String bo'lsa sanitize qilish
@@ -146,6 +145,8 @@ class StaffMember extends Model
             if (!str_starts_with($value, 'staff_members/') && !empty($value)) {
                 $value = 'staff_members/' . $value;
             }
+        } else {
+            $value = null;
         }
 
         // Eski faylni o'chirish
