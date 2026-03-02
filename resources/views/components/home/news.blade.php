@@ -1,5 +1,4 @@
-<section class="bg-white px-4 lg:px-0 py-10 lg:py-14" x-data
-    x-intersect.once.threshold.15="$el.classList.add('footer-in')">
+<section class="px-4 lg:px-0 py-10 lg:py-14" x-data x-intersect.once.threshold.15="$el.classList.add('footer-in')">
     <div class="container mx-auto">
 
         {{-- Title row --}}

@@ -105,12 +105,31 @@
                 background-image: url("{{ asset('img/hero-bg-1920.webp') }}");
             }
         }
+
+        /* Site background: dot grid + soft radial accent */
+        .site-bg {
+            background-color: #ffffff;
+            background-image:
+                radial-gradient(ellipse 70% 50% at 0% 0%, rgba(15,118,110,0.07) 0%, transparent 55%),
+                radial-gradient(circle, rgba(15,118,110,0.08) 1.5px, transparent 1.5px);
+            background-size: 100% 100%, 28px 28px;
+            background-attachment: fixed;
+        }
+
+        .dark .site-bg {
+            background-color: #030712;
+            background-image:
+                radial-gradient(ellipse 70% 50% at 0% 0%, rgba(15,118,110,0.14) 0%, transparent 55%),
+                radial-gradient(circle, rgba(20,184,166,0.13) 1.5px, transparent 1.5px);
+            background-size: 100% 100%, 28px 28px;
+            background-attachment: fixed;
+        }
     </style>
 </head>
 
 <body class="font-sans antialiased text-gray-900 dark:text-gray-100 dark:bg-gray-950">
 
-    <div class="min-h-screen bg-white dark:bg-gray-950">
+    <div class="site-bg min-h-screen">
         @include('components.main.header')
         @include('components.main.navbar')
         @include('components.main.quick-links')
