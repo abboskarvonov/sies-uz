@@ -2,14 +2,20 @@
 
 namespace App\Filament\Resources\PageResource\RelationManagers;
 
+use Filament\Schemas\Schema;
+use Filament\Schemas\Components\Section;
+use Filament\Schemas\Components\Tabs;
+use Filament\Schemas\Components\Tabs\Tab;
+use Filament\Actions\CreateAction;
+use Filament\Actions\EditAction;
+use Filament\Actions\DeleteAction;
+use Filament\Actions\BulkActionGroup;
+use Filament\Actions\DeleteBulkAction;
 use AmidEsfahani\FilamentTinyEditor\TinyEditor;
 use App\Models\StaffCategory;
 use Filament\Forms\Components\FileUpload;
-use Filament\Forms\Components\Section;
 use Filament\Forms\Components\Select;
-use Filament\Forms\Components\Tabs;
 use Filament\Forms\Components\TextInput;
-use Filament\Forms\Form;
 use Filament\Resources\RelationManagers\RelationManager;
 use Filament\Tables;
 use Filament\Tables\Columns\ImageColumn;
@@ -28,25 +34,25 @@ class StaffMembersRelationManager extends RelationManager
         return in_array($ownerRecord->page_type, ['department', 'faculty', 'center', 'section']);
     }
 
-    public function form(Form $form): Form
+    public function form(Schema $schema): Schema
     {
-        return $form
-            ->schema([
+        return $schema
+            ->components([
                 Section::make('Sarlovha va kontentlar')
                     ->schema([
                         Tabs::make('Tabs')
                             ->tabs([
-                                Tabs\Tab::make('Uz')->schema([
+                                Tab::make('Uz')->schema([
                                     TextInput::make('name_uz')->label('Ism (UZ)')->required(),
                                     TextInput::make('position_uz')->label('Lavozim (UZ)')->required(),
                                     TinyEditor::make('content_uz')->showMenuBar()->columnSpanFull(),
                                 ]),
-                                Tabs\Tab::make('Ru')->schema([
+                                Tab::make('Ru')->schema([
                                     TextInput::make('name_ru')->label('Ism (RU)'),
                                     TextInput::make('position_ru')->label('Lavozim (RU)'),
                                     TinyEditor::make('content_ru')->showMenuBar()->columnSpanFull(),
                                 ]),
-                                Tabs\Tab::make('En')->schema([
+                                Tab::make('En')->schema([
                                     TextInput::make('name_en')->label('Ism (EN)'),
                                     TextInput::make('position_en')->label('Lavozim (EN)'),
                                     TinyEditor::make('content_en')->showMenuBar()->columnSpanFull(),
@@ -99,15 +105,15 @@ class StaffMembersRelationManager extends RelationManager
                     ->preload(),
             ])
             ->headerActions([
-                Tables\Actions\CreateAction::make(),
+                CreateAction::make(),
             ])
-            ->actions([
-                Tables\Actions\EditAction::make(),
-                Tables\Actions\DeleteAction::make(),
+            ->recordActions([
+                EditAction::make(),
+                DeleteAction::make(),
             ])
-            ->bulkActions([
-                Tables\Actions\BulkActionGroup::make([
-                    Tables\Actions\DeleteBulkAction::make(),
+            ->toolbarActions([
+                BulkActionGroup::make([
+                    DeleteBulkAction::make(),
                 ]),
             ]);
     }

@@ -2,6 +2,7 @@
 
 namespace App\Filament\Resources\SubmenuResource\Pages;
 
+use Filament\Actions\DeleteAction;
 use App\Filament\Resources\SubmenuResource;
 use App\Models\Submenu;
 use Filament\Actions;
@@ -15,7 +16,7 @@ class EditSubmenu extends EditRecord
     protected function getHeaderActions(): array
     {
         return [
-            Actions\DeleteAction::make(),
+            DeleteAction::make(),
         ];
     }
 

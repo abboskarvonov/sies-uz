@@ -2,6 +2,7 @@
 
 namespace App\Filament\Resources\MultimenuResource\Pages;
 
+use Filament\Actions\DeleteAction;
 use App\Filament\Resources\MultimenuResource;
 use App\Models\Multimenu;
 use Filament\Actions;
@@ -15,7 +16,7 @@ class EditMultimenu extends EditRecord
     protected function getHeaderActions(): array
     {
         return [
-            Actions\DeleteAction::make(),
+            DeleteAction::make(),
         ];
     }
 

@@ -2,11 +2,17 @@
 
 namespace App\Filament\Resources;
 
+use Filament\Schemas\Schema;
+use Filament\Schemas\Components\Section;
+use Filament\Actions\EditAction;
+use Filament\Actions\BulkActionGroup;
+use Filament\Actions\DeleteBulkAction;
+use App\Filament\Resources\SiteStatResource\Pages\ListSiteStats;
+use App\Filament\Resources\SiteStatResource\Pages\CreateSiteStat;
+use App\Filament\Resources\SiteStatResource\Pages\EditSiteStat;
 use App\Filament\Resources\SiteStatResource\Pages;
 use App\Models\SiteStat;
-use Filament\Forms\Components\Section;
 use Filament\Forms\Components\TextInput;
-use Filament\Forms\Form;
 use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Columns\TextColumn;
@@ -16,8 +22,8 @@ class SiteStatResource extends Resource
 {
     protected static ?string $model = SiteStat::class;
 
-    protected static ?string $navigationIcon = 'heroicon-o-chart-bar';
-    protected static ?string $navigationGroup = 'Sahifa va boshqa menyular';
+    protected static string | \BackedEnum | null $navigationIcon = 'heroicon-o-chart-bar';
+    protected static string | \UnitEnum | null $navigationGroup = 'Sahifa va boshqa menyular';
     protected static ?int $navigationSort = 7;
     protected static ?string $navigationLabel = 'Ko‘rsatkichlar';
     protected static ?string $pluralModelLabel = 'Ko‘rsatkichlar';
@@ -27,12 +33,12 @@ class SiteStatResource extends Resource
         return SiteStat::count() === 0;
     }
 
-    public static function form(Form $form): Form
+    public static function form(Schema $schema): Schema
     {
         $num = fn(string $label) => TextInput::make($label)->numeric()->minValue(0)->default(0);
 
-        return $form
-            ->schema([
+        return $schema
+            ->components([
                 Section::make('Maydonlar')
                     ->schema([
                         $num('campus_area')->label('Maydon (m²)'),
@@ -97,12 +103,12 @@ class SiteStatResource extends Resource
             ->filters([
                 //
             ])
-            ->actions([
-                Tables\Actions\EditAction::make(),
+            ->recordActions([
+                EditAction::make(),
             ])
-            ->bulkActions([
-                Tables\Actions\BulkActionGroup::make([
-                    Tables\Actions\DeleteBulkAction::make(),
+            ->toolbarActions([
+                BulkActionGroup::make([
+                    DeleteBulkAction::make(),
                 ]),
             ]);
     }
@@ -117,9 +123,9 @@ class SiteStatResource extends Resource
     public static function getPages(): array
     {
         return [
-            'index' => Pages\ListSiteStats::route('/'),
-            'create' => Pages\CreateSiteStat::route('/create'),
-            'edit' => Pages\EditSiteStat::route('/{record}/edit'),
+            'index' => ListSiteStats::route('/'),
+            'create' => CreateSiteStat::route('/create'),
+            'edit' => EditSiteStat::route('/{record}/edit'),
         ];
     }
 }

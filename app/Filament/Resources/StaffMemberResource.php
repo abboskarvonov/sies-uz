@@ -2,16 +2,27 @@
 
 namespace App\Filament\Resources;
 
+use Illuminate\Database\Eloquent\Builder;
+use Filament\Schemas\Schema;
+use Filament\Schemas\Components\Section;
+use Filament\Schemas\Components\Tabs;
+use Filament\Schemas\Components\Tabs\Tab;
+use Filament\Actions\ViewAction;
+use Filament\Actions\EditAction;
+use Filament\Actions\DeleteAction;
+use Filament\Actions\BulkActionGroup;
+use Filament\Actions\DeleteBulkAction;
+use App\Filament\Resources\StaffMemberResource\Pages\ListStaffMembers;
+use App\Filament\Resources\StaffMemberResource\Pages\CreateStaffMember;
+use App\Filament\Resources\StaffMemberResource\Pages\EditStaffMember;
+use App\Models\User;
 use App\Filament\Resources\StaffMemberResource\Pages;
 use App\Models\Page;
 use App\Models\StaffCategory;
 use App\Models\StaffMember;
 use Filament\Forms\Components\FileUpload;
-use Filament\Forms\Components\Section;
 use Filament\Forms\Components\Select;
-use Filament\Forms\Components\Tabs;
 use Filament\Forms\Components\TextInput;
-use Filament\Forms\Form;
 use AmidEsfahani\FilamentTinyEditor\TinyEditor;
 use Filament\Resources\Resource;
 use Filament\Tables;
@@ -25,9 +36,9 @@ class StaffMemberResource extends Resource
 {
     protected static ?string $model = StaffMember::class;
 
-    protected static ?string $navigationIcon = 'heroicon-o-users';
+    protected static string | \BackedEnum | null $navigationIcon = 'heroicon-o-users';
 
-    protected static ?string $navigationGroup = 'Sahifa va boshqa menyular';
+    protected static string | \UnitEnum | null $navigationGroup = 'Sahifa va boshqa menyular';
 
     protected static ?string $navigationLabel = 'Xodimlar';
 
@@ -35,11 +46,18 @@ class StaffMemberResource extends Resource
 
     protected static ?int $navigationSort = 4;
 
-    public static function getEloquentQuery(): \Illuminate\Database\Eloquent\Builder
+    protected static bool $shouldRegisterNavigation = false;
+
+    public static function canViewAny(): bool
+    {
+        return false;
+    }
+
+    public static function getEloquentQuery(): Builder
     {
         $query = parent::getEloquentQuery();
 
-        /** @var \App\Models\User $user */
+        /** @var User $user */
         $user = Auth::user();
 
         if ($user->hasAnyRole(['super-admin', 'admin'])) {
@@ -49,25 +67,25 @@ class StaffMemberResource extends Resource
         return $query->where('user_id', $user->id);
     }
 
-    public static function form(Form $form): Form
+    public static function form(Schema $schema): Schema
     {
-        return $form
-            ->schema([
+        return $schema
+            ->components([
                 Section::make('Sarlovha va kontentlar')
                     ->schema([
                         Tabs::make('Tabs')
                             ->tabs([
-                                Tabs\Tab::make('Uz')->schema([
+                                Tab::make('Uz')->schema([
                                     TextInput::make('name_uz')->label('Ism (UZ)')->required(),
                                     TextInput::make('position_uz')->label('Lavozim (UZ)')->required(),
                                     TinyEditor::make('content_uz')->showMenuBar()->columnSpanFull(),
                                 ]),
-                                Tabs\Tab::make('Ru')->schema([
+                                Tab::make('Ru')->schema([
                                     TextInput::make('name_ru')->label('Ism (RU)'),
                                     TextInput::make('position_ru')->label('Lavozim (RU)'),
                                     TinyEditor::make('content_ru')->showMenuBar()->columnSpanFull(),
                                 ]),
-                                Tabs\Tab::make('En')->schema([
+                                Tab::make('En')->schema([
                                     TextInput::make('name_en')->label('Ism (EN)'),
                                     TextInput::make('position_en')->label('Lavozim (EN)'),
                                     TinyEditor::make('content_en')->showMenuBar()->columnSpanFull(),
@@ -155,14 +173,14 @@ class StaffMemberResource extends Resource
                     ->multiple()  // Bir nechta sahifani tanlash imkoniyati
                     ->placeholder('Sahifani tanlang'),
             ])
-            ->actions([
-                Tables\Actions\ViewAction::make(),
-                Tables\Actions\EditAction::make(),
-                Tables\Actions\DeleteAction::make(),
+            ->recordActions([
+                ViewAction::make(),
+                EditAction::make(),
+                DeleteAction::make(),
             ])
-            ->bulkActions([
-                Tables\Actions\BulkActionGroup::make([
-                    Tables\Actions\DeleteBulkAction::make(),
+            ->toolbarActions([
+                BulkActionGroup::make([
+                    DeleteBulkAction::make(),
                 ]),
             ]);
     }
@@ -177,9 +195,9 @@ class StaffMemberResource extends Resource
     public static function getPages(): array
     {
         return [
-            'index' => Pages\ListStaffMembers::route('/'),
-            'create' => Pages\CreateStaffMember::route('/create'),
-            'edit' => Pages\EditStaffMember::route('/{record}/edit'),
+            'index' => ListStaffMembers::route('/'),
+            'create' => CreateStaffMember::route('/create'),
+            'edit' => EditStaffMember::route('/{record}/edit'),
         ];
     }
 }

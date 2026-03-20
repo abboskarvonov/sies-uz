@@ -2,18 +2,36 @@
 
 namespace App\Filament\Resources;
 
+use Filament\Pages\Enums\SubNavigationPosition;
+use Filament\Schemas\Schema;
+use Filament\Schemas\Components\Section;
+use Filament\Tables\Columns\IconColumn;
+use Filament\Tables\Filters\SelectFilter;
+use Filament\Actions\ViewAction;
+use Filament\Actions\EditAction;
+use Filament\Actions\DeleteAction;
+use Filament\Actions\BulkActionGroup;
+use Filament\Actions\DeleteBulkAction;
+use Filament\Infolists\Components\ImageEntry;
+use Filament\Infolists\Components\TextEntry;
+use Filament\Infolists\Components\IconEntry;
+use Filament\Infolists\Components\RepeatableEntry;
+use Filament\Pages\Page;
+use App\Filament\Resources\UserResource\Pages\ViewUser;
+use App\Filament\Resources\UserResource\Pages\EditUser;
+use App\Filament\Resources\UserResource\Pages\ListUsers;
+use App\Filament\Resources\UserResource\Pages\CreateUser;
 use App\Filament\Resources\UserResource\Pages;
 use App\Models\User;
-use Filament\Forms\Components\Section;
+use Filament\Forms\Components\FileUpload;
 use Filament\Forms\Components\Select;
+use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\Toggle;
-use Filament\Forms\Form;
 use Filament\Infolists\Components;
-use Filament\Infolists\Infolist;
-use Filament\Pages\SubNavigationPosition;
 use Filament\Resources\Resource;
 use Filament\Tables;
+use Filament\Tables\Columns\ImageColumn;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
 use Illuminate\Support\Facades\Hash;
@@ -22,9 +40,9 @@ class UserResource extends Resource
 {
     protected static ?string $model = User::class;
 
-    protected static ?string $navigationIcon = 'heroicon-o-user-group';
+    protected static string | \BackedEnum | null $navigationIcon = 'heroicon-o-user-group';
 
-    protected static ?string $navigationGroup = 'System';
+    protected static string | \UnitEnum | null $navigationGroup = 'System';
 
     protected static ?string $navigationLabel = 'Foydalanuvchilar';
 
@@ -32,12 +50,12 @@ class UserResource extends Resource
 
     protected static ?int $navigationSort = 1;
 
-    protected static SubNavigationPosition $subNavigationPosition = SubNavigationPosition::Top;
+    protected static ?\Filament\Pages\Enums\SubNavigationPosition $subNavigationPosition = SubNavigationPosition::Top;
 
-    public static function form(Form $form): Form
+    public static function form(Schema $schema): Schema
     {
-        return $form
-            ->schema([
+        return $schema
+            ->components([
                 Section::make('Shaxsiy ma\'lumotlar')
                     ->schema([
                         TextInput::make('name')
@@ -97,6 +115,69 @@ class UserResource extends Resource
                             ->preload()
                             ->searchable(),
                     ]),
+
+                Section::make('HEMIS ulash')
+                    ->description('Agar bu foydalanuvchi HEMIS dagi xodim bilan bir xil shaxs bo\'lsa, HEMIS Employee ID ni kiriting. Keyingi sync da avtomatik topiladi.')
+                    ->schema([
+                        TextInput::make('hemis_employee_id')
+                            ->label('HEMIS Employee ID (employee-list ID)')
+                            ->placeholder('Masalan: 417')
+                            ->helperText('data/employee-list → id maydoni. Sync action "Faqat tekshirish" da ko\'rsatiladi.')
+                            ->unique(ignoreRecord: true)
+                            ->nullable(),
+
+                        TextInput::make('hemis_id')
+                            ->label('HEMIS OAuth ID')
+                            ->placeholder('Masalan: 397')
+                            ->helperText('OAuth orqali kirganda avtomatik to\'ldiriladi.')
+                            ->unique(ignoreRecord: true)
+                            ->nullable()
+                            ->disabled(),
+                    ])
+                    ->columns(2)
+                    ->collapsed()
+                    ->collapsible(),
+
+                Section::make('HEMIS xodim ma\'lumotlari')
+                    ->description('HEMIS dan sync qilinadi. Super-admin tomonidan ham tahrirlash mumkin.')
+                    ->schema([
+                        TextInput::make('position_uz')->label('Lavozim (UZ)')->maxLength(255),
+                        TextInput::make('position_ru')->label('Lavozim (RU)')->maxLength(255),
+                        TextInput::make('position_en')->label('Lavozim (EN)')->maxLength(255),
+                        TextInput::make('academic_degree')->label('Ilmiy daraja')->maxLength(255),
+                        TextInput::make('academic_rank')->label('Ilmiy unvon')->maxLength(255),
+                        TextInput::make('employment_form')->label('Bandlik shakli')->maxLength(255),
+
+                        Select::make('department_page_id')
+                            ->label('Bo\'lim / Kafedra')
+                            ->relationship('departmentPage', 'title_uz')
+                            ->searchable()
+                            ->preload()
+                            ->nullable(),
+
+                        Select::make('staff_category_id')
+                            ->label('Xodim kategoriyasi')
+                            ->relationship('staffCategory', 'title_uz')
+                            ->searchable()
+                            ->preload()
+                            ->nullable(),
+
+                        Textarea::make('content_uz')->label('Bio (UZ)')->rows(4)->columnSpanFull(),
+                        Textarea::make('content_ru')->label('Bio (RU)')->rows(4)->columnSpanFull(),
+                        Textarea::make('content_en')->label('Bio (EN)')->rows(4)->columnSpanFull(),
+
+                        FileUpload::make('profile_photo_path')
+                            ->label('Profil rasmi')
+                            ->image()
+                            ->disk('public')
+                            ->directory('profile-photos')
+                            ->imageEditor()
+                            ->columnSpanFull(),
+                    ])
+                    ->columns(2)
+                    ->collapsed()
+                    ->collapsible()
+                    ->visible(fn (): bool => authUser()?->hasRole('super-admin')),
             ]);
     }
 
@@ -104,25 +185,59 @@ class UserResource extends Resource
     {
         return $table
             ->columns([
+                ImageColumn::make('profile_photo_path')
+                    ->label('')
+                    ->disk('public')
+                    ->circular()
+                    ->defaultImageUrl(fn ($record) => 'https://ui-avatars.com/api/?name=' . urlencode($record->name) . '&color=0d9488&background=f0fdfa'),
+
                 TextColumn::make('name')->label('Ism')->searchable(),
-                TextColumn::make('email')->label('Email')->searchable(),
+                TextColumn::make('email')->label('Email')->searchable()->toggleable(isToggledHiddenByDefault: true),
+                TextColumn::make('hemis_id')->label('HEMIS ID')->searchable()->toggleable(isToggledHiddenByDefault: true)->copyable()->placeholder('—'),
+
+                TextColumn::make('hemis_type')
+                    ->label('Turi')
+                    ->badge()
+                    ->color(fn ($state) => match ($state) {
+                        'employee' => 'info',
+                        'student'  => 'warning',
+                        'admin'    => 'danger',
+                        default    => 'gray',
+                    }),
+
+                TextColumn::make('position_uz')
+                    ->label('Lavozim')
+                    ->searchable()
+                    ->toggleable(),
+
+                TextColumn::make('departmentPage.title_uz')
+                    ->label('Bo\'lim')
+                    ->searchable()
+                    ->toggleable(),
+
                 TextColumn::make('roles.name')
                     ->label('Rollar')
                     ->badge()
-                    ->color('primary'),
+                    ->color('primary')
+                    ->toggleable(isToggledHiddenByDefault: true),
+
                 TextColumn::make('assigned_pages_count')
                     ->counts('assignedPages')
                     ->label('Sahifalar')
                     ->badge()
-                    ->color('info'),
-                Tables\Columns\IconColumn::make('email_verified_at')
+                    ->color('info')
+                    ->toggleable(isToggledHiddenByDefault: true),
+
+                IconColumn::make('email_verified_at')
                     ->label('Tasdiqlangan')
                     ->boolean(),
+
                 TextColumn::make('created_at')
                     ->label('Yaratilgan')
                     ->dateTime('d.m.Y')
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),
+
                 TextColumn::make('last_seen_at')
                     ->label('Status')
                     ->formatStateUsing(function ($state) {
@@ -135,60 +250,95 @@ class UserResource extends Resource
                     ->color(fn ($state) => ! empty($state) && now()->diffInMinutes($state, true) < 2 ? 'success' : 'gray'),
             ])
             ->filters([
-                Tables\Filters\SelectFilter::make('roles')
+                SelectFilter::make('hemis_type')
+                    ->label('Turi')
+                    ->options([
+                        'admin'    => 'Admin',
+                        'employee' => 'Xodim',
+                        'student'  => 'Talaba',
+                    ]),
+                SelectFilter::make('roles')
                     ->label('Rol')
                     ->relationship('roles', 'name'),
             ])
-            ->actions([
-                Tables\Actions\ViewAction::make(),
-                Tables\Actions\EditAction::make(),
-                Tables\Actions\DeleteAction::make(),
+            ->recordActions([
+                ViewAction::make(),
+                EditAction::make(),
+                DeleteAction::make(),
             ])
-            ->bulkActions([
-                Tables\Actions\BulkActionGroup::make([
-                    Tables\Actions\DeleteBulkAction::make(),
+            ->toolbarActions([
+                BulkActionGroup::make([
+                    DeleteBulkAction::make(),
                 ]),
             ]);
     }
 
-    public static function infolist(Infolist $infolist): Infolist
+    public static function infolist(Schema $schema): Schema
     {
-        return $infolist
-            ->schema([
-                Components\Section::make('Foydalanuvchi')
+        return $schema
+            ->components([
+                Section::make('Foydalanuvchi')
                     ->schema([
-                        Components\TextEntry::make('name')->label('Ism'),
-                        Components\TextEntry::make('email')->label('Email'),
-                        Components\IconEntry::make('email_verified_at')
+                        ImageEntry::make('profile_photo_path')
+                            ->label('Rasm')
+                            ->disk('public')
+                            ->circular()
+                            ->defaultImageUrl(fn ($record) => 'https://ui-avatars.com/api/?name=' . urlencode($record->name) . '&color=0d9488&background=f0fdfa'),
+                        TextEntry::make('name')->label('Ism'),
+                        TextEntry::make('email')->label('Email'),
+                        TextEntry::make('hemis_type')
+                            ->label('Turi')
+                            ->badge()
+                            ->color(fn ($state) => match ($state) {
+                                'employee' => 'info',
+                                'student'  => 'warning',
+                                'admin'    => 'danger',
+                                default    => 'gray',
+                            }),
+                        IconEntry::make('email_verified_at')
                             ->label('Email tasdiqlangan')
                             ->boolean(),
-                        Components\TextEntry::make('created_at')
+                        TextEntry::make('created_at')
                             ->label('Ro\'yxatdan o\'tgan')
                             ->dateTime('d.m.Y H:i'),
-                        Components\TextEntry::make('roles.name')
+                        TextEntry::make('roles.name')
                             ->label('Rollar')
                             ->badge()
                             ->color('primary'),
-                        Components\TextEntry::make('permissions.name')
+                        TextEntry::make('permissions.name')
                             ->label('Maxsus huquqlar')
                             ->badge()
                             ->color('warning'),
-                        Components\TextEntry::make('last_seen_at')
+                        TextEntry::make('last_seen_at')
                             ->label('Oxirgi faollik')
                             ->dateTime('d.m.Y H:i'),
                     ])
-                    ->columns(2),
+                    ->columns(3),
 
-                Components\Section::make('Biriktirilgan sahifalar')
+                Section::make('HEMIS ma\'lumotlari')
                     ->schema([
-                        Components\RepeatableEntry::make('assignedPages')
+                        TextEntry::make('hemis_id')->label('HEMIS ID'),
+                        TextEntry::make('position_uz')->label('Lavozim'),
+                        TextEntry::make('academic_degree')->label('Ilmiy daraja'),
+                        TextEntry::make('academic_rank')->label('Ilmiy unvon'),
+                        TextEntry::make('employment_form')->label('Bandlik shakli'),
+                        TextEntry::make('position_order')->label('Tartib raqami'),
+                        TextEntry::make('departmentPage.title_uz')->label('Bo\'lim / Kafedra'),
+                        TextEntry::make('staffCategory.title_uz')->label('Xodim kategoriyasi'),
+                    ])
+                    ->columns(3)
+                    ->visible(fn ($record) => $record?->hemis_type === 'employee'),
+
+                Section::make('Biriktirilgan sahifalar')
+                    ->schema([
+                        RepeatableEntry::make('assignedPages')
                             ->label('')
                             ->schema([
-                                Components\TextEntry::make('title_uz')
+                                TextEntry::make('title_uz')
                                     ->label('Sahifa')
                                     ->badge()
                                     ->color('info'),
-                                Components\TextEntry::make('page_type')
+                                TextEntry::make('page_type')
                                     ->label('Turi')
                                     ->badge()
                                     ->color('gray'),
@@ -199,11 +349,11 @@ class UserResource extends Resource
             ]);
     }
 
-    public static function getRecordSubNavigation(\Filament\Pages\Page $page): array
+    public static function getRecordSubNavigation(Page $page): array
     {
         return $page->generateNavigationItems([
-            Pages\ViewUser::class,
-            Pages\EditUser::class,
+            ViewUser::class,
+            EditUser::class,
         ]);
     }
 
@@ -215,10 +365,10 @@ class UserResource extends Resource
     public static function getPages(): array
     {
         return [
-            'index' => Pages\ListUsers::route('/'),
-            'create' => Pages\CreateUser::route('/create'),
-            'edit' => Pages\EditUser::route('/{record}/edit'),
-            'view' => Pages\ViewUser::route('/{record}'),
+            'index' => ListUsers::route('/'),
+            'create' => CreateUser::route('/create'),
+            'edit' => EditUser::route('/{record}/edit'),
+            'view' => ViewUser::route('/{record}'),
         ];
     }
 }

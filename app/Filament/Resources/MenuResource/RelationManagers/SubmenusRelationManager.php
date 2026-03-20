@@ -2,11 +2,19 @@
 
 namespace App\Filament\Resources\MenuResource\RelationManagers;
 
+use Filament\Schemas\Schema;
+use Filament\Schemas\Components\Section;
+use Filament\Tables\Filters\SelectFilter;
+use Filament\Actions\CreateAction;
+use Filament\Actions\Action;
+use App\Filament\Resources\SubmenuResource;
+use Filament\Actions\EditAction;
+use Filament\Actions\DeleteAction;
+use Filament\Actions\BulkActionGroup;
+use Filament\Actions\DeleteBulkAction;
 use Filament\Forms\Components\FileUpload;
-use Filament\Forms\Components\Section;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
-use Filament\Forms\Form;
 use Filament\Resources\RelationManagers\RelationManager;
 use Filament\Tables;
 use Filament\Tables\Columns\IconColumn;
@@ -24,10 +32,10 @@ class SubmenusRelationManager extends RelationManager
 
     protected static ?string $pluralModelLabel = 'Ichki menyular';
 
-    public function form(Form $form): Form
+    public function form(Schema $schema): Schema
     {
-        return $form
-            ->schema([
+        return $schema
+            ->components([
                 Section::make('Sarlovhalar')
                     ->schema([
                         TextInput::make('title_uz')->required(),
@@ -81,13 +89,13 @@ class SubmenusRelationManager extends RelationManager
                 ImageColumn::make('image')->label('Rasm'),
             ])
             ->filters([
-                Tables\Filters\SelectFilter::make('type')
+                SelectFilter::make('type')
                     ->label('Turi')
                     ->options([
                         'default' => 'Default',
                         'multimenu' => 'Multimenu',
                     ]),
-                Tables\Filters\SelectFilter::make('status')
+                SelectFilter::make('status')
                     ->label('Holati')
                     ->options([
                         'active' => 'Faol',
@@ -95,20 +103,20 @@ class SubmenusRelationManager extends RelationManager
                     ]),
             ])
             ->headerActions([
-                Tables\Actions\CreateAction::make(),
+                CreateAction::make(),
             ])
-            ->actions([
-                Tables\Actions\Action::make('view_multimenus')
+            ->recordActions([
+                Action::make('view_multimenus')
                     ->label('Multi menyular')
                     ->icon('heroicon-o-queue-list')
                     ->color('info')
-                    ->url(fn ($record) => \App\Filament\Resources\SubmenuResource::getUrl('view', ['record' => $record])),
-                Tables\Actions\EditAction::make(),
-                Tables\Actions\DeleteAction::make(),
+                    ->url(fn ($record) => SubmenuResource::getUrl('view', ['record' => $record])),
+                EditAction::make(),
+                DeleteAction::make(),
             ])
-            ->bulkActions([
-                Tables\Actions\BulkActionGroup::make([
-                    Tables\Actions\DeleteBulkAction::make(),
+            ->toolbarActions([
+                BulkActionGroup::make([
+                    DeleteBulkAction::make(),
                 ]),
             ]);
     }

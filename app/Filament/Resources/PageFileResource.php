@@ -2,13 +2,21 @@
 
 namespace App\Filament\Resources;
 
+use Filament\Schemas\Schema;
+use Filament\Actions\ViewAction;
+use Filament\Actions\EditAction;
+use Filament\Actions\DeleteAction;
+use Filament\Actions\BulkActionGroup;
+use Filament\Actions\DeleteBulkAction;
+use App\Filament\Resources\PageFileResource\Pages\ListPageFiles;
+use App\Filament\Resources\PageFileResource\Pages\CreatePageFile;
+use App\Filament\Resources\PageFileResource\Pages\EditPageFile;
 use App\Filament\Resources\PageFileResource\Pages;
 use App\Models\PageFile;
 use Filament\Forms\Components\FileUpload;
 use Filament\Forms\Components\Repeater;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
-use Filament\Forms\Form;
 use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Columns\TextColumn;
@@ -19,9 +27,9 @@ class PageFileResource extends Resource
 {
     protected static ?string $model = PageFile::class;
 
-    protected static ?string $navigationIcon = 'heroicon-o-rectangle-stack';
+    protected static string | \BackedEnum | null $navigationIcon = 'heroicon-o-rectangle-stack';
 
-    protected static ?string $navigationGroup = 'Sahifa va boshqa menyular';
+    protected static string | \UnitEnum | null $navigationGroup = 'Sahifa va boshqa menyular';
 
     protected static ?string $navigationLabel = 'Sahifa fayllari';
 
@@ -29,10 +37,10 @@ class PageFileResource extends Resource
 
     protected static ?int $navigationSort = 3;
 
-    public static function form(Form $form): Form
+    public static function form(Schema $schema): Schema
     {
-        return $form
-            ->schema([
+        return $schema
+            ->components([
                 Select::make('page_id')
                     ->label('Sahifa')
                     ->relationship('page', 'title_uz')
@@ -95,14 +103,14 @@ class PageFileResource extends Resource
             ->filters([
                 //
             ])
-            ->actions([
-                Tables\Actions\ViewAction::make(),
-                Tables\Actions\EditAction::make(),
-                Tables\Actions\DeleteAction::make(),
+            ->recordActions([
+                ViewAction::make(),
+                EditAction::make(),
+                DeleteAction::make(),
             ])
-            ->bulkActions([
-                Tables\Actions\BulkActionGroup::make([
-                    Tables\Actions\DeleteBulkAction::make(),
+            ->toolbarActions([
+                BulkActionGroup::make([
+                    DeleteBulkAction::make(),
                 ]),
             ]);
     }
@@ -117,9 +125,9 @@ class PageFileResource extends Resource
     public static function getPages(): array
     {
         return [
-            'index' => Pages\ListPageFiles::route('/'),
-            'create' => Pages\CreatePageFile::route('/create'),
-            'edit' => Pages\EditPageFile::route('/{record}/edit'),
+            'index' => ListPageFiles::route('/'),
+            'create' => CreatePageFile::route('/create'),
+            'edit' => EditPageFile::route('/{record}/edit'),
         ];
     }
 }

@@ -2,10 +2,16 @@
 
 namespace App\Filament\Resources\PageResource\RelationManagers;
 
+use Filament\Schemas\Schema;
+use Filament\Schemas\Components\Tabs;
+use Filament\Schemas\Components\Tabs\Tab;
+use Filament\Actions\CreateAction;
+use Filament\Actions\EditAction;
+use Filament\Actions\DeleteAction;
+use Filament\Actions\BulkActionGroup;
+use Filament\Actions\DeleteBulkAction;
 use Filament\Forms\Components\Select;
-use Filament\Forms\Components\Tabs;
 use Filament\Forms\Components\TextInput;
-use Filament\Forms\Form;
 use Filament\Resources\RelationManagers\RelationManager;
 use Filament\Tables;
 use Filament\Tables\Columns\TextColumn;
@@ -22,19 +28,19 @@ class StaffCategoriesRelationManager extends RelationManager
         return in_array($ownerRecord->page_type, ['department', 'faculty', 'center', 'section']);
     }
 
-    public function form(Form $form): Form
+    public function form(Schema $schema): Schema
     {
-        return $form
-            ->schema([
+        return $schema
+            ->components([
                 Tabs::make('Tabs')
                     ->tabs([
-                        Tabs\Tab::make('Uz')->schema([
+                        Tab::make('Uz')->schema([
                             TextInput::make('title_uz')->label('Nomi (UZ)')->required(),
                         ]),
-                        Tabs\Tab::make('Ru')->schema([
+                        Tab::make('Ru')->schema([
                             TextInput::make('title_ru')->label('Nomi (RU)'),
                         ]),
-                        Tabs\Tab::make('En')->schema([
+                        Tab::make('En')->schema([
                             TextInput::make('title_en')->label('Nomi (EN)'),
                         ]),
                     ])
@@ -69,20 +75,20 @@ class StaffCategoriesRelationManager extends RelationManager
                 TextColumn::make('title_ru')->label('Nomi (RU)'),
                 TextColumn::make('title_en')->label('Nomi (EN)'),
                 TextColumn::make('parent.title_uz')->label('Ota kategoriya'),
-                TextColumn::make('staff_members_count')
+                TextColumn::make('employees_count')
                     ->label('Xodimlar soni')
-                    ->counts('staffMembers'),
+                    ->counts('employees'),
             ])
             ->headerActions([
-                Tables\Actions\CreateAction::make(),
+                CreateAction::make(),
             ])
-            ->actions([
-                Tables\Actions\EditAction::make(),
-                Tables\Actions\DeleteAction::make(),
+            ->recordActions([
+                EditAction::make(),
+                DeleteAction::make(),
             ])
-            ->bulkActions([
-                Tables\Actions\BulkActionGroup::make([
-                    Tables\Actions\DeleteBulkAction::make(),
+            ->toolbarActions([
+                BulkActionGroup::make([
+                    DeleteBulkAction::make(),
                 ]),
             ]);
     }

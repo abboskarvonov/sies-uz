@@ -2,6 +2,7 @@
 
 namespace App\Filament\Resources\ActivityResource\Pages;
 
+use Filament\Actions\DeleteAction;
 use App\Filament\Resources\ActivityResource;
 use Filament\Actions;
 use Filament\Resources\Pages\ViewRecord;
@@ -13,7 +14,7 @@ class ViewActivity extends ViewRecord
     protected function getHeaderActions(): array
     {
         return [
-            Actions\DeleteAction::make(),
+            DeleteAction::make(),
         ];
     }
 }

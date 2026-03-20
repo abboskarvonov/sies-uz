@@ -2,13 +2,24 @@
 
 namespace App\Filament\Resources;
 
+use Filament\Schemas\Schema;
+use Filament\Schemas\Components\Section;
+use Filament\Schemas\Components\Tabs;
+use Filament\Schemas\Components\Tabs\Tab;
+use Filament\Forms\Components\TextInput;
+use Filament\Tables\Columns\TextColumn;
+use Filament\Actions\ViewAction;
+use Filament\Actions\EditAction;
+use Filament\Actions\DeleteAction;
+use Filament\Actions\BulkActionGroup;
+use Filament\Actions\DeleteBulkAction;
+use App\Filament\Resources\SymbolResource\Pages\ListSymbols;
+use App\Filament\Resources\SymbolResource\Pages\CreateSymbol;
+use App\Filament\Resources\SymbolResource\Pages\EditSymbol;
 use App\Filament\Resources\SymbolResource\Pages;
 use App\Models\Symbol;
 use Filament\Forms;
 use Filament\Forms\Components\FileUpload;
-use Filament\Forms\Components\Section;
-use Filament\Forms\Components\Tabs;
-use Filament\Forms\Form;
 use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Table;
@@ -18,9 +29,9 @@ class SymbolResource extends Resource
 {
     protected static ?string $model = Symbol::class;
 
-    protected static ?string $navigationIcon = 'heroicon-o-check-badge';
+    protected static string | \BackedEnum | null $navigationIcon = 'heroicon-o-check-badge';
 
-    protected static ?string $navigationGroup = 'Sahifa va boshqa menyular';
+    protected static string | \UnitEnum | null $navigationGroup = 'Sahifa va boshqa menyular';
 
     protected static ?string $recordTitleAttribute = 'title_uz';
 
@@ -30,33 +41,33 @@ class SymbolResource extends Resource
 
     protected static ?int $navigationSort = 10;
 
-    public static function form(Form $form): Form
+    public static function form(Schema $schema): Schema
     {
-        return $form
-            ->schema([
+        return $schema
+            ->components([
                 Section::make('O‘zbekiston Ramzlari')
                     ->schema([
                         Tabs::make('Tillar')
                             ->tabs([
-                                Tabs\Tab::make('O‘zbekcha')
+                                Tab::make('O‘zbekcha')
                                     ->schema([
-                                        Forms\Components\TextInput::make('title_uz')->required(),
-                                        Forms\Components\TextInput::make('slug_uz')
+                                        TextInput::make('title_uz')->required(),
+                                        TextInput::make('slug_uz')
                                             ->required()
                                             ->unique(ignorable: fn($record) => $record),
                                         TinyEditor::make('content_uz')->showMenuBar()->columnSpanFull(),
                                     ]),
-                                Tabs\Tab::make('Русский')
+                                Tab::make('Русский')
                                     ->schema([
-                                        Forms\Components\TextInput::make('title_ru'),
-                                        Forms\Components\TextInput::make('slug_ru')
+                                        TextInput::make('title_ru'),
+                                        TextInput::make('slug_ru')
                                             ->unique(ignorable: fn($record) => $record),
                                         TinyEditor::make('content_ru')->showMenuBar()->columnSpanFull(),
                                     ]),
-                                Tabs\Tab::make('English')
+                                Tab::make('English')
                                     ->schema([
-                                        Forms\Components\TextInput::make('title_en'),
-                                        Forms\Components\TextInput::make('slug_en')
+                                        TextInput::make('title_en'),
+                                        TextInput::make('slug_en')
                                             ->unique(ignorable: fn($record) => $record),
                                         TinyEditor::make('content_en')->showMenuBar()->columnSpanFull(),
                                     ]),
@@ -78,21 +89,21 @@ class SymbolResource extends Resource
     {
         return $table
             ->columns([
-                Tables\Columns\TextColumn::make('title_uz')->label("Sarlavha (UZ)")->searchable(),
-                Tables\Columns\TextColumn::make('slug_uz')->label("Slug (UZ)"),
-                Tables\Columns\TextColumn::make('created_at')->dateTime('d.m.Y H:i')->sortable(),
+                TextColumn::make('title_uz')->label("Sarlavha (UZ)")->searchable(),
+                TextColumn::make('slug_uz')->label("Slug (UZ)"),
+                TextColumn::make('created_at')->dateTime('d.m.Y H:i')->sortable(),
             ])
             ->filters([
                 //
             ])
-            ->actions([
-                Tables\Actions\ViewAction::make(),
-                Tables\Actions\EditAction::make(),
-                Tables\Actions\DeleteAction::make(),
+            ->recordActions([
+                ViewAction::make(),
+                EditAction::make(),
+                DeleteAction::make(),
             ])
-            ->bulkActions([
-                Tables\Actions\BulkActionGroup::make([
-                    Tables\Actions\DeleteBulkAction::make(),
+            ->toolbarActions([
+                BulkActionGroup::make([
+                    DeleteBulkAction::make(),
                 ]),
             ]);
     }
@@ -107,9 +118,9 @@ class SymbolResource extends Resource
     public static function getPages(): array
     {
         return [
-            'index' => Pages\ListSymbols::route('/'),
-            'create' => Pages\CreateSymbol::route('/create'),
-            'edit' => Pages\EditSymbol::route('/{record}/edit'),
+            'index' => ListSymbols::route('/'),
+            'create' => CreateSymbol::route('/create'),
+            'edit' => EditSymbol::route('/{record}/edit'),
         ];
     }
 }

@@ -2,12 +2,18 @@
 
 namespace App\Filament\Resources\MenuResource\RelationManagers;
 
+use Filament\Schemas\Schema;
+use Filament\Schemas\Components\Section;
+use Filament\Tables\Filters\SelectFilter;
+use Filament\Actions\CreateAction;
+use Filament\Actions\EditAction;
+use Filament\Actions\DeleteAction;
+use Filament\Actions\BulkActionGroup;
+use Filament\Actions\DeleteBulkAction;
 use App\Models\Submenu;
 use Filament\Forms\Components\FileUpload;
-use Filament\Forms\Components\Section;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
-use Filament\Forms\Form;
 use Filament\Resources\RelationManagers\RelationManager;
 use Filament\Tables;
 use Filament\Tables\Columns\IconColumn;
@@ -25,10 +31,10 @@ class MultimenusRelationManager extends RelationManager
 
     protected static ?string $pluralModelLabel = 'Multi menyular';
 
-    public function form(Form $form): Form
+    public function form(Schema $schema): Schema
     {
-        return $form
-            ->schema([
+        return $schema
+            ->components([
                 Section::make('Sarlovhalar')
                     ->schema([
                         TextInput::make('title_uz')->required(),
@@ -81,7 +87,7 @@ class MultimenusRelationManager extends RelationManager
                 ImageColumn::make('image')->label('Rasm'),
             ])
             ->filters([
-                Tables\Filters\SelectFilter::make('submenu_id')
+                SelectFilter::make('submenu_id')
                     ->label('Ichki menyu')
                     ->options(function () {
                         $menuId = $this->getOwnerRecord()->getKey();
@@ -89,7 +95,7 @@ class MultimenusRelationManager extends RelationManager
                             ->orderBy('order')
                             ->pluck('title_uz', 'id');
                     }),
-                Tables\Filters\SelectFilter::make('status')
+                SelectFilter::make('status')
                     ->label('Holati')
                     ->options([
                         'active' => 'Faol',
@@ -97,15 +103,15 @@ class MultimenusRelationManager extends RelationManager
                     ]),
             ])
             ->headerActions([
-                Tables\Actions\CreateAction::make(),
+                CreateAction::make(),
             ])
-            ->actions([
-                Tables\Actions\EditAction::make(),
-                Tables\Actions\DeleteAction::make(),
+            ->recordActions([
+                EditAction::make(),
+                DeleteAction::make(),
             ])
-            ->bulkActions([
-                Tables\Actions\BulkActionGroup::make([
-                    Tables\Actions\DeleteBulkAction::make(),
+            ->toolbarActions([
+                BulkActionGroup::make([
+                    DeleteBulkAction::make(),
                 ]),
             ]);
     }

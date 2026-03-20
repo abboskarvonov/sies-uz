@@ -2,17 +2,28 @@
 
 namespace App\Filament\Resources;
 
+use Filament\Pages\Enums\SubNavigationPosition;
+use Filament\Schemas\Schema;
+use Filament\Schemas\Components\Section;
+use Filament\Actions\ViewAction;
+use Filament\Actions\EditAction;
+use Filament\Actions\DeleteAction;
+use Filament\Actions\BulkActionGroup;
+use Filament\Actions\DeleteBulkAction;
+use Filament\Infolists\Components\TextEntry;
+use Filament\Infolists\Components\ImageEntry;
+use App\Filament\Resources\SubmenuResource\Pages\ViewSubmenu;
+use App\Filament\Resources\SubmenuResource\Pages\EditSubmenu;
+use App\Filament\Resources\SubmenuResource\RelationManagers\MultimenusRelationManager;
+use App\Filament\Resources\SubmenuResource\Pages\ListSubmenus;
+use App\Filament\Resources\SubmenuResource\Pages\CreateSubmenu;
 use App\Filament\Resources\SubmenuResource\Pages;
 use App\Models\Submenu;
 use Filament\Forms\Components\FileUpload;
-use Filament\Forms\Components\Section;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
-use Filament\Forms\Form;
 use Filament\Infolists\Components;
-use Filament\Infolists\Infolist;
 use Filament\Pages\Page;
-use Filament\Pages\SubNavigationPosition;
 use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Columns\IconColumn;
@@ -25,22 +36,22 @@ class SubmenuResource extends Resource
 {
     protected static ?string $model = Submenu::class;
 
-    protected static ?string $navigationIcon = 'heroicon-o-rectangle-stack';
+    protected static string | \BackedEnum | null $navigationIcon = 'heroicon-o-rectangle-stack';
 
-    protected static ?string $navigationGroup = 'Menyular';
+    protected static string | \UnitEnum | null $navigationGroup = 'Menyular';
 
     protected static ?string $navigationLabel = 'Ichki menyular';
 
     protected static ?string $pluralModelLabel = 'Ichki menyular';
 
-    protected static SubNavigationPosition $subNavigationPosition = SubNavigationPosition::Top;
+    protected static ?\Filament\Pages\Enums\SubNavigationPosition $subNavigationPosition = SubNavigationPosition::Top;
 
     protected static bool $shouldRegisterNavigation = false;
 
-    public static function form(Form $form): Form
+    public static function form(Schema $schema): Schema
     {
-        return $form
-            ->schema([
+        return $schema
+            ->components([
                 Section::make('Sarlovhalar')
                     ->schema([
                         TextInput::make('title_uz')->required(),
@@ -117,50 +128,50 @@ class SubmenuResource extends Resource
                         'inactive' => 'Nofaol',
                     ]),
             ])
-            ->actions([
-                Tables\Actions\ViewAction::make(),
-                Tables\Actions\EditAction::make(),
-                Tables\Actions\DeleteAction::make(),
+            ->recordActions([
+                ViewAction::make(),
+                EditAction::make(),
+                DeleteAction::make(),
             ])
-            ->bulkActions([
-                Tables\Actions\BulkActionGroup::make([
-                    Tables\Actions\DeleteBulkAction::make(),
+            ->toolbarActions([
+                BulkActionGroup::make([
+                    DeleteBulkAction::make(),
                 ]),
             ]);
     }
 
-    public static function infolist(Infolist $infolist): Infolist
+    public static function infolist(Schema $schema): Schema
     {
-        return $infolist
-            ->schema([
-                Components\Section::make('Sarlovhalar')
+        return $schema
+            ->components([
+                Section::make('Sarlovhalar')
                     ->schema([
-                        Components\TextEntry::make('title_uz'),
-                        Components\TextEntry::make('title_ru'),
-                        Components\TextEntry::make('title_en'),
+                        TextEntry::make('title_uz'),
+                        TextEntry::make('title_ru'),
+                        TextEntry::make('title_en'),
                     ])
                     ->columns(3),
 
-                Components\Section::make('Sluglar')
+                Section::make('Sluglar')
                     ->schema([
-                        Components\TextEntry::make('slug_uz'),
-                        Components\TextEntry::make('slug_ru'),
-                        Components\TextEntry::make('slug_en'),
+                        TextEntry::make('slug_uz'),
+                        TextEntry::make('slug_ru'),
+                        TextEntry::make('slug_en'),
                     ])
                     ->columns(3),
 
-                Components\Section::make('Qo\'shimcha ma\'lumotlar')
+                Section::make('Qo\'shimcha ma\'lumotlar')
                     ->schema([
-                        Components\TextEntry::make('menu.title_uz')->label('Asosiy menyu'),
-                        Components\TextEntry::make('status')->label('Holati'),
-                        Components\TextEntry::make('type')->label('Turi'),
-                        Components\TextEntry::make('link')->label('Link'),
-                        Components\TextEntry::make('order')->label('Tartib raqami'),
+                        TextEntry::make('menu.title_uz')->label('Asosiy menyu'),
+                        TextEntry::make('status')->label('Holati'),
+                        TextEntry::make('type')->label('Turi'),
+                        TextEntry::make('link')->label('Link'),
+                        TextEntry::make('order')->label('Tartib raqami'),
                     ])
                     ->columns(3),
-                Components\Section::make('Rasm')
+                Section::make('Rasm')
                     ->schema([
-                        Components\ImageEntry::make('image')->label('Rasm'),
+                        ImageEntry::make('image')->label('Rasm'),
                     ])
                     ->columns(1),
 
@@ -171,25 +182,25 @@ class SubmenuResource extends Resource
     public static function getRecordSubNavigation(Page $page): array
     {
         return $page->generateNavigationItems([
-            Pages\ViewSubmenu::class,
-            Pages\EditSubmenu::class,
+            ViewSubmenu::class,
+            EditSubmenu::class,
         ]);
     }
 
     public static function getRelations(): array
     {
         return [
-            SubmenuResource\RelationManagers\MultimenusRelationManager::class,
+            MultimenusRelationManager::class,
         ];
     }
 
     public static function getPages(): array
     {
         return [
-            'index' => Pages\ListSubmenus::route('/'),
-            'create' => Pages\CreateSubmenu::route('/create'),
-            'edit' => Pages\EditSubmenu::route('/{record}/edit'),
-            'view' => Pages\ViewSubmenu::route('/{record}'),
+            'index' => ListSubmenus::route('/'),
+            'create' => CreateSubmenu::route('/create'),
+            'edit' => EditSubmenu::route('/{record}/edit'),
+            'view' => ViewSubmenu::route('/{record}'),
         ];
     }
 }

@@ -2,10 +2,21 @@
 
 namespace App\Filament\Resources;
 
+use Illuminate\Support\Collection;
+use Filament\Forms\Components\DatePicker;
+use Filament\Actions\ViewAction;
+use Filament\Actions\DeleteAction;
+use Filament\Actions\BulkActionGroup;
+use Filament\Actions\DeleteBulkAction;
+use Filament\Schemas\Schema;
+use Filament\Schemas\Components\Section;
+use Filament\Infolists\Components\TextEntry;
+use App\Filament\Resources\ActivityResource\Pages\ListActivities;
+use App\Filament\Resources\ActivityResource\Pages\ViewActivity;
+use Illuminate\Support\Str;
 use App\Filament\Resources\ActivityResource\Pages;
 use App\Models\Activity;
 use Filament\Infolists\Components;
-use Filament\Infolists\Infolist;
 use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Columns\TextColumn;
@@ -18,9 +29,9 @@ class ActivityResource extends Resource
 {
     protected static ?string $model = Activity::class;
 
-    protected static ?string $navigationIcon = 'heroicon-o-clipboard-document-list';
+    protected static string | \BackedEnum | null $navigationIcon = 'heroicon-o-clipboard-document-list';
 
-    protected static ?string $navigationGroup = 'System';
+    protected static string | \UnitEnum | null $navigationGroup = 'System';
 
     protected static ?string $navigationLabel = 'Loglar';
 
@@ -122,7 +133,7 @@ class ActivityResource extends Resource
 
                         $properties = is_string($record->properties)
                             ? json_decode($record->properties, true)
-                            : ($record->properties instanceof \Illuminate\Support\Collection ? $record->properties->toArray() : $record->properties);
+                            : ($record->properties instanceof Collection ? $record->properties->toArray() : $record->properties);
 
                         if (! $properties || ! isset($properties['old'], $properties['attributes'])) {
                             return '-';
@@ -157,10 +168,10 @@ class ActivityResource extends Resource
                     ->relationship('causer', 'name'),
 
                 Filter::make('created_at')
-                    ->form([
-                        \Filament\Forms\Components\DatePicker::make('from')
+                    ->schema([
+                        DatePicker::make('from')
                             ->label('Boshlanish sanasi'),
-                        \Filament\Forms\Components\DatePicker::make('until')
+                        DatePicker::make('until')
                             ->label('Tugash sanasi'),
                     ])
                     ->query(function (Builder $query, array $data) {
@@ -169,52 +180,52 @@ class ActivityResource extends Resource
                             ->when($data['until'], fn (Builder $q, $date) => $q->whereDate('created_at', '<=', $date));
                     }),
             ])
-            ->actions([
-                Tables\Actions\ViewAction::make(),
-                Tables\Actions\DeleteAction::make(),
+            ->recordActions([
+                ViewAction::make(),
+                DeleteAction::make(),
             ])
-            ->bulkActions([
-                Tables\Actions\BulkActionGroup::make([
-                    Tables\Actions\DeleteBulkAction::make(),
+            ->toolbarActions([
+                BulkActionGroup::make([
+                    DeleteBulkAction::make(),
                 ]),
             ]);
     }
 
-    public static function infolist(Infolist $infolist): Infolist
+    public static function infolist(Schema $schema): Schema
     {
-        return $infolist
-            ->schema([
-                Components\Section::make('Log ma\'lumotlari')
+        return $schema
+            ->components([
+                Section::make('Log ma\'lumotlari')
                     ->schema([
-                        Components\TextEntry::make('created_at')
+                        TextEntry::make('created_at')
                             ->label('Vaqt')
                             ->dateTime('d.m.Y H:i:s'),
-                        Components\TextEntry::make('causer.name')
+                        TextEntry::make('causer.name')
                             ->label('Foydalanuvchi')
                             ->default('Tizim'),
-                        Components\TextEntry::make('event')
+                        TextEntry::make('event')
                             ->label('Harakat')
                             ->badge()
                             ->color(fn (string $state) => self::$eventColors[$state] ?? 'gray')
                             ->formatStateUsing(fn (string $state) => self::$eventLabels[$state] ?? ucfirst($state)),
-                        Components\TextEntry::make('subject_type')
+                        TextEntry::make('subject_type')
                             ->label('Model')
                             ->formatStateUsing(fn (string $state) => self::getSubjectLabel($state)),
-                        Components\TextEntry::make('subject_id')
+                        TextEntry::make('subject_id')
                             ->label('Yozuv ID'),
                     ])
                     ->columns(3),
 
-                Components\Section::make('O\'zgarishlar')
+                Section::make('O\'zgarishlar')
                     ->schema([
-                        Components\TextEntry::make('properties')
+                        TextEntry::make('properties')
                             ->label('')
                             ->columnSpanFull()
                             ->html()
                             ->getStateUsing(function (Activity $record) {
                                 $properties = is_string($record->properties)
                                     ? json_decode($record->properties, true)
-                                    : ($record->properties instanceof \Illuminate\Support\Collection ? $record->properties->toArray() : $record->properties);
+                                    : ($record->properties instanceof Collection ? $record->properties->toArray() : $record->properties);
 
                                 if (! $properties) {
                                     return '<p class="text-gray-500">Ma\'lumot yo\'q</p>';
@@ -241,8 +252,8 @@ class ActivityResource extends Resource
     public static function getPages(): array
     {
         return [
-            'index' => Pages\ListActivities::route('/'),
-            'view' => Pages\ViewActivity::route('/{record}'),
+            'index' => ListActivities::route('/'),
+            'view' => ViewActivity::route('/{record}'),
         ];
     }
 
@@ -255,13 +266,13 @@ class ActivityResource extends Resource
     {
         $properties = is_string($record->properties)
             ? json_decode($record->properties, true)
-            : ($record->properties instanceof \Illuminate\Support\Collection ? $record->properties->toArray() : $record->properties);
+            : ($record->properties instanceof Collection ? $record->properties->toArray() : $record->properties);
 
         $attrs = $properties['attributes'] ?? $properties['old'] ?? [];
 
         foreach (['title_uz', 'name', 'title', 'label'] as $field) {
             if (! empty($attrs[$field])) {
-                return \Illuminate\Support\Str::limit($attrs[$field], 40);
+                return Str::limit($attrs[$field], 40);
             }
         }
 
@@ -359,7 +370,7 @@ class ActivityResource extends Resource
         $str = (string) $value;
 
         if (strlen($str) > 200) {
-            $str = \Illuminate\Support\Str::limit(strip_tags($str), 200);
+            $str = Str::limit(strip_tags($str), 200);
         }
 
         return e($str);

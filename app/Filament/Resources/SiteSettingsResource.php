@@ -2,13 +2,17 @@
 
 namespace App\Filament\Resources;
 
+use Filament\Schemas\Schema;
+use Filament\Schemas\Components\Section;
+use Filament\Actions\EditAction;
+use App\Filament\Resources\SiteSettingsResource\Pages\ListSiteSettings;
+use App\Filament\Resources\SiteSettingsResource\Pages\CreateSiteSettings;
+use App\Filament\Resources\SiteSettingsResource\Pages\EditSiteSettings;
 use App\Filament\Resources\SiteSettingsResource\Pages;
 use App\Models\SiteSettings;
 use Filament\Forms\Components\FileUpload;
-use Filament\Forms\Components\Section;
 use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
-use Filament\Forms\Form;
 use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Columns\ImageColumn;
@@ -19,8 +23,8 @@ class SiteSettingsResource extends Resource
 {
     protected static ?string $model = SiteSettings::class;
 
-    protected static ?string $navigationIcon = 'heroicon-o-cog-6-tooth';
-    protected static ?string $navigationGroup = 'Sahifa va boshqa menyular';
+    protected static string | \BackedEnum | null $navigationIcon = 'heroicon-o-cog-6-tooth';
+    protected static string | \UnitEnum | null $navigationGroup = 'Sahifa va boshqa menyular';
     protected static ?int $navigationSort = 8;
     protected static ?string $navigationLabel = 'Sayt sozlamalari';
     protected static ?string $pluralModelLabel = 'Sayt sozlamalari';
@@ -31,9 +35,9 @@ class SiteSettingsResource extends Resource
         return SiteSettings::count() === 0;
     }
 
-    public static function form(Form $form): Form
+    public static function form(Schema $schema): Schema
     {
-        return $form->schema([
+        return $schema->components([
 
             Section::make('Sayt nomi (3 tilda)')
                 ->schema([
@@ -148,10 +152,10 @@ class SiteSettingsResource extends Resource
                 TextColumn::make('email_primary')->label('Email'),
                 TextColumn::make('updated_at')->dateTime()->label('Yangilandi'),
             ])
-            ->actions([
-                Tables\Actions\EditAction::make(),
+            ->recordActions([
+                EditAction::make(),
             ])
-            ->bulkActions([]);
+            ->toolbarActions([]);
     }
 
     public static function getRelations(): array
@@ -162,9 +166,9 @@ class SiteSettingsResource extends Resource
     public static function getPages(): array
     {
         return [
-            'index'  => Pages\ListSiteSettings::route('/'),
-            'create' => Pages\CreateSiteSettings::route('/create'),
-            'edit'   => Pages\EditSiteSettings::route('/{record}/edit'),
+            'index'  => ListSiteSettings::route('/'),
+            'create' => CreateSiteSettings::route('/create'),
+            'edit'   => EditSiteSettings::route('/{record}/edit'),
         ];
     }
 }
