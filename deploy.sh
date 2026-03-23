@@ -116,30 +116,23 @@ php artisan event:clear
 # =============================================================================
 # 7. Ma'lumotlar bazasi migratsiyasi
 # =============================================================================
-step "Pending migratsiyalar tekshirilmoqda..."
-PENDING=$(php artisan migrate:status --pending 2>/dev/null | grep -c "Pending" || true)
+step "Ma'lumotlar bazasi migratsiyasi..."
+# MySQL bo'lsa avtomatik backup (migrate --force idempotent, har safar xavfsiz)
+if command -v mysqldump &>/dev/null && [ -f ".env" ]; then
+    DB_DATABASE=$(grep "^DB_DATABASE=" .env | cut -d'=' -f2)
+    DB_USERNAME=$(grep "^DB_USERNAME=" .env | cut -d'=' -f2)
+    DB_PASSWORD=$(grep "^DB_PASSWORD=" .env | cut -d'=' -f2)
 
-if [ "$PENDING" -gt 0 ] 2>/dev/null || php artisan migrate:status 2>/dev/null | grep -q "Pending"; then
-    # MySQL bo'lsa avtomatik backup
-    if command -v mysqldump &>/dev/null && [ -f ".env" ]; then
-        DB_DATABASE=$(grep "^DB_DATABASE=" .env | cut -d'=' -f2)
-        DB_USERNAME=$(grep "^DB_USERNAME=" .env | cut -d'=' -f2)
-        DB_PASSWORD=$(grep "^DB_PASSWORD=" .env | cut -d'=' -f2)
-
-        if [ -n "$DB_DATABASE" ]; then
-            BACKUP_FILE="storage/backups/db_$(date +%Y%m%d_%H%M%S).sql"
-            step "DB backup olinmoqda: $BACKUP_FILE"
-            mysqldump -u"$DB_USERNAME" -p"$DB_PASSWORD" "$DB_DATABASE" > "$BACKUP_FILE" 2>/dev/null \
-                && echo "  Backup muvaffaqiyatli: $BACKUP_FILE" \
-                || warn "Backup olib bo'lmadi — migration baribir davom etadi"
-        fi
+    if [ -n "$DB_DATABASE" ]; then
+        BACKUP_FILE="storage/backups/db_$(date +%Y%m%d_%H%M%S).sql"
+        step "DB backup olinmoqda: $BACKUP_FILE"
+        mysqldump -u"$DB_USERNAME" -p"$DB_PASSWORD" "$DB_DATABASE" > "$BACKUP_FILE" 2>/dev/null \
+            && echo "  Backup muvaffaqiyatli: $BACKUP_FILE" \
+            || warn "Backup olib bo'lmadi — migration baribir davom etadi"
     fi
-
-    step "Migratsiya ishga tushirilmoqda..."
-    php artisan migrate --force
-else
-    echo "  Yangi migratsiya yo'q — o'tkazib yuborildi"
 fi
+
+php artisan migrate --force
 
 # =============================================================================
 # 8. Storage symbolic link
@@ -188,10 +181,13 @@ php artisan filament:upgrade
 php artisan icons:cache 2>/dev/null || warn "icons:cache ishlamadi (katta xato emas)"
 
 # =============================================================================
-# 11. Permissions (spatie)
+# 11. Permissions (spatie + shield)
 # =============================================================================
 step "Permission cache yangilanmoqda..."
 php artisan permission:cache-reset 2>/dev/null || warn "permission:cache-reset ishlamadi"
+
+step "Shield permissions regenerate qilinmoqda..."
+php artisan shield:generate --all --ignore-config-guards 2>/dev/null || warn "shield:generate ishlamadi"
 
 # =============================================================================
 # 12. Rasm cache tozalash (ixtiyoriy)
