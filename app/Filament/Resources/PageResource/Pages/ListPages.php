@@ -3,7 +3,7 @@
 namespace App\Filament\Resources\PageResource\Pages;
 
 use Filament\Actions\CreateAction;
-use Filament\Resources\Components\Tab;
+use Filament\Schemas\Components\Tabs\Tab;
 use App\Filament\Resources\PageResource;
 use App\Models\Page;
 use Filament\Actions;
