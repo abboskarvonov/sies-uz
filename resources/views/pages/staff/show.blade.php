@@ -3,9 +3,9 @@
 
     {{-- ══ HEADER ══ --}}
     <x-page.show-header
-        :title="lc_name($staff)"
+        :title="$staff->name"
         :subtitle="lc_position($staff)"
-        :image="asset('storage/' . $staff->image)"
+        :image="$staff->profile_photo_path ? asset('storage/' . $staff->profile_photo_path) : asset('img/default-avatar.webp')"
     />
 
     {{-- ══ CONTENT ══ --}}

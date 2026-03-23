@@ -39,7 +39,7 @@ class StaffMemberPolicy
             return true;
         }
 
-        if ($user->can('view_all_pages')) {
+        if ($user->can('ViewAllPages')) {
             return true;
         }
 
@@ -82,7 +82,7 @@ class StaffMemberPolicy
             return true;
         }
 
-        if ($user->can('view_all_pages')) {
+        if ($user->can('ViewAllPages')) {
             return true;
         }
 
@@ -144,7 +144,7 @@ class StaffMemberPolicy
      */
     private function hasAccessViaPage(User $user, StaffMember $staffMember): bool
     {
-        if ($user->can('view_all_pages')) {
+        if ($user->can('ViewAllPages')) {
             return true;
         }
 

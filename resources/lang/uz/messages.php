@@ -56,6 +56,8 @@ return [
     'department_staff' => 'Kafedra xodimlari',
     'about_faculty' => 'Fakultet haqida',
     'faculty_staff' => 'Fakultet xodimlari',
+    'faculty_departments' => 'Fakultet kafedralari',
+    'no_departments' => 'Hozircha kafedralar ma\'lumoti mavjud emas.',
     'about_center' => 'Markaz haqida',
     'center_staff' => 'Markaz xodimlari',
     'about_section' => 'Bo\'lim haqida',

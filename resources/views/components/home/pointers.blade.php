@@ -16,7 +16,10 @@
             <div class="footer-anim relative col-span-2 hidden h-64 overflow-hidden rounded-2xl lg:block
                         border border-teal-700/40"
                 style="transition-delay:0.10s; box-shadow: inset 0 1px 0 rgba(255,255,255,0.06);">
-                <img src="/img/field.webp" alt="" class="h-64 w-full object-cover">
+                <img src="/img/field.webp"
+                    srcset="/img/field-640.webp 640w, /img/field-1280.webp 1280w, /img/field-1920.webp 1920w"
+                    sizes="(max-width: 1024px) 100vw, 50vw"
+                    alt="" class="h-64 w-full object-cover">
                 <div class="absolute inset-0 bg-linear-to-t from-teal-950/60 to-transparent pointer-events-none"></div>
             </div>
 

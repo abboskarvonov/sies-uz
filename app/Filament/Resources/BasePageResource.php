@@ -103,13 +103,13 @@ abstract class BasePageResource extends Resource
             return $query;
         }
 
-        if ($user->can('view_all_pages')) {
+        if ($user->can('ViewAllPages')) {
             return $query;
         }
 
         $pageIds = $user->assignedPages()->pluck('pages.id')->toArray();
 
-        if ($user->can('view_blog_pages') && in_array('blog', static::$pageTypes)) {
+        if ($user->can('ViewBlogPages') && in_array('blog', static::$pageTypes)) {
             return $query->where(function ($q) use ($pageIds) {
                 $q->whereIn('id', $pageIds)
                   ->orWhere('page_type', 'blog');

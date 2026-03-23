@@ -1,5 +1,11 @@
 <?php
 
+use App\Models\Menu;
+use App\Models\Submenu;
+use App\Models\Multimenu;
+use App\Models\Page;
+use App\Models\Tag;
+use App\Models\StaffMember;
 use Illuminate\Support\Str;
 use Mcamara\LaravelLocalization\Facades\LaravelLocalization;
 
@@ -26,10 +32,10 @@ if (!function_exists('localized_url')) {
         $slugColCurrent = 'slug_' . $currentLocale;
         $slugColTarget  = 'slug_' . $locale;
 
-        $Menu      = \App\Models\Menu::class;
-        $Submenu   = \App\Models\Submenu::class;
-        $Multimenu = \App\Models\Multimenu::class;
-        $Page      = \App\Models\Page::class;
+        $Menu      = Menu::class;
+        $Submenu   = Submenu::class;
+        $Multimenu = Multimenu::class;
+        $Page      = Page::class;
 
         $fallback = fn() => LaravelLocalization::getLocalizedURL($locale, url()->current());
 
@@ -172,7 +178,7 @@ if (!function_exists('localized_url')) {
             }
 
             return $fallback();
-        } catch (\Throwable) {
+        } catch (Throwable) {
             return $fallback();
         }
     }
@@ -187,10 +193,10 @@ if (!function_exists('localized_page_route')) {
      * - menu, submenu, multimenu       -> pages.show
      * - menu, submenu, multimenu, page -> pages.detail
      *
-     * @param  \App\Models\Menu            $menu
-     * @param  \App\Models\Submenu|null    $submenu
-     * @param  \App\Models\Multimenu|null  $multimenu
-     * @param  \App\Models\Page|null       $page
+     * @param Menu $menu
+     * @param Submenu|null $submenu
+     * @param Multimenu|null $multimenu
+     * @param Page|null $page
      * @param  string|null                 $locale
      * @return string
      */
@@ -267,11 +273,11 @@ if (!function_exists('localized_staff_url')) {
     /**
      * Xodim profiliga to'g'ri URL qaytaradi (5 yoki 6 segment).
      *
-     * @param  \App\Models\Menu              $menu
-     * @param  \App\Models\Submenu           $submenu
-     * @param  \App\Models\Multimenu         $multimenu
-     * @param  \App\Models\StaffMember|int   $staff     // model yoki ID
-     * @param  \App\Models\Page|null         $page      // blog/faculty/department uchun kerak
+     * @param Menu $menu
+     * @param Submenu $submenu
+     * @param Multimenu $multimenu
+     * @param StaffMember|int $staff // model yoki ID
+     * @param Page|null $page // blog/faculty/department uchun kerak
      * @param  string|null                   $locale
      * @return string
      */
@@ -327,13 +333,13 @@ if (!function_exists('localized_staff_url')) {
 }
 
 if (!function_exists('localized_tag_url')) {
-    function localized_tag_url(\App\Models\Tag $tag, ?string $locale = null): string
+    function localized_tag_url(Tag $tag, ?string $locale = null): string
     {
         $locale ??= app()->getLocale();
         $slug = $tag->slug;
 
         $url = route('tags.show', ['slug' => $slug], false);
-        return \Mcamara\LaravelLocalization\Facades\LaravelLocalization::getLocalizedURL($locale, $url);
+        return LaravelLocalization::getLocalizedURL($locale, $url);
     }
 }
 

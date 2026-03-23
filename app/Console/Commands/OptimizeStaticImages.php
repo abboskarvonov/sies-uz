@@ -2,6 +2,7 @@
 
 namespace App\Console\Commands;
 
+use Throwable;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\File;
 use Intervention\Image\Drivers\Gd\Driver;
@@ -91,7 +92,7 @@ class OptimizeStaticImages extends Command
                 // Memory tozalash
                 unset($img);
 
-            } catch (\Throwable $e) {
+            } catch (Throwable $e) {
                 $this->error("✗ Failed to optimize {$filename}: " . $e->getMessage());
                 $failed++;
             }
@@ -133,7 +134,7 @@ class OptimizeStaticImages extends Command
                 $this->line("  → Created {$responsiveName} (" . $this->formatBytes($size) . ")");
 
                 unset($img);
-            } catch (\Throwable $e) {
+            } catch (Throwable $e) {
                 $this->warn("  ✗ Failed to create {$responsiveName}");
             }
         }

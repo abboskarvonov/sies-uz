@@ -23,10 +23,10 @@ class PageController extends Controller
         $query = Page::with(['tags:id,name,slug', 'createdBy:id,name', 'updatedBy:id,name']);
 
         // Filter by user access
-        if (!$user->hasRole('super-admin') && !$user->hasRole('admin') && !$user->can('view_all_pages')) {
+        if (!$user->hasRole('super-admin') && !$user->hasRole('admin') && !$user->can('ViewAllPages')) {
             $assignedPageIds = $user->assignedPages()->pluck('pages.id');
 
-            if ($user->can('view_blog_pages')) {
+            if ($user->can('ViewBlogPages')) {
                 $query->where(function ($q) use ($assignedPageIds) {
                     $q->where('page_type', 'blog')
                         ->orWhereIn('id', $assignedPageIds);

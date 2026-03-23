@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\HemisAuthController;
 use App\Http\Controllers\LegacyLinkController;
 use App\Http\Controllers\PageController;
 use App\Http\Controllers\SearchController;
@@ -23,6 +24,18 @@ Route::group(
     }
 );
 
+// ─── HEMIS OAuth ─────────────────────────────────────────────────────
+Route::prefix('auth/hemis')->name('auth.hemis.')->group(function () {
+    // Xodimlar (hemis.sies.uz)
+    Route::get('employee',          [HemisAuthController::class, 'redirectEmployee'])->name('employee');
+    Route::get('employee/callback', [HemisAuthController::class, 'callbackEmployee'])->name('employee.callback');
+
+    // Talabalar (student.sies.uz)
+    Route::get('student',           [HemisAuthController::class, 'redirectStudent'])->name('student');
+    Route::get('student/callback',  [HemisAuthController::class, 'callbackStudent'])->name('student.callback');
+});
+
+// ─── Authenticated routes ─────────────────────────────────────────────
 Route::middleware([
     'auth',
     config('jetstream.auth_session'),
@@ -31,8 +44,13 @@ Route::middleware([
     Route::get('/dashboard', function () {
         return view('dashboard');
     })->name('dashboard');
+});
 
-    // Bu yerda boshqa admin panel yoki user kabinet routelaring bo‘lishi mumkin
+// ─── Employee portal (verified email shart emas) ──────────────────────
+Route::middleware(['auth'])->group(function () {
+    Route::get('/employee/profile', function () {
+        return redirect()->route('profile.show');
+    })->name('employee.profile');
 });
 
 Route::get('pagesView/view/{legacy}', [LegacyLinkController::class, 'show'])
@@ -93,7 +111,7 @@ Route::group(
 
         Route::get('{menu}/{submenu?}/{multimenu?}', [PageController::class, 'pagesShow'])
             ->where([
-                // menu = faqat harf/son/-/_ bo‘lsin va "dashboard" so‘zini chiqarib tashlaymiz
+                // menu = faqat harf/son/-/_ bo'lsin va "dashboard" so'zini chiqarib tashlaymiz
                 'menu' => '^(?!dashboard$)[A-Za-z0-9\-_]+',
                 'submenu' => '[A-Za-z0-9\-_]+',
                 'multimenu' => '[A-Za-z0-9\-_]+',

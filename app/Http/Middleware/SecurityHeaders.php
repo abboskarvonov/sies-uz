@@ -30,8 +30,8 @@ class SecurityHeaders
         // Prevent browsers from MIME-sniffing a response away from declared Content-Type
         $response->headers->set('X-Content-Type-Options', 'nosniff');
 
-        // HSTS: tell browsers to always use HTTPS for this domain (only send over HTTPS)
-        if ($request->isSecure()) {
+        // HSTS: tell browsers to always use HTTPS for this domain (only send over HTTPS in production)
+        if ($request->isSecure() && app()->isProduction()) {
             $response->headers->set(
                 'Strict-Transport-Security',
                 'max-age=31536000; includeSubDomains'

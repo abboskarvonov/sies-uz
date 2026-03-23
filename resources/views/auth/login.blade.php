@@ -102,8 +102,42 @@
                 <div class="flex-1 h-px bg-gray-200"></div>
             </div>
 
+            {{-- HEMIS OAuth tugmalari --}}
+            <div class="space-y-3">
+                {{-- Xodimlar uchun --}}
+                <a href="{{ route('auth.hemis.employee') }}"
+                   class="flex items-center justify-center gap-3 w-full py-3 px-4 rounded-xl font-semibold text-sm
+                          border-2 border-blue-600 text-blue-700 hover:bg-blue-50
+                          focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2
+                          transition-all duration-200 active:scale-[0.98]">
+                    <svg class="w-5 h-5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8"
+                            d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/>
+                    </svg>
+                    Xodim — HEMIS orqali kirish
+                </a>
+
+                {{-- Talabalar uchun --}}
+                <a href="{{ route('auth.hemis.student') }}"
+                   class="flex items-center justify-center gap-3 w-full py-3 px-4 rounded-xl font-semibold text-sm
+                          border-2 border-indigo-500 text-indigo-700 hover:bg-indigo-50
+                          focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2
+                          transition-all duration-200 active:scale-[0.98]">
+                    <svg class="w-5 h-5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8"
+                            d="M12 14l9-5-9-5-9 5 9 5zm0 0l6.16-3.422a12.083 12.083 0 01.665 6.479A11.952 11.952 0 0012 20.055a11.952 11.952 0 00-6.824-2.998 12.078 12.078 0 01.665-6.479L12 14z"/>
+                    </svg>
+                    Talaba — HEMIS orqali kirish
+                </a>
+            </div>
+
             {{-- Register link --}}
             @if (Route::has('register'))
+                <div class="flex items-center gap-3 my-1">
+                    <div class="flex-1 h-px bg-gray-200"></div>
+                    <span class="text-xs text-gray-400">yoki</span>
+                    <div class="flex-1 h-px bg-gray-200"></div>
+                </div>
                 <a href="{{ route('register') }}"
                    class="flex items-center justify-center w-full py-3 px-4 rounded-xl font-semibold text-sm
                           border-2 border-teal-600 text-teal-700 hover:bg-teal-50

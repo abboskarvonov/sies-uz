@@ -56,6 +56,8 @@ return [
     'department_staff' => 'Сотрудники кафедры',
     'about_faculty' => 'О факультете',
     'faculty_staff' => 'Сотрудники факультета',
+    'faculty_departments' => 'Кафедры факультета',
+    'no_departments' => 'Информация о кафедрах пока недоступна.',
     'about_center' => 'О центре',
     'center_staff' => 'Сотрудники центра',
     'about_section' => 'Об отделе',

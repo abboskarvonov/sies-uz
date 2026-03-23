@@ -50,7 +50,7 @@
                         {{-- Sitemap SVG --}}
                         <img src="{{ asset('img/icons/004-sitemap.webp') }}" alt="Sitemap icon" class="w-4 h-4 invert"
                             width="16px" height="16px" />
-                    </a>∫
+                    </a>
                 </x-icon-button>
             </div>
 

@@ -115,7 +115,7 @@
                                          text-white border border-teal-500/50
                                          bg-teal-700/70 backdrop-blur-md"
                                 style="box-shadow: inset 0 1px 0 rgba(255,255,255,0.10); animation-delay: 0.54s">
-                                <span class="truncate">{{ lc_name($staff) }}</span>
+                                <span class="truncate">{{ $staff->name ?? lc_name($staff) }}</span>
                             </span>
                         </li>
                     @endif

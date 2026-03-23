@@ -2,6 +2,7 @@
 
 namespace App\Helpers;
 
+use Throwable;
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Log;
 use Intervention\Image\Drivers\Gd\Driver;
@@ -102,7 +103,7 @@ class ImageHelper
             }
 
             return implode(', ', $srcset);
-        } catch (\Throwable $e) {
+        } catch (Throwable $e) {
             Log::error('ImageHelper error: ' . $e->getMessage());
             return self::fallbackSrcset($widths);
         }
@@ -140,7 +141,7 @@ class ImageHelper
                     }
                 }
             }
-        } catch (\Throwable $e) {
+        } catch (Throwable $e) {
             Log::error('Image processing error: ' . $e->getMessage());
         }
     }
@@ -195,7 +196,7 @@ class ImageHelper
             }
 
             return $cache[$key] = implode(', ', $srcset);
-        } catch (\Throwable $e) {
+        } catch (Throwable $e) {
             Log::error('Fallback srcset error: ' . $e->getMessage());
             return $cache[$key] = asset('img/noimage.webp');
         }

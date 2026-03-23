@@ -9,7 +9,7 @@ class StoreStaffMemberRequest extends FormRequest
     public function authorize(): bool
     {
         return $this->user()->can('create_staff::member')
-            || $this->user()->can('view_all_pages')
+            || $this->user()->can('ViewAllPages')
             || $this->user()->assignedPages()
                 ->whereIn('pages.page_type', ['department', 'faculty', 'center', 'section'])
                 ->exists();

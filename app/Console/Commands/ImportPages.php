@@ -2,6 +2,10 @@
 
 namespace App\Console\Commands;
 
+use App\Models\Menu;
+use App\Models\Submenu;
+use App\Models\Multimenu;
+use Exception;
 use App\Models\Page;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\DB;
@@ -28,9 +32,9 @@ class ImportPages extends Command
         // DB::table('pages')->truncate();
         // DB::statement('SET FOREIGN_KEY_CHECKS=1;');
 
-        $menuIdMap = \App\Models\Menu::pluck('id', 'old_id')->toArray();
-        $submenuIdMap = \App\Models\Submenu::pluck('id', 'old_id')->toArray();
-        $multimenuIdMap = \App\Models\Multimenu::pluck('id', 'old_id')->toArray();
+        $menuIdMap = Menu::pluck('id', 'old_id')->toArray();
+        $submenuIdMap = Submenu::pluck('id', 'old_id')->toArray();
+        $multimenuIdMap = Multimenu::pluck('id', 'old_id')->toArray();
 
         $oldSubmenuMenuMap = DB::connection('mysql_old')
             ->table('sub_menu')
@@ -135,7 +139,7 @@ class ImportPages extends Command
                         'updated_at' => now(),
                     ]
                 );
-            } catch (\Exception $e) {
+            } catch (Exception $e) {
                 $this->error("Error importing page id {$oldPage->id}: " . $e->getMessage());
                 continue;
             }

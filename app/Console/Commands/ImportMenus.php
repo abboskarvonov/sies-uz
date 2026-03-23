@@ -2,6 +2,7 @@
 
 namespace App\Console\Commands;
 
+use Exception;
 use App\Models\Menu;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\DB;
@@ -63,7 +64,7 @@ class ImportMenus extends Command
                         'updated_at' => now(),
                     ]
                 );
-            } catch (\Exception $e) {
+            } catch (Exception $e) {
                 $this->error("Error importing menu id {$oldMenu->id}: " . $e->getMessage());
                 continue;
             }

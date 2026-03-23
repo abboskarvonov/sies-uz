@@ -2,6 +2,7 @@
 
 namespace App\Console\Commands;
 
+use Exception;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\DB;
 use App\Models\StaffMember;
@@ -58,7 +59,7 @@ class ImportStaffMembers extends Command
                     'updated_at' => $oldEmp->updated_at ?? now(),
                 ]);
                 $count++;
-            } catch (\Exception $e) {
+            } catch (Exception $e) {
                 $this->error("Error importing employee ID {$oldEmp->id}: " . $e->getMessage());
             }
         }

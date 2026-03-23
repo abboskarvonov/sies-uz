@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use Throwable;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
@@ -71,12 +72,12 @@ class StaffMember extends Model
 
     public function createdBy()
     {
-        return $this->belongsTo(\App\Models\User::class, 'created_by');
+        return $this->belongsTo(User::class, 'created_by');
     }
 
     public function updatedBy()
     {
-        return $this->belongsTo(\App\Models\User::class, 'updated_by');
+        return $this->belongsTo(User::class, 'updated_by');
     }
 
     public function getActivitylogOptions(): LogOptions
@@ -158,7 +159,7 @@ class StaffMember extends Model
                 if (Storage::disk('public')->exists($oldImage)) {
                     try {
                         Storage::disk('public')->delete($oldImage);
-                    } catch (\Throwable $e) {
+                    } catch (Throwable $e) {
                         Log::error('Failed to delete staff image', ['path' => $oldImage]);
                     }
                 }

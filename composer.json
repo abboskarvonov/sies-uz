@@ -22,6 +22,7 @@
         "laravel/tinker": "^2.10.1",
         "livewire/livewire": "^3.0",
         "mcamara/laravel-localization": "^2.3",
+        "openplain/filament-shadcn-theme": "^1.1",
         "openspout/openspout": "^4.23",
         "spatie/eloquent-sortable": "^4.4",
         "spatie/laravel-activitylog": "^4.10",

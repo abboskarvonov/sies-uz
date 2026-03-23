@@ -2,6 +2,7 @@
 
 namespace App\Console\Commands;
 
+use Throwable;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\File;
 
@@ -74,7 +75,7 @@ class ClearImageCache extends Command
 
             return Command::SUCCESS;
 
-        } catch (\Throwable $e) {
+        } catch (Throwable $e) {
             $this->error('Failed to clear image cache: ' . $e->getMessage());
             return Command::FAILURE;
         }

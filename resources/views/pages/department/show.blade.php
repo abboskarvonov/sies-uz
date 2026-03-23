@@ -53,7 +53,7 @@
                     {{-- History --}}
                     <section x-show="tab === 'history'" x-cloak class="bg-white p-6 md:p-8 flex-1">
                         <div class="prose max-w-none text-gray-700 text-justify indent-10">
-                            {!! lc_content($page->departmentHistory) !!}
+                            {!! $page->departmentHistory ? lc_content($page->departmentHistory) : '' !!}
                         </div>
                     </section>
 
@@ -69,7 +69,7 @@
                                         style="background: #0d9488;"></div>
                                 </div>
                                 <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-                                    @forelse ($category->staffMembers as $staffIndex => $staff)
+                                    @forelse ($category->employees as $staffIndex => $staff)
                                         @if ($index === 0 && $staffIndex === 0)
                                             <div class="lg:col-span-3">
                                                 <x-card.main-employee-card :employee="$staff" :locale="app()->getLocale()"

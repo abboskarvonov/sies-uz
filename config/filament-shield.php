@@ -18,7 +18,7 @@ return [
             'pages' => true,
             'widgets' => true,
             'resources' => true,
-            'custom_permissions' => false,
+            'custom_permissions' => true,
         ],
     ],
 
@@ -142,6 +142,7 @@ return [
         'prefix' => 'view',
         'exclude' => [
             \Filament\Pages\Dashboard::class,
+            \App\Filament\Pages\Dashboard::class,
         ],
     ],
 
@@ -165,7 +166,11 @@ return [
     |--------------------------------------------------------------------------
     */
 
-    'custom_permissions' => [],
+    'custom_permissions' => [
+        'AccessFilamentPanel' => 'Filament Panelga kirish',
+        'ViewAllPages'        => 'Barcha sahifalarni ko\'rish',
+        'ViewBlogPages'       => 'Blog sahifalarni ko\'rish',
+    ],
 
     /*
     |--------------------------------------------------------------------------

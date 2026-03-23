@@ -56,6 +56,8 @@ return [
     'department_staff' => 'Department Staff',
     'about_faculty' => 'About the Faculty',
     'faculty_staff' => 'Faculty Staff',
+    'faculty_departments' => 'Faculty Departments',
+    'no_departments' => 'No department information is available yet.',
     'about_center' => 'About the Center',
     'center_staff' => 'Center Staff',
     'about_section' => 'About the Section',

@@ -35,4 +35,23 @@ return [
         ],
     ],
 
+    // ─── HEMIS OAuth ────────────────────────────────────────────────
+    'hemis_employee' => [
+        'client_id'     => env('HEMIS_CLIENT_ID', '5'),
+        'client_secret' => env('HEMIS_CLIENT_SECRET'),
+        'redirect'      => env('HEMIS_EMPLOYEE_REDIRECT'),
+    ],
+
+    'hemis_student' => [
+        'client_id'     => env('HEMIS_CLIENT_ID', '5'),
+        'client_secret' => env('HEMIS_CLIENT_SECRET'),
+        'redirect'      => env('HEMIS_STUDENT_REDIRECT'),
+    ],
+
+    // ─── HEMIS REST API (sync uchun) ────────────────────────────────
+    'hemis_api' => [
+        'base_url' => env('HEMIS_API_URL', 'https://student.sies.uz/rest/v1'),
+        'token'    => env('HEMIS_API_TOKEN'),
+    ],
+
 ];

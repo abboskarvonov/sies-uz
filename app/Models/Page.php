@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use Exception;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Auth;
@@ -41,6 +42,8 @@ class Page extends Model implements Sortable
         'views',
         'created_by',
         'updated_by',
+        'hemis_id',
+        'parent_page_id',
     ];
 
     protected $casts = [
@@ -76,7 +79,7 @@ class Page extends Model implements Sortable
                         if (Storage::disk('public')->exists($image)) {
                             Storage::disk('public')->delete($image);
                         }
-                    } catch (\Exception $e) {
+                    } catch (Exception $e) {
                         // Agar nimadir xato bo'lsa (masalan, noto'g'ri path) – shunchaki o'tkazib yuboriladi
                         continue;
                     }
@@ -92,6 +95,16 @@ class Page extends Model implements Sortable
         static::deleted(function ($page) {
             self::clearHomepageCache();
         });
+    }
+
+    public function parentPage()
+    {
+        return $this->belongsTo(Page::class, 'parent_page_id');
+    }
+
+    public function childPages()
+    {
+        return $this->hasMany(Page::class, 'parent_page_id');
     }
 
     public function menu()
@@ -111,12 +124,12 @@ class Page extends Model implements Sortable
 
     public function createdBy()
     {
-        return $this->belongsTo(\App\Models\User::class, 'created_by');
+        return $this->belongsTo(User::class, 'created_by');
     }
 
     public function updatedBy()
     {
-        return $this->belongsTo(\App\Models\User::class, 'updated_by');
+        return $this->belongsTo(User::class, 'updated_by');
     }
 
     public function tags()
@@ -136,7 +149,14 @@ class Page extends Model implements Sortable
 
     public function staffCategories()
     {
-        return $this->hasMany(StaffCategory::class);
+        return $this->hasMany(StaffCategory::class)->orderBy('order');
+    }
+
+    public function employees()
+    {
+        return $this->hasMany(User::class, 'department_page_id')
+                    ->orderBy('position_order')
+                    ->orderBy('name');
     }
 
     // App\Models\Page.php
@@ -155,11 +175,6 @@ class Page extends Model implements Sortable
     public function scopeLatestByDate($query)
     {
         return $query->latest('date');
-    }
-
-    public function staffMembers()
-    {
-        return $this->hasMany(StaffMember::class, 'page_id');
     }
 
     public function departmentHistory()

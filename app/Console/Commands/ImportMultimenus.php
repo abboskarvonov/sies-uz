@@ -2,6 +2,8 @@
 
 namespace App\Console\Commands;
 
+use App\Models\Menu;
+use App\Models\Submenu;
 use App\Models\Multimenu;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\DB;
@@ -24,8 +26,8 @@ class ImportMultimenus extends Command
         DB::statement('SET FOREIGN_KEY_CHECKS=1;');
 
         // Yangi bazadagi mappinglar
-        $newMenuIdMap = \App\Models\Menu::pluck('id', 'old_id')->toArray();
-        $newSubmenuIdMap = \App\Models\Submenu::pluck('id', 'old_id')->toArray();
+        $newMenuIdMap = Menu::pluck('id', 'old_id')->toArray();
+        $newSubmenuIdMap = Submenu::pluck('id', 'old_id')->toArray();
 
         // Eski submenu → menu mapping
         $oldSubmenuMenuMap = DB::connection('mysql_old')

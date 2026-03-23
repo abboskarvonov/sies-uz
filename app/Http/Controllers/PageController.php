@@ -6,8 +6,8 @@ use App\Jobs\IncrementPageViews;
 use App\Models\Menu;
 use App\Models\Multimenu;
 use App\Models\Page;
-use App\Models\StaffMember;
 use App\Models\Submenu;
+use App\Models\User;
 use App\Models\Tag;
 use App\Services\HomepageService;
 use Illuminate\Contracts\View\View;
@@ -150,15 +150,15 @@ class PageController extends Controller
         }
 
         // Single page — to'liq ma'lumotni bitta query da olamiz (type allaqachon ma'lum)
-        $staffRelations = in_array($pageType, ['center', 'section']) ? [
+        $staffRelations = in_array($pageType, ['faculty', 'department', 'center', 'section']) ? [
             'staffCategories' => function ($query) {
                 $query->whereNull('parent_id')
                     ->select(['id', 'title_uz', 'title_ru', 'title_en', 'page_id', 'parent_id', 'order'])
                     ->orderBy('order')
                     ->with([
-                        'staffMembers:id,name_uz,name_ru,name_en,position_uz,position_ru,position_en,image,staff_category_id,page_id',
+                        'employees:id,name,position_uz,position_ru,position_en,profile_photo_path,staff_category_id,department_page_id,position_order',
                         'children' => fn($q) => $q->select(['id', 'title_uz', 'title_ru', 'title_en', 'parent_id', 'page_id', 'order'])->orderBy('order'),
-                        'children.staffMembers:id,name_uz,name_ru,name_en,position_uz,position_ru,position_en,image,staff_category_id,page_id',
+                        'children.employees:id,name,position_uz,position_ru,position_en,profile_photo_path,staff_category_id,department_page_id,position_order',
                     ]);
             },
         ] : [];
@@ -227,9 +227,9 @@ class PageController extends Controller
                         ->select(['id', 'title_uz', 'title_ru', 'title_en', 'page_id', 'parent_id', 'order'])
                         ->orderBy('order')
                         ->with([
-                            'staffMembers:id,name_uz,name_ru,name_en,position_uz,position_ru,position_en,image,staff_category_id,page_id',
+                            'employees:id,name,position_uz,position_ru,position_en,profile_photo_path,staff_category_id,department_page_id,position_order',
                             'children' => fn($q) => $q->select(['id', 'title_uz', 'title_ru', 'title_en', 'parent_id', 'page_id', 'order'])->orderBy('order'),
-                            'children.staffMembers:id,name_uz,name_ru,name_en,position_uz,position_ru,position_en,image,staff_category_id,page_id',
+                            'children.employees:id,name,position_uz,position_ru,position_en,profile_photo_path,staff_category_id,department_page_id,position_order',
                         ]);
                 },
                 'departmentHistory:id,department_id,content_uz,content_ru,content_en',
@@ -237,6 +237,17 @@ class PageController extends Controller
             ->firstOrFail();
 
         $this->incrementViewOnce($pageModel);
+
+        // Fakultet uchun tegishli kafedralarni yuklash
+        if ($pageModel->page_type === 'faculty') {
+            $pageModel->load([
+                'childPages' => fn($q) => $q
+                    ->where('page_type', 'department')
+                    ->with(['menu:id,slug_uz,slug_ru,slug_en', 'submenu:id,slug_uz,slug_ru,slug_en', 'multimenu:id,slug_uz,slug_ru,slug_en'])
+                    ->withCount('employees')
+                    ->orderBy('order'),
+            ]);
+        }
 
         $view = match ($pageModel->page_type) {
             'blog' => 'pages.blog.show',
@@ -292,10 +303,10 @@ class PageController extends Controller
             ->select(['id', 'page_type', 'title_uz', 'title_ru', 'title_en', 'menu_id', 'submenu_id', 'multimenu_id'])
             ->firstOrFail();
 
-        $staffModel = StaffMember::query()
-            ->where('page_id', $pageModel->id)
+        $staffModel = User::query()
+            ->where('department_page_id', $pageModel->id)
             ->where('id', (int) $staff)
-            ->select(['id', 'page_id', 'name_uz', 'name_ru', 'name_en', 'content_uz', 'content_ru', 'content_en', 'image', 'position_uz', 'position_ru', 'position_en'])
+            ->select(['id', 'department_page_id', 'name', 'content_uz', 'content_ru', 'content_en', 'profile_photo_path', 'position_uz', 'position_ru', 'position_en', 'hemis_id'])
             ->firstOrFail();
 
         return $this->renderStaffView($menuModel, $submenuModel, $multimenuModel, $pageModel, $staffModel, $locale);
@@ -323,10 +334,10 @@ class PageController extends Controller
             ->select(['id', 'page_type', 'title_uz', 'title_ru', 'title_en', 'menu_id', 'submenu_id', 'multimenu_id'])
             ->firstOrFail();
 
-        $staffModel = StaffMember::query()
-            ->where('page_id', $pageModel->id)
+        $staffModel = User::query()
+            ->where('department_page_id', $pageModel->id)
             ->where('id', (int) $staff)
-            ->select(['id', 'page_id', 'name_uz', 'name_ru', 'name_en', 'content_uz', 'content_ru', 'content_en', 'image', 'position_uz', 'position_ru', 'position_en'])
+            ->select(['id', 'department_page_id', 'name', 'content_uz', 'content_ru', 'content_en', 'profile_photo_path', 'position_uz', 'position_ru', 'position_en', 'hemis_id'])
             ->firstOrFail();
 
         return $this->renderStaffView($menuModel, $submenuModel, $multimenuModel, $pageModel, $staffModel, $locale);
@@ -467,7 +478,7 @@ class PageController extends Controller
         Model $submenuModel,
         Model $multimenuModel,
         Model $pageModel,
-        StaffMember $staffModel,
+        User $staffModel,
         string $locale
     ): View {
         return view('pages.staff.show', [
@@ -476,10 +487,10 @@ class PageController extends Controller
             'multimenuModel' => $multimenuModel,
             'pageModel' => in_array($pageModel->page_type, ['faculty', 'department']) ? $pageModel : null,
             'staff' => $staffModel,
-            'metaTitle' => $staffModel->{"name_{$locale}"} ?? 'Xodim',
+            'metaTitle' => $staffModel->name ?? 'Xodim',
             'metaDescription' => Str::limit(strip_tags($staffModel->{"content_{$locale}"} ?? ''), config('site.meta.description_limit', 150)),
-            'metaImage' => $staffModel->image
-                ? asset('storage/' . $staffModel->image)
+            'metaImage' => $staffModel->profile_photo_path
+                ? asset('storage/' . $staffModel->profile_photo_path)
                 : asset(config('site.meta.default_image', 'img/og-image.webp')),
             'canonical' => url()->current(),
             'locale' => $locale,

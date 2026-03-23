@@ -2,6 +2,7 @@
 
 namespace App\Console\Commands;
 
+use Exception;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\DB;
 use App\Models\PageFile;
@@ -45,7 +46,7 @@ class ImportPageFiles extends Command
                     'updated_at' => $oldFile->updated_at ?? now(),
                 ]);
                 $count++;
-            } catch (\Exception $e) {
+            } catch (Exception $e) {
                 $this->error("Error importing file ID {$oldFile->id}: " . $e->getMessage());
             }
         }

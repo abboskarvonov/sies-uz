@@ -14,7 +14,7 @@ class UpdateStaffMemberRequest extends FormRequest
             return true;
         }
 
-        if ($this->user()->can('view_all_pages')) {
+        if ($this->user()->can('ViewAllPages')) {
             return true;
         }
 

@@ -21,7 +21,12 @@
                                 style="transition-delay: {{ number_format(min($loop->index, 8) * 0.07, 2) }}s;">
 
                                 <div class="absolute inset-0">
-                                    <x-main.image :src="$image" :alt="$image" :loading="'lazy'"
+                                    @php
+                                    // Mutlaq URL'dan nisbiy yo'l ajratish (srcset generatsiya uchun)
+                                    $imgSrc = preg_replace('#^https?://[^/]+/#', '', $image);
+                                @endphp
+                                <x-main.image :src="$imgSrc" :alt="'Gallery'" :loading="'lazy'"
+                                        sizes="(max-width: 640px) 50vw, (max-width: 1024px) 25vw, 17vw"
                                         class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110" />
 
                                     <div

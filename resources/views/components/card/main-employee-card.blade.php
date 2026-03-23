@@ -15,7 +15,8 @@
 
         {{-- Photo --}}
         <div class="relative h-80 md:h-96 overflow-hidden">
-            <x-main.image src="{{ asset('storage/' . ($employee->image ?? '')) }}" alt="{{ lc_name($employee) }}"
+            <x-main.image src="{{ $employee->profile_photo_path ? 'storage/' . $employee->profile_photo_path : 'img/default-avatar.webp' }}" alt="{{ $employee->name }}"
+                sizes="(max-width: 768px) 100vw, 50vw"
                 class="w-full h-full object-cover transition duration-700 group-hover:scale-105" />
             <div class="absolute inset-0 bg-linear-to-t from-black/50 to-transparent"></div>
 
@@ -31,7 +32,7 @@
         {{-- Info --}}
         <div class="p-8 md:p-10 flex flex-col justify-center gap-5">
             <div>
-                <h3 class="text-2xl font-bold text-gray-800 mb-1.5">{{ lc_name($employee) }}</h3>
+                <h3 class="text-2xl font-bold text-gray-800 mb-1.5">{{ $employee->name }}</h3>
                 <p class="text-teal-700 font-medium text-sm">{{ lc_position($employee) }}</p>
             </div>
 

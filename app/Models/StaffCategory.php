@@ -12,6 +12,7 @@ class StaffCategory extends Model
         'title_uz',
         'title_ru',
         'title_en',
+        'hemis_employee_type_code',
         'order',
     ];
 
@@ -25,9 +26,11 @@ class StaffCategory extends Model
         return $this->hasMany(StaffCategory::class, 'parent_id');
     }
 
-    public function staffMembers()
+    public function employees()
     {
-        return $this->hasMany(StaffMember::class);
+        return $this->hasMany(User::class, 'staff_category_id')
+                    ->orderBy('position_order')
+                    ->orderBy('name');
     }
 
     public function page()

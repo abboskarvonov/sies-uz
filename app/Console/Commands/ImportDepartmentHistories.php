@@ -2,6 +2,7 @@
 
 namespace App\Console\Commands;
 
+use Exception;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\DB;
 use App\Models\DepartmentHistory;
@@ -46,7 +47,7 @@ class ImportDepartmentHistories extends Command
                     'updated_at' => $oldHistory->updated_at ?? '',
                 ]);
                 $count++;
-            } catch (\Exception $e) {
+            } catch (Exception $e) {
                 $this->error("Error importing department_history ID {$oldHistory->id}: " . $e->getMessage());
             }
         }

@@ -12,7 +12,9 @@ use Filament\Http\Middleware\DispatchServingFilamentEvent;
 use Filament\Panel;
 use Filament\PanelProvider;
 use Filament\Support\Colors\Color;
+use App\Filament\Resources\RoleResource;
 use BezhanSalleh\FilamentShield\FilamentShieldPlugin;
+use Openplain\FilamentShadcnTheme\Color as ShadcnColor;
 use Filament\Widgets;
 use Illuminate\Cookie\Middleware\AddQueuedCookiesToResponse;
 use Illuminate\Cookie\Middleware\EncryptCookies;
@@ -34,14 +36,17 @@ class AdminPanelProvider extends PanelProvider
             ->maxContentWidth('full')
             ->profile(isSimple: false)
             ->colors([
+                'primary' => ShadcnColor::Default,
                 'gray' => Color::Slate,
                 'danger' => Color::Rose,
                 'info' => Color::Blue,
-                'primary' => Color::Indigo,
                 'success' => Color::Emerald,
                 'warning' => Color::Orange,
             ])
             ->favicon(secure_asset('favicon.ico'))
+            ->resources([
+                RoleResource::class,
+            ])
             ->plugin(
                 FilamentShieldPlugin::make()
                     ->gridColumns([

@@ -5,12 +5,15 @@ namespace App\Providers;
 use App\Models\Menu;
 use App\Models\SiteSettings;
 use App\Models\Symbol;
+use App\Services\Socialite\HemisEmployeeProvider;
+use App\Services\Socialite\HemisStudentProvider;
 use Illuminate\Cache\RateLimiting\Limit;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Support\Facades\URL;
 use Illuminate\Support\Facades\View;
 use Illuminate\Support\ServiceProvider;
+use Laravel\Socialite\Facades\Socialite;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -68,6 +71,21 @@ class AppServiceProvider extends ServiceProvider
             ];
 
             $view->with('symbolSlugs', $symbolSlugs);
+        });
+
+        // ─── HEMIS Socialite drayverlarini ro'yxatga olish ─────────────
+        Socialite::extend('hemis-employee', function ($app) {
+            return Socialite::buildProvider(
+                HemisEmployeeProvider::class,
+                $app['config']['services.hemis_employee']
+            );
+        });
+
+        Socialite::extend('hemis-student', function ($app) {
+            return Socialite::buildProvider(
+                HemisStudentProvider::class,
+                $app['config']['services.hemis_student']
+            );
         });
 
         if (app()->isProduction()) {

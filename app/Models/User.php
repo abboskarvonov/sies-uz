@@ -2,12 +2,12 @@
 
 namespace App\Models;
 
-// use Illuminate\Contracts\Auth\MustVerifyEmail;
-
 use Filament\Models\Contracts\FilamentUser;
 use Filament\Panel;
 use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Laravel\Fortify\TwoFactorAuthenticatable;
@@ -21,8 +21,6 @@ use Spatie\Permission\Traits\HasRoles;
 class User extends Authenticatable implements FilamentUser, MustVerifyEmail
 {
     use HasApiTokens, HasRoles, HasPanelShield, LogsActivity;
-
-    /** @use HasFactory<\Database\Factories\UserFactory> */
     use HasFactory;
     use HasProfilePhoto;
     use Notifiable;
@@ -34,25 +32,37 @@ class User extends Authenticatable implements FilamentUser, MustVerifyEmail
             return true;
         }
 
-        return ! is_null($this->email_verified_at) && $this->can('access_filament_panel');
+        // HEMIS orqali kirgan xodimlar admin panelga kira olmaydi
+        if ($this->hemis_type !== 'admin') {
+            return false;
+        }
+
+        return ! is_null($this->email_verified_at) && $this->can('AccessFilamentPanel');
     }
 
-    /**
-     * The attributes that are mass assignable.
-     *
-     * @var array<int, string>
-     */
     protected $fillable = [
         'name',
         'email',
         'password',
+        'hemis_id',
+        'hemis_employee_id',
+        'hemis_uuid',
+        'hemis_type',
+        'department_page_id',
+        'staff_category_id',
+        'position_uz',
+        'position_ru',
+        'position_en',
+        'academic_degree',
+        'academic_rank',
+        'employment_form',
+        'position_order',
+        'content_uz',
+        'content_ru',
+        'content_en',
+        'profile_photo_path',
     ];
 
-    /**
-     * The attributes that should be hidden for serialization.
-     *
-     * @var array<int, string>
-     */
     protected $hidden = [
         'password',
         'remember_token',
@@ -60,37 +70,51 @@ class User extends Authenticatable implements FilamentUser, MustVerifyEmail
         'two_factor_secret',
     ];
 
-    /**
-     * The accessors to append to the model's array form.
-     *
-     * @var array<int, string>
-     */
     protected $appends = [
         'profile_photo_url',
     ];
 
-    /**
-     * Get the attributes that should be cast.
-     *
-     * @return array<string, string>
-     */
     protected function casts(): array
     {
         return [
             'email_verified_at' => 'datetime',
-            'password' => 'hashed',
-            'last_seen_at' => 'datetime',
+            'password'          => 'hashed',
+            'last_seen_at'      => 'datetime',
         ];
     }
 
-    public function staffMember()
+    // ─── Relationships ──────────────────────────────────────────────
+
+    public function departmentPage(): BelongsTo
     {
-        return $this->hasOne(StaffMember::class);
+        return $this->belongsTo(Page::class, 'department_page_id');
+    }
+
+    public function staffCategory(): BelongsTo
+    {
+        return $this->belongsTo(StaffCategory::class);
     }
 
     public function assignedPages()
     {
         return $this->belongsToMany(Page::class, 'page_user');
+    }
+
+    // ─── Helpers ────────────────────────────────────────────────────
+
+    public function isEmployee(): bool
+    {
+        return $this->hemis_type === 'employee';
+    }
+
+    public function isStudent(): bool
+    {
+        return $this->hemis_type === 'student';
+    }
+
+    public function isAdmin(): bool
+    {
+        return $this->hemis_type === 'admin';
     }
 
     public function hasAccessToPage(Page $page): bool
@@ -99,13 +123,11 @@ class User extends Authenticatable implements FilamentUser, MustVerifyEmail
             return true;
         }
 
-        // Barcha sahifalarni ko'rish permissioni
-        if ($this->can('view_all_pages')) {
+        if ($this->can('ViewAllPages')) {
             return true;
         }
 
-        // Blog sahifalarni ko'rish permissioni
-        if ($page->page_type === 'blog' && $this->can('view_blog_pages')) {
+        if ($page->page_type === 'blog' && $this->can('ViewBlogPages')) {
             return true;
         }
 
@@ -115,7 +137,7 @@ class User extends Authenticatable implements FilamentUser, MustVerifyEmail
     public function getActivitylogOptions(): LogOptions
     {
         return LogOptions::defaults()
-            ->logAll() // barcha maydonlarni log qiladi
-            ->useLogName('page'); // log nomi
+            ->logAll()
+            ->useLogName('user');
     }
 }

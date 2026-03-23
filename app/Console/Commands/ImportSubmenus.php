@@ -2,6 +2,8 @@
 
 namespace App\Console\Commands;
 
+use App\Models\Menu;
+use Exception;
 use App\Models\Submenu;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\DB;
@@ -23,7 +25,7 @@ class ImportSubmenus extends Command
         DB::table('submenus')->truncate();
         DB::statement('SET FOREIGN_KEY_CHECKS=1;');
         // Yangi bazadagi menus mappingi
-        $menuIdMap = \App\Models\Menu::pluck('id', 'old_id')->toArray();
+        $menuIdMap = Menu::pluck('id', 'old_id')->toArray();
 
         $oldSubmenus = DB::connection('mysql_old')->table('sub_menu')->get();
 
@@ -65,7 +67,7 @@ class ImportSubmenus extends Command
                         'updated_at' => now(),
                     ]
                 );
-            } catch (\Exception $e) {
+            } catch (Exception $e) {
                 $this->error("Error importing submenu id {$oldSubmenu->id}: " . $e->getMessage());
                 continue;
             }

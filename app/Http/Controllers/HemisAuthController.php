@@ -1,0 +1,109 @@
+<?php
+
+namespace App\Http\Controllers;
+
+use Throwable;
+use App\Models\User;
+use Illuminate\Http\RedirectResponse;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Log;
+use Laravel\Socialite\Facades\Socialite;
+
+class HemisAuthController extends Controller
+{
+    // ─── Employee ────────────────────────────────────────────────────
+
+    public function redirectEmployee(): RedirectResponse
+    {
+        return Socialite::driver('hemis-employee')->redirect();
+    }
+
+    public function callbackEmployee(): RedirectResponse
+    {
+        try {
+            $hemisUser = Socialite::driver('hemis-employee')->user();
+        } catch (Throwable $e) {
+            Log::error('HEMIS employee OAuth error', ['error' => $e->getMessage()]);
+            return redirect()->route('login')
+                ->withErrors(['hemis' => 'HEMIS orqali kirishda xatolik yuz berdi. Qaytadan urinib ko\'ring.']);
+        }
+
+        $user = $this->findOrCreateUser($hemisUser, 'employee');
+
+        Auth::login($user, remember: true);
+
+        return redirect()->intended(route('employee.profile'));
+    }
+
+    // ─── Student ─────────────────────────────────────────────────────
+
+    public function redirectStudent(): RedirectResponse
+    {
+        return Socialite::driver('hemis-student')->redirect();
+    }
+
+    public function callbackStudent(): RedirectResponse
+    {
+        try {
+            $hemisUser = Socialite::driver('hemis-student')->user();
+        } catch (Throwable $e) {
+            Log::error('HEMIS student OAuth error', ['error' => $e->getMessage()]);
+            return redirect()->route('login')
+                ->withErrors(['hemis' => 'HEMIS orqali kirishda xatolik yuz berdi. Qaytadan urinib ko\'ring.']);
+        }
+
+        $user = $this->findOrCreateUser($hemisUser, 'student');
+
+        Auth::login($user, remember: true);
+
+        return redirect()->intended('/');
+    }
+
+    // ─── Shared logic ────────────────────────────────────────────────
+
+    private function findOrCreateUser($hemisUser, string $type): User
+    {
+        $hemisId    = (string) $hemisUser->getId();
+        $hemisEmail = $hemisUser->getEmail() ?: null;
+        $hemisName  = $hemisUser->getName();
+
+        // 1. hemis_id bo'yicha qidirish
+        $user = User::where('hemis_id', $hemisId)->first();
+
+        // 2. Topilmasa — email bo'yicha qidirish (avval qo'lda ro'yxatdan o'tgan bo'lishi mumkin)
+        if (!$user && $hemisEmail) {
+            $user = User::where('email', $hemisEmail)->first();
+        }
+
+        if ($user) {
+            // HEMIS ID ni ulash + faqat ism yangilash
+            // email, parol, rasm, rol o'zgartirilmaydi
+            $user->hemis_id   = $hemisId;
+            $user->hemis_type = $type;
+            $user->name       = $hemisName ?? $user->name;
+
+            // HEMIS orqali kirgan — email verification shart emas
+            if (is_null($user->email_verified_at)) {
+                $user->email_verified_at = now();
+            }
+
+            $user->save();
+
+            return $user;
+        }
+
+        // 3. Yangi foydalanuvchi yaratish (rasm sync command orqali yuklanadi)
+        return User::create([
+            'hemis_id'           => $hemisId,
+            'hemis_uuid'         => $hemisUser->getRaw()['uuid'] ?? null,
+            'hemis_type'         => $type,
+            'name'               => $hemisName ?? 'HEMIS User',
+            'email'              => $hemisEmail,
+            'password'           => null,
+            'profile_photo_path' => null,
+            'email_verified_at'  => now(),
+        ]);
+    }
+
+
+}
