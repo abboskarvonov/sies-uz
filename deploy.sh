@@ -187,7 +187,7 @@ step "Permission cache yangilanmoqda..."
 php artisan permission:cache-reset 2>/dev/null || warn "permission:cache-reset ishlamadi"
 
 step "Shield permissions regenerate qilinmoqda..."
-php artisan shield:generate --all --ignore-config-guards 2>/dev/null || warn "shield:generate ishlamadi"
+php artisan shield:generate --all --panel=admin 2>/dev/null || warn "shield:generate ishlamadi"
 
 # =============================================================================
 # 12. Rasm cache tozalash (ixtiyoriy)
