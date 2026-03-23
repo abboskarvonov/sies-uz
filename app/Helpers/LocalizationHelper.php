@@ -394,6 +394,7 @@ if (! function_exists('lc_content')) {
             $host = parse_url(config('app.url'), PHP_URL_HOST) ?? '';
             if ($host) {
                 $content = str_replace("http://{$host}", "https://{$host}", $content);
+                $content = str_replace("http://www.{$host}", "https://www.{$host}", $content);
             }
         }
 

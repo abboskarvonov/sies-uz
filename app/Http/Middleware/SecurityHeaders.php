@@ -36,6 +36,7 @@ class SecurityHeaders
                 'Strict-Transport-Security',
                 'max-age=31536000; includeSubDomains'
             );
+            $response->headers->set('Content-Security-Policy', 'upgrade-insecure-requests');
         }
 
         // Restrict access to sensitive browser APIs
