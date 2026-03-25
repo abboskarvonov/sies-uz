@@ -40,7 +40,7 @@
     <div class="bg-gray-100 px-4 lg:px-0 py-10" x-data x-intersect.once.threshold.10="$el.classList.add('footer-in')">
         <div class="container mx-auto">
             <div class="grid grid-cols-4 gap-6">
-                <div class="col-span-4 md:col-span-3 flex flex-col">
+                <div class="col-span-4 md:col-span-3 flex flex-col min-w-0">
                     <div class="footer-anim rounded-2xl bg-white border border-gray-200 p-6 md:p-8 flex-1"
                         style="transition-delay: 0.10s;">
                         <div class="prose max-w-none text-gray-700 text-justify indent-10">

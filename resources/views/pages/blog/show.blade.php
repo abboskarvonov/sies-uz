@@ -16,7 +16,7 @@
             <div class="grid grid-cols-4 gap-6">
 
                 {{-- Main content --}}
-                <div class="col-span-4 md:col-span-3 flex flex-col">
+                <div class="col-span-4 md:col-span-3 flex flex-col min-w-0">
                     <div class="footer-anim rounded-2xl bg-white border border-gray-200 p-6 md:p-8 flex-1"
                         style="transition-delay: 0.10s;">
 

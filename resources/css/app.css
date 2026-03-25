@@ -26,78 +26,86 @@
 }
 
 /* ── Prose table: responsive overflow + clean styling ───────── */
-.prose :where(table) {
-    display: block;
-    overflow-x: auto;
+
+/* Scrollable wrapper — avoids grid overflow */
+.prose table {
+    display: block !important;
+    overflow-x: auto !important;
     -webkit-overflow-scrolling: touch;
-    width: 100%;
-    max-width: 100%;
-    border-collapse: collapse;
+    width: 100% !important;
+    max-width: 100% !important;
+    border-collapse: collapse !important;
+    border: 1px solid #e5e7eb !important;
+    margin-top: 1.5em !important;
+    margin-bottom: 1.5em !important;
     border-radius: 0.5rem;
-    border: 1px solid #e5e7eb;
-    margin-top: 1.5em;
-    margin-bottom: 1.5em;
 }
 
-.prose :where(thead tr) {
-    background-color: #134e4a; /* teal-900 */
+/* Header */
+.prose thead tr {
+    background-color: #134e4a !important;
 }
 
-.prose :where(thead th) {
+.prose thead th {
     color: #ffffff !important;
     font-weight: 600 !important;
     font-size: 0.875rem !important;
     padding: 0.75rem 1rem !important;
     text-align: left !important;
     border: 1px solid #0f3d3a !important;
-    white-space: nowrap;
+    white-space: nowrap !important;
 }
 
-.prose :where(tbody tr):nth-child(even) {
-    background-color: #f9fafb;
+/* Body rows — zebra striping */
+.prose tbody tr:nth-child(even) {
+    background-color: #f9fafb !important;
 }
 
-.prose :where(tbody tr):nth-child(odd) {
-    background-color: #ffffff;
+.prose tbody tr:nth-child(odd) {
+    background-color: #ffffff !important;
 }
 
-.prose :where(tbody tr):hover {
-    background-color: #f0fdfa; /* teal-50 */
+.prose tbody tr:hover {
+    background-color: #f0fdfa !important;
     transition: background-color 0.15s ease;
 }
 
-.prose :where(tbody td) {
+/* Body cells — all borders visible */
+.prose tbody td {
     padding: 0.625rem 1rem !important;
-    border: 1px solid #e5e7eb !important;
+    border-top: 1px solid #e5e7eb !important;
+    border-right: 1px solid #e5e7eb !important;
+    border-bottom: 1px solid #e5e7eb !important;
+    border-left: 1px solid #e5e7eb !important;
     vertical-align: top;
 }
 
 /* Dark mode */
-.dark .prose :where(table) {
-    border-color: #374151;
+.dark .prose table {
+    border-color: #374151 !important;
 }
 
-.dark .prose :where(thead tr) {
-    background-color: #0f3d3a;
+.dark .prose thead tr {
+    background-color: #0f3d3a !important;
 }
 
-.dark .prose :where(thead th) {
+.dark .prose thead th {
     border-color: #1f5e59 !important;
 }
 
-.dark .prose :where(tbody tr):nth-child(even) {
-    background-color: #111827;
+.dark .prose tbody tr:nth-child(even) {
+    background-color: #111827 !important;
 }
 
-.dark .prose :where(tbody tr):nth-child(odd) {
-    background-color: #1f2937;
+.dark .prose tbody tr:nth-child(odd) {
+    background-color: #1f2937 !important;
 }
 
-.dark .prose :where(tbody tr):hover {
-    background-color: #0d2a27;
+.dark .prose tbody tr:hover {
+    background-color: #0d2a27 !important;
 }
 
-.dark .prose :where(tbody td) {
+.dark .prose tbody td {
     border-color: #374151 !important;
     color: #d1d5db !important;
 }
