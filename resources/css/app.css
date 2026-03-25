@@ -25,89 +25,87 @@
     font-size: 1rem !important;
 }
 
-/* ── Prose table: responsive overflow + clean styling ───────── */
-
-/* Scrollable wrapper — avoids grid overflow */
-.prose table {
-    display: block !important;
-    overflow-x: auto !important;
+/* ── Responsive table wrapper (injected by lc_content helper) ── */
+.content-table-wrap {
+    overflow-x: auto;
     -webkit-overflow-scrolling: touch;
-    width: 100% !important;
-    max-width: 100% !important;
-    border-collapse: collapse !important;
-    border: 1px solid #e5e7eb !important;
-    margin-top: 1.5em !important;
-    margin-bottom: 1.5em !important;
+    margin-top: 1.5em;
+    margin-bottom: 1.5em;
+    border: 1px solid #e5e7eb;
     border-radius: 0.5rem;
 }
 
-/* Header */
-.prose thead tr {
-    background-color: #134e4a !important;
+.content-table-wrap table {
+    width: 100%;
+    border-collapse: collapse;
+    min-width: 500px; /* scroll trigger threshold */
 }
 
-.prose thead th {
-    color: #ffffff !important;
-    font-weight: 600 !important;
-    font-size: 0.875rem !important;
-    padding: 0.75rem 1rem !important;
-    text-align: left !important;
-    border: 1px solid #0f3d3a !important;
-    white-space: nowrap !important;
+/* Header */
+.content-table-wrap thead tr {
+    background-color: #134e4a;
+}
+
+.content-table-wrap thead th {
+    color: #ffffff;
+    font-weight: 600;
+    font-size: 0.875rem;
+    padding: 0.75rem 1rem;
+    text-align: left;
+    border: 1px solid #0f3d3a;
+    white-space: nowrap;
 }
 
 /* Body rows — zebra striping */
-.prose tbody tr:nth-child(even) {
-    background-color: #f9fafb !important;
+.content-table-wrap tbody tr:nth-child(even) {
+    background-color: #f9fafb;
 }
 
-.prose tbody tr:nth-child(odd) {
-    background-color: #ffffff !important;
+.content-table-wrap tbody tr:nth-child(odd) {
+    background-color: #ffffff;
 }
 
-.prose tbody tr:hover {
-    background-color: #f0fdfa !important;
+.content-table-wrap tbody tr:hover {
+    background-color: #f0fdfa;
     transition: background-color 0.15s ease;
 }
 
 /* Body cells — all borders visible */
-.prose tbody td {
-    padding: 0.625rem 1rem !important;
-    border-top: 1px solid #e5e7eb !important;
-    border-right: 1px solid #e5e7eb !important;
-    border-bottom: 1px solid #e5e7eb !important;
-    border-left: 1px solid #e5e7eb !important;
+.content-table-wrap tbody td {
+    padding: 0.625rem 1rem;
+    border: 1px solid #e5e7eb;
     vertical-align: top;
+    font-size: 0.9rem;
 }
 
 /* Dark mode */
-.dark .prose table {
-    border-color: #374151 !important;
+.dark .content-table-wrap {
+    border-color: #374151;
 }
 
-.dark .prose thead tr {
-    background-color: #0f3d3a !important;
+.dark .content-table-wrap thead tr {
+    background-color: #0f3d3a;
 }
 
-.dark .prose thead th {
-    border-color: #1f5e59 !important;
+.dark .content-table-wrap thead th {
+    border-color: #1f5e59;
 }
 
-.dark .prose tbody tr:nth-child(even) {
-    background-color: #111827 !important;
+.dark .content-table-wrap tbody tr:nth-child(even) {
+    background-color: #111827;
 }
 
-.dark .prose tbody tr:nth-child(odd) {
-    background-color: #1f2937 !important;
+.dark .content-table-wrap tbody tr:nth-child(odd) {
+    background-color: #1f2937;
 }
 
-.dark .prose tbody tr:hover {
-    background-color: #0d2a27 !important;
+.dark .content-table-wrap tbody tr:hover {
+    background-color: #0d2a27;
 }
 
-.dark .prose tbody td {
-    border-color: #374151 !important;
-    color: #d1d5db !important;
+.dark .content-table-wrap tbody td {
+    border-color: #374151;
+    color: #d1d5db;
 }
 
 /* News */

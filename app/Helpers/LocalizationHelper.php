@@ -389,14 +389,22 @@ if (! function_exists('lc_content')) {
     {
         $content = localized_field($model, 'content', $locale);
 
+        if (!$content) {
+            return $content;
+        }
+
         // Mixed content oldini olish: http:// → https://
-        if ($content && app()->isProduction()) {
+        if (app()->isProduction()) {
             $host = parse_url(config('app.url'), PHP_URL_HOST) ?? '';
             if ($host) {
                 $content = str_replace("http://{$host}", "https://{$host}", $content);
                 $content = str_replace("http://www.{$host}", "https://www.{$host}", $content);
             }
         }
+
+        // Tablelarni responsive scrollable wrapper ichiga olish
+        $content = preg_replace('/<table\b/i', '<div class="content-table-wrap"><table', $content);
+        $content = preg_replace('/<\/table>/i', '</table></div>', $content);
 
         return $content;
     }
