@@ -31,51 +31,51 @@
     -webkit-overflow-scrolling: touch;
     margin-top: 1.5em;
     margin-bottom: 1.5em;
-    border: 1px solid #e5e7eb;
     border-radius: 0.5rem;
+    border: 1px solid #e5e7eb;
 }
 
 .content-table-wrap table {
     width: 100%;
-    border-collapse: collapse;
-    min-width: 500px; /* scroll trigger threshold */
+    min-width: 400px;
+    border-collapse: collapse !important;
+    border-spacing: 0 !important;
+}
+
+/* ── ALL cells: th + td — column va row border ikkalasi ko'rinsin ── */
+.content-table-wrap th,
+.content-table-wrap td {
+    padding: 0.625rem 1rem !important;
+    text-align: left !important;
+    vertical-align: top !important;
+    font-size: 0.875rem !important;
+    border-top: 1px solid #e5e7eb !important;
+    border-right: 1px solid #e5e7eb !important;
+    border-bottom: 1px solid #e5e7eb !important;
+    border-left: 1px solid #e5e7eb !important;
+    line-height: 1.5 !important;
 }
 
 /* Header */
-.content-table-wrap thead tr {
-    background-color: #134e4a;
-}
-
 .content-table-wrap thead th {
-    color: #ffffff;
-    font-weight: 600;
-    font-size: 0.875rem;
-    padding: 0.75rem 1rem;
-    text-align: left;
-    border: 1px solid #0f3d3a;
-    white-space: nowrap;
+    background-color: #134e4a !important;
+    color: #ffffff !important;
+    font-weight: 600 !important;
+    white-space: nowrap !important;
+    border-color: #1a5c57 !important;
 }
 
 /* Body rows — zebra striping */
-.content-table-wrap tbody tr:nth-child(even) {
-    background-color: #f9fafb;
+.content-table-wrap tbody tr:nth-child(even) td {
+    background-color: #f9fafb !important;
 }
 
-.content-table-wrap tbody tr:nth-child(odd) {
-    background-color: #ffffff;
+.content-table-wrap tbody tr:nth-child(odd) td {
+    background-color: #ffffff !important;
 }
 
-.content-table-wrap tbody tr:hover {
-    background-color: #f0fdfa;
-    transition: background-color 0.15s ease;
-}
-
-/* Body cells — all borders visible */
-.content-table-wrap tbody td {
-    padding: 0.625rem 1rem;
-    border: 1px solid #e5e7eb;
-    vertical-align: top;
-    font-size: 0.9rem;
+.content-table-wrap tbody tr:hover td {
+    background-color: #f0fdfa !important;
 }
 
 /* Dark mode */
@@ -83,29 +83,28 @@
     border-color: #374151;
 }
 
-.dark .content-table-wrap thead tr {
-    background-color: #0f3d3a;
+.dark .content-table-wrap th,
+.dark .content-table-wrap td {
+    border-color: #374151 !important;
+    color: #d1d5db !important;
 }
 
 .dark .content-table-wrap thead th {
-    border-color: #1f5e59;
+    background-color: #0f3d3a !important;
+    color: #ffffff !important;
+    border-color: #1a4a46 !important;
 }
 
-.dark .content-table-wrap tbody tr:nth-child(even) {
-    background-color: #111827;
+.dark .content-table-wrap tbody tr:nth-child(even) td {
+    background-color: #111827 !important;
 }
 
-.dark .content-table-wrap tbody tr:nth-child(odd) {
-    background-color: #1f2937;
+.dark .content-table-wrap tbody tr:nth-child(odd) td {
+    background-color: #1f2937 !important;
 }
 
-.dark .content-table-wrap tbody tr:hover {
-    background-color: #0d2a27;
-}
-
-.dark .content-table-wrap tbody td {
-    border-color: #374151;
-    color: #d1d5db;
+.dark .content-table-wrap tbody tr:hover td {
+    background-color: #0d2a27 !important;
 }
 
 /* News */
