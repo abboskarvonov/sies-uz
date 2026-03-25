@@ -2,6 +2,8 @@
 
 namespace App\Filament\Resources\SubmenuResource\RelationManagers;
 
+use App\Helpers\SlugHelper;
+use App\Models\Multimenu;
 use Filament\Schemas\Schema;
 use Filament\Schemas\Components\Section;
 use Filament\Tables\Filters\SelectFilter;
@@ -90,7 +92,13 @@ class MultimenusRelationManager extends RelationManager
                     }),
             ])
             ->recordActions([
-                EditAction::make(),
+                EditAction::make()
+                    ->mutateDataUsing(function (array $data, Multimenu $record): array {
+                        $data['slug_uz'] = SlugHelper::generateUniqueSlug(Multimenu::class, 'slug_uz', $data['title_uz'], $record->id);
+                        $data['slug_ru'] = SlugHelper::generateUniqueSlug(Multimenu::class, 'slug_ru', $data['title_ru'], $record->id);
+                        $data['slug_en'] = SlugHelper::generateUniqueSlug(Multimenu::class, 'slug_en', $data['title_en'], $record->id);
+                        return $data;
+                    }),
                 DeleteAction::make(),
             ])
             ->toolbarActions([

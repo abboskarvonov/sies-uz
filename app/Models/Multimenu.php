@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use App\Helpers\SlugHelper;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Storage;
@@ -45,6 +46,16 @@ class Multimenu extends Model implements Sortable
             $model->created_by = Auth::id();
             $model->updated_by = Auth::id();
             $model->order = static::max('order') + 1;
+
+            if (empty($model->slug_uz)) {
+                $model->slug_uz = SlugHelper::generateUniqueSlug(static::class, 'slug_uz', $model->title_uz);
+            }
+            if (empty($model->slug_ru)) {
+                $model->slug_ru = SlugHelper::generateUniqueSlug(static::class, 'slug_ru', $model->title_ru);
+            }
+            if (empty($model->slug_en)) {
+                $model->slug_en = SlugHelper::generateUniqueSlug(static::class, 'slug_en', $model->title_en);
+            }
         });
 
         static::updating(function ($model) {
