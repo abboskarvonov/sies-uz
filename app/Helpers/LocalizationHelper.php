@@ -402,6 +402,26 @@ if (! function_exists('lc_content')) {
             }
         }
 
+        // Table elementlaridan TinyMCE inline style/width/border atributlarini tozalash
+        $content = preg_replace_callback(
+            '/<(table|thead|tbody|tfoot|tr|th|td)\b([^>]*)>/i',
+            function ($m) {
+                $attrs = $m[2];
+                $attrs = preg_replace('/\s+style\s*=\s*"[^"]*"/i', '', $attrs);
+                $attrs = preg_replace("/\\s+style\\s*=\\s*'[^']*'/i", '', $attrs);
+                $attrs = preg_replace('/\s+width\s*=\s*"[^"]*"/i', '', $attrs);
+                $attrs = preg_replace('/\s+height\s*=\s*"[^"]*"/i', '', $attrs);
+                $attrs = preg_replace('/\s+border\s*=\s*"[^"]*"/i', '', $attrs);
+                $attrs = preg_replace('/\s+cellpadding\s*=\s*"[^"]*"/i', '', $attrs);
+                $attrs = preg_replace('/\s+cellspacing\s*=\s*"[^"]*"/i', '', $attrs);
+                $attrs = preg_replace('/\s+bgcolor\s*=\s*"[^"]*"/i', '', $attrs);
+                $attrs = preg_replace('/\s+align\s*=\s*"[^"]*"/i', '', $attrs);
+                $attrs = preg_replace('/\s+valign\s*=\s*"[^"]*"/i', '', $attrs);
+                return "<{$m[1]}{$attrs}>";
+            },
+            $content
+        );
+
         // Tablelarni responsive scrollable wrapper ichiga olish
         $content = preg_replace('/<table\b/i', '<div class="content-table-wrap"><table', $content);
         $content = preg_replace('/<\/table>/i', '</table></div>', $content);
