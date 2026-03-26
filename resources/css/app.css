@@ -129,23 +129,13 @@
     top: 0;
 }
 
-/* Loading skeleton — opacity pulse (GPU-composited, no repaint) */
-@keyframes loading {
-    0%, 100% { opacity: 1; }
-    50%       { opacity: 0.5; }
+/* Loading skeleton — static placeholder, no animation */
+img[loading="lazy"]:not(.img-loaded) {
+    background: #e8e8e8;
 }
 
-img[loading="lazy"] {
-    background: #e0e0e0;
-    animation: loading 1.5s ease-in-out infinite;
-    will-change: opacity;
-}
-
-/* Loaded holatda — JS orqali .img-loaded klassi qo'shiladi */
 img[loading="lazy"].img-loaded {
-    animation: none;
     background: none;
-    will-change: auto;
 }
 
 /* Hero optimizations */

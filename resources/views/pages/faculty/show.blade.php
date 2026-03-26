@@ -110,7 +110,7 @@
                     </section>
 
                     {{-- Xodimlar --}}
-                    <section x-show="tab === 'employees'" x-cloak class="bg-gray-50 p-6 flex-1">
+                    <section x-show="tab === 'employees'" x-cloak class="bg-gray-50 p-6 flex-1" style="contain: layout style;">
                         @forelse ($page->staffCategories as $index => $category)
                             <div class="mb-10">
                                 <div class="text-center mb-8">
