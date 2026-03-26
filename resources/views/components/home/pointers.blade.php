@@ -25,7 +25,7 @@
 
             {{-- Maydon --}}
             <div class="card-shine footer-anim relative overflow-hidden rounded-2xl px-6 py-10
-                        bg-neutral-700 backdrop-blur-md border border-neutral-700/40"
+                        bg-neutral-700 border border-neutral-700/40"
                 style="transition-delay:0.20s;">
                 <div class="flex items-center gap-2 mb-3">
                     <p class="text-base font-bold text-teal-200">{{ __('messages.area') }}</p>
@@ -40,7 +40,7 @@
 
             {{-- Yashil maydon --}}
             <div class="card-shine footer-anim relative overflow-hidden rounded-2xl px-6 py-10
-                        bg-emerald-800 backdrop-blur-md border border-emerald-700/40"
+                        bg-emerald-800 border border-emerald-700/40"
                 style="transition-delay:0.30s;">
                 <div class="flex items-center gap-2 mb-3">
                     <p class="text-base font-bold text-emerald-200">{{ __('messages.green_area') }}</p>
@@ -55,7 +55,7 @@
 
             {{-- Fakultetlar, bo'limlar va markazlar --}}
             <div class="card-shine footer-anim relative overflow-hidden rounded-2xl p-6
-                        bg-teal-700 backdrop-blur-md border border-teal-700/40"
+                        bg-teal-700 border border-teal-700/40"
                 style="transition-delay:0.10s;">
                 <div class="grid mb-4">
                     <p class="text-base font-bold text-teal-200">{{ __('messages.faculty') }}</p>
@@ -83,7 +83,7 @@
 
             {{-- Hodimlar --}}
             <div class="card-shine footer-anim relative overflow-hidden rounded-2xl p-6
-                        bg-teal-700 backdrop-blur-md border border-teal-700/40"
+                        bg-teal-700 border border-teal-700/40"
                 style="transition-delay:0.20s;">
                 <div class="grid mb-4">
                     <p class="text-base font-bold text-teal-200">{{ __('messages.employees') }}</p>
@@ -117,7 +117,7 @@
 
             {{-- Talabalar --}}
             <div class="card-shine footer-anim relative overflow-hidden rounded-2xl p-6
-                        bg-teal-700 backdrop-blur-md border border-teal-700/40"
+                        bg-teal-700 border border-teal-700/40"
                 style="transition-delay:0.30s;">
                 <div class="grid mb-4">
                     <p class="text-base font-bold text-teal-200">{{ __('messages.students') }}</p>
@@ -145,7 +145,7 @@
 
             {{-- O'qituvchilar --}}
             <div class="card-shine footer-anim relative overflow-hidden rounded-2xl p-6
-                        bg-teal-700 backdrop-blur-md border border-teal-700/40"
+                        bg-teal-700 border border-teal-700/40"
                 style="transition-delay:0.40s;">
                 <div class="grid mb-4">
                     <p class="text-base font-bold text-teal-200">{{ __('messages.teachers') }}</p>
@@ -179,7 +179,7 @@
 
             {{-- Nashrlar --}}
             <div class="card-shine footer-anim relative col-span-1 overflow-hidden rounded-2xl p-6
-                        bg-teal-900 backdrop-blur-md border border-teal-700/40
+                        bg-teal-900 border border-teal-700/40
                         sm:col-span-2 lg:col-span-4"
                 style="transition-delay:0.15s;">
                 <div class="grid grid-cols-3 gap-4 md:grid-cols-5">

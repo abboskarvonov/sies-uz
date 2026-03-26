@@ -129,26 +129,23 @@
     top: 0;
 }
 
-/* Loading skeleton */
-img[loading="lazy"] {
-    background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
-    background-size: 200% 100%;
-    animation: loading 1.5s infinite;
+/* Loading skeleton — opacity pulse (GPU-composited, no repaint) */
+@keyframes loading {
+    0%, 100% { opacity: 1; }
+    50%       { opacity: 0.5; }
 }
 
-@keyframes loading {
-    0% {
-        background-position: 200% 0;
-    }
-    100% {
-        background-position: -200% 0;
-    }
+img[loading="lazy"] {
+    background: #e0e0e0;
+    animation: loading 1.5s ease-in-out infinite;
+    will-change: opacity;
 }
 
 /* Loaded holatda — JS orqali .img-loaded klassi qo'shiladi */
 img[loading="lazy"].img-loaded {
     animation: none;
     background: none;
+    will-change: auto;
 }
 
 /* Hero optimizations */
