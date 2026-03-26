@@ -276,6 +276,23 @@
     </div>
 </section>
 
+@push('scripts')
+<script>
+(function () {
+    var section = document.querySelector('.hero-circle') && document.querySelector('.hero-circle').closest('section');
+    if (!section) return;
+    var circlesWrap = section.querySelector('[style*="height: 620px"]');
+    if (!circlesWrap) return;
+    var ob = new IntersectionObserver(function (entries) {
+        entries.forEach(function (e) {
+            section.classList.toggle('hero-circles-paused', !e.isIntersecting);
+        });
+    }, { threshold: 0 });
+    ob.observe(section);
+})();
+</script>
+@endpush
+
 @push('styles')
     <style>
         /* ═══ Glass card — butun karta kirish animatsiyasi ═══ */
@@ -448,6 +465,11 @@
                 opacity: 1 !important;
                 transform: none !important;
             }
+        }
+
+        /* Stop float animations when hero is off-screen */
+        .hero-circles-paused .hero-circle {
+            animation-play-state: paused !important;
         }
     </style>
 @endpush

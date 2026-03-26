@@ -112,7 +112,6 @@
                 radial-gradient(ellipse 70% 50% at 0% 0%, rgba(15,118,110,0.07) 0%, transparent 55%),
                 radial-gradient(circle, rgba(15,118,110,0.08) 1.5px, transparent 1.5px);
             background-size: 100% 100%, 28px 28px;
-            background-attachment: fixed;
         }
 
         .dark .site-bg {
@@ -121,7 +120,6 @@
                 radial-gradient(ellipse 70% 50% at 0% 0%, rgba(15,118,110,0.14) 0%, transparent 55%),
                 radial-gradient(circle, rgba(20,184,166,0.13) 1.5px, transparent 1.5px);
             background-size: 100% 100%, 28px 28px;
-            background-attachment: fixed;
         }
     </style>
 </head>
