@@ -32,7 +32,7 @@
             {{ Str::limit(lc_title($page), 80) }}
         </h4>
         <p class="text-sm text-gray-500 line-clamp-3 flex-1">
-            {{ Str::limit(strip_tags(lc_content($page)), 120) }}
+            {{ Str::limit(strip_tags(html_entity_decode(lc_content($page))), 120) }}
         </p>
         <span class="card-shine relative inline-flex items-center gap-1.5 overflow-hidden mt-4
                      px-3.5 py-1.5 rounded-lg text-sm font-medium self-start
