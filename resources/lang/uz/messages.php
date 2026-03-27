@@ -67,6 +67,7 @@ return [
     'back_to_home' => 'Bosh sahifaga qaytish',
     'tag_text' => 'tegiga oid sahifalar',
     'staff_error' => 'Hozircha xodimlar maʼlumoti mavjud emas.',
+    'positions' => 'Lavozimlar',
     'search' => 'Qidiruv natijalari',
     'search_text' => 'Izlash',
     'copy_link' => 'Havolani nusxalash',

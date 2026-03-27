@@ -8,6 +8,7 @@ use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Laravel\Fortify\TwoFactorAuthenticatable;
@@ -25,6 +26,18 @@ class User extends Authenticatable implements FilamentUser, MustVerifyEmail
     use HasProfilePhoto;
     use Notifiable;
     use TwoFactorAuthenticatable;
+
+    // ─── Email verification override ────────────────────────────────
+    // HEMIS orqali kirgan xodim va talabalar email verifikatsiyasiz kirishi mumkin:
+    // email bo'lmasligi yoki tasdiqlanmaganligining ahamiyati yo'q.
+    public function hasVerifiedEmail(): bool
+    {
+        if (in_array($this->hemis_type, ['employee', 'student'])) {
+            return true;
+        }
+
+        return ! is_null($this->email_verified_at);
+    }
 
     public function canAccessPanel(Panel $panel): bool
     {
@@ -98,6 +111,20 @@ class User extends Authenticatable implements FilamentUser, MustVerifyEmail
     public function assignedPages()
     {
         return $this->belongsToMany(Page::class, 'page_user');
+    }
+
+    /** Xodimning barcha lavozimlari (bir nechta bo'lim/kafedrada). */
+    public function pagePositions(): HasMany
+    {
+        return $this->hasMany(UserPagePosition::class)
+            ->orderByDesc('is_primary')
+            ->orderBy('position_order');
+    }
+
+    /** Asosiy lavozimi (is_primary = true). */
+    public function primaryPosition(): HasOne
+    {
+        return $this->hasOne(UserPagePosition::class)->where('is_primary', true);
     }
 
     // ─── Helpers ────────────────────────────────────────────────────

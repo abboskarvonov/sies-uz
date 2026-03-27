@@ -8,6 +8,7 @@ use App\Models\Multimenu;
 use App\Models\Page;
 use App\Models\Submenu;
 use App\Models\User;
+use App\Models\UserPagePosition;
 use App\Models\Tag;
 use App\Services\HomepageService;
 use Illuminate\Contracts\View\View;
@@ -150,18 +151,9 @@ class PageController extends Controller
         }
 
         // Single page — to'liq ma'lumotni bitta query da olamiz (type allaqachon ma'lum)
-        $staffRelations = in_array($pageType, ['faculty', 'department', 'center', 'section']) ? [
-            'staffCategories' => function ($query) {
-                $query->whereNull('parent_id')
-                    ->select(['id', 'title_uz', 'title_ru', 'title_en', 'page_id', 'parent_id', 'order'])
-                    ->orderBy('order')
-                    ->with([
-                        'employees:id,name,position_uz,position_ru,position_en,profile_photo_path,staff_category_id,department_page_id,position_order',
-                        'children' => fn($q) => $q->select(['id', 'title_uz', 'title_ru', 'title_en', 'parent_id', 'page_id', 'order'])->orderBy('order'),
-                        'children.employees:id,name,position_uz,position_ru,position_en,profile_photo_path,staff_category_id,department_page_id,position_order',
-                    ]);
-            },
-        ] : [];
+        $staffRelations = in_array($pageType, ['faculty', 'department', 'center', 'section'])
+            ? $this->staffCategoryEagerLoad()
+            : [];
 
         $page = Page::where($baseQuery)
             ->with(['files', ...$staffRelations])
@@ -222,16 +214,7 @@ class PageController extends Controller
             })
             ->with([
                 'files:id,page_id,name,file,created_at,updated_at',
-                'staffCategories' => function ($query) {
-                    $query->whereNull('parent_id')
-                        ->select(['id', 'title_uz', 'title_ru', 'title_en', 'page_id', 'parent_id', 'order'])
-                        ->orderBy('order')
-                        ->with([
-                            'employees:id,name,position_uz,position_ru,position_en,profile_photo_path,staff_category_id,department_page_id,position_order',
-                            'children' => fn($q) => $q->select(['id', 'title_uz', 'title_ru', 'title_en', 'parent_id', 'page_id', 'order'])->orderBy('order'),
-                            'children.employees:id,name,position_uz,position_ru,position_en,profile_photo_path,staff_category_id,department_page_id,position_order',
-                        ]);
-                },
+                ...$this->staffCategoryEagerLoad(),
                 'departmentHistory:id,department_id,content_uz,content_ru,content_en',
             ])
             ->firstOrFail();
@@ -303,13 +286,9 @@ class PageController extends Controller
             ->select(['id', 'page_type', 'title_uz', 'title_ru', 'title_en', 'menu_id', 'submenu_id', 'multimenu_id'])
             ->firstOrFail();
 
-        $staffModel = User::query()
-            ->where('department_page_id', $pageModel->id)
-            ->where('id', (int) $staff)
-            ->select(['id', 'department_page_id', 'name', 'content_uz', 'content_ru', 'content_en', 'profile_photo_path', 'position_uz', 'position_ru', 'position_en', 'hemis_id'])
-            ->firstOrFail();
+        [$staffModel, $contextPosition] = $this->findStaffInPage($pageModel->id, (int) $staff);
 
-        return $this->renderStaffView($menuModel, $submenuModel, $multimenuModel, $pageModel, $staffModel, $locale);
+        return $this->renderStaffView($menuModel, $submenuModel, $multimenuModel, $pageModel, $staffModel, $locale, $contextPosition);
     }
 
     /**
@@ -334,13 +313,9 @@ class PageController extends Controller
             ->select(['id', 'page_type', 'title_uz', 'title_ru', 'title_en', 'menu_id', 'submenu_id', 'multimenu_id'])
             ->firstOrFail();
 
-        $staffModel = User::query()
-            ->where('department_page_id', $pageModel->id)
-            ->where('id', (int) $staff)
-            ->select(['id', 'department_page_id', 'name', 'content_uz', 'content_ru', 'content_en', 'profile_photo_path', 'position_uz', 'position_ru', 'position_en', 'hemis_id'])
-            ->firstOrFail();
+        [$staffModel, $contextPosition] = $this->findStaffInPage($pageModel->id, (int) $staff);
 
-        return $this->renderStaffView($menuModel, $submenuModel, $multimenuModel, $pageModel, $staffModel, $locale);
+        return $this->renderStaffView($menuModel, $submenuModel, $multimenuModel, $pageModel, $staffModel, $locale, $contextPosition);
     }
 
     /**
@@ -471,6 +446,55 @@ class PageController extends Controller
     }
 
     /**
+     * Xodimni page_id + user_id bo'yicha qidirish.
+     * user_page_positions orqali qidiradi — birlamchi va ikkilamchi lavozimlarda ishlaydi.
+     * @return array{0: User, 1: UserPagePosition|null}
+     */
+    private function findStaffInPage(int $pageId, int $userId): array
+    {
+        $staffModel = User::query()
+            ->where('id', $userId)
+            ->where(function ($q) use ($pageId) {
+                // user_page_positions orqali yoki eski usul (department_page_id)
+                $q->whereHas('pagePositions', fn($pq) => $pq->where('page_id', $pageId))
+                  ->orWhere('department_page_id', $pageId);
+            })
+            ->select(['id', 'department_page_id', 'name', 'content_uz', 'content_ru', 'content_en', 'profile_photo_path', 'position_uz', 'position_ru', 'position_en', 'hemis_id'])
+            ->with(['pagePositions' => fn($q) => $q->with('page:id,title_uz,title_ru,title_en,slug_uz,slug_ru,slug_en,menu_id,submenu_id,multimenu_id')])
+            ->firstOrFail();
+
+        // Joriy sahifadagi lavozimi (kontekst-spetsifik)
+        $contextPosition = $staffModel->pagePositions->firstWhere('page_id', $pageId);
+
+        return [$staffModel, $contextPosition];
+    }
+
+    /**
+     * staffCategories eager load spetsifikatsiyasi (ikkala joyda bir xil).
+     * belongsToMany orqali pivot position ma'lumotlari ham olinadi.
+     */
+    private function staffCategoryEagerLoad(): array
+    {
+        $employeesWith = fn($q) => $q
+            ->select('users.id', 'users.name', 'users.profile_photo_path',
+                     'users.position_uz', 'users.position_ru', 'users.position_en',
+                     'users.content_uz', 'users.content_ru', 'users.content_en');
+
+        return [
+            'staffCategories' => function ($query) use ($employeesWith) {
+                $query->whereNull('parent_id')
+                    ->select(['id', 'title_uz', 'title_ru', 'title_en', 'page_id', 'parent_id', 'order'])
+                    ->orderBy('order')
+                    ->with([
+                        'employees'          => $employeesWith,
+                        'children'           => fn($q) => $q->select(['id', 'title_uz', 'title_ru', 'title_en', 'parent_id', 'page_id', 'order'])->orderBy('order'),
+                        'children.employees' => $employeesWith,
+                    ]);
+            },
+        ];
+    }
+
+    /**
      * Render staff view - DRY principle
      */
     private function renderStaffView(
@@ -479,7 +503,8 @@ class PageController extends Controller
         Model $multimenuModel,
         Model $pageModel,
         User $staffModel,
-        string $locale
+        string $locale,
+        ?UserPagePosition $contextPosition = null
     ): View {
         return view('pages.staff.show', [
             'menuModel' => $menuModel,
@@ -487,6 +512,7 @@ class PageController extends Controller
             'multimenuModel' => $multimenuModel,
             'pageModel' => in_array($pageModel->page_type, ['faculty', 'department']) ? $pageModel : null,
             'staff' => $staffModel,
+            'contextPosition' => $contextPosition,
             'metaTitle' => $staffModel->name ?? 'Xodim',
             'metaDescription' => Str::limit(strip_tags($staffModel->{"content_{$locale}"} ?? ''), config('site.meta.description_limit', 150)),
             'metaImage' => $staffModel->profile_photo_path

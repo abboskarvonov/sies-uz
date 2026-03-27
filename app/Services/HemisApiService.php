@@ -62,6 +62,34 @@ class HemisApiService
     }
 
     /**
+     * Xodimning barcha lavozimlari (HEMIS da bir xodim bir nechta bo'limda bo'lishi mumkin).
+     *
+     * HEMIS API da bitta employee_id bo'yicha bir nechta yozuv kelishi mumkin —
+     * har biri turli departmentdagi lavozimni ifodalaydi.
+     *
+     * @param  string  $employeeId  HEMIS employee ID (hemis_id yoki hemis_employee_id)
+     */
+    public function fetchEmployeePositions(string $employeeId): Collection
+    {
+        return $this->fetchAll('data/employee-list', [
+            'type'        => 11,
+            'employee_id' => $employeeId,
+        ]);
+    }
+
+    /**
+     * UUID bo'yicha xodimning barcha lavozimlarini oladi.
+     * UUID OAuth tokendan olinadi va employee_id dan farq qilishi mumkin.
+     */
+    public function fetchEmployeePositionsByUuid(string $uuid): Collection
+    {
+        return $this->fetchAll('data/employee-list', [
+            'type' => 11,
+            'uuid' => $uuid,
+        ]);
+    }
+
+    /**
      * Bitta so'rov yuboradi, array qaytaradi.
      */
     public function get(string $endpoint, array $params = []): array

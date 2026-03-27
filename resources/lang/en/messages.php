@@ -67,6 +67,7 @@ return [
     'back_to_home' => 'Back to Home',
     'tag_text' => 'pages related to the tag',
     'staff_error' => 'Staff information is not available at the moment.',
+    'positions' => 'Positions',
     'search' => 'Search Results',
     'search_text' => 'Search',
     'copy_link' => 'Copy link',

@@ -40,7 +40,8 @@
 
         <div class="flex items-start gap-2 flex-1">
             <img src="{{ asset('img/icons/checklist.webp') }}" class="w-4 h-4 shrink-0 mt-0.5" alt="">
-            <p class="text-gray-500 text-sm leading-relaxed">{{ lc_position($employee) }}</p>
+            {{-- pivot — shu kategoriya/bo'lim kontekstidagi lavozim --}}
+            <p class="text-gray-500 text-sm leading-relaxed">{{ lc_position($employee->pivot ?? $employee) }}</p>
         </div>
 
         <a href="{{ localized_staff_url($menuModel, $submenuModel, $multimenuModel, $employee, $page ?? null) }}"

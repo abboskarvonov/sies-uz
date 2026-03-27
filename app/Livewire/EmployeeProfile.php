@@ -107,7 +107,11 @@ class EmployeeProfile extends Component
     public function render()
     {
         return view('livewire.employee-profile', [
-            'user' => Auth::user()->load('departmentPage'),
+            'user' => Auth::user()->load([
+                'departmentPage',
+                'pagePositions' => fn($q) => $q->orderByDesc('is_primary')->orderBy('position_order'),
+                'pagePositions.page:id,title_uz,title_ru,title_en',
+            ]),
         ]);
     }
 }

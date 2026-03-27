@@ -56,24 +56,12 @@
                     <p class="font-medium text-gray-800 mt-0.5">{{ $user->name }}</p>
                 </div>
                 <div>
-                    <span class="text-gray-400 text-xs">Lavozim</span>
-                    <p class="font-medium text-gray-800 mt-0.5">{{ $user->position_uz ?? '—' }}</p>
-                </div>
-                <div>
-                    <span class="text-gray-400 text-xs">Bo'lim / Kafedra</span>
-                    <p class="font-medium text-gray-800 mt-0.5">{{ $user->departmentPage?->title_uz ?? '—' }}</p>
-                </div>
-                <div>
                     <span class="text-gray-400 text-xs">Ilmiy daraja</span>
                     <p class="font-medium text-gray-800 mt-0.5">{{ $user->academic_degree ?? '—' }}</p>
                 </div>
                 <div>
                     <span class="text-gray-400 text-xs">Ilmiy unvon</span>
                     <p class="font-medium text-gray-800 mt-0.5">{{ $user->academic_rank ?? '—' }}</p>
-                </div>
-                <div>
-                    <span class="text-gray-400 text-xs">Bandlik shakli</span>
-                    <p class="font-medium text-gray-800 mt-0.5">{{ $user->employment_form ?? '—' }}</p>
                 </div>
                 @if($user->email)
                 <div>
@@ -83,6 +71,36 @@
                 @endif
             </div>
         </div>
+
+        {{-- Barcha lavozimlari ro'yxati --}}
+        @if($user->pagePositions->isNotEmpty())
+            <div class="border-t border-gray-100">
+                <div class="px-6 py-3 bg-gray-50">
+                    <h3 class="text-xs font-semibold text-gray-400 uppercase tracking-wide">Lavozimlari</h3>
+                </div>
+                <div class="divide-y divide-gray-100">
+                    @foreach($user->pagePositions as $pos)
+                        <div class="px-6 py-3 flex items-start gap-3">
+                            @if($pos->is_primary)
+                                <span class="mt-0.5 inline-flex items-center px-1.5 py-0.5 rounded text-xs font-medium bg-teal-100 text-teal-700 shrink-0">
+                                    Asosiy
+                                </span>
+                            @else
+                                <span class="mt-0.5 inline-flex items-center px-1.5 py-0.5 rounded text-xs font-medium bg-gray-100 text-gray-500 shrink-0">
+                                    Qo'shimcha
+                                </span>
+                            @endif
+                            <div class="min-w-0">
+                                <p class="text-sm font-medium text-gray-800">{{ lc_position($pos) }}</p>
+                                @if($pos->page)
+                                    <p class="text-xs text-gray-500 mt-0.5 truncate">{{ lc_title($pos->page) }}</p>
+                                @endif
+                            </div>
+                        </div>
+                    @endforeach
+                </div>
+            </div>
+        @endif
     </div>
 
     {{-- Editable form: photo + bio --}}
