@@ -17,8 +17,8 @@ class EditRole extends EditRecord
     }
 
     /**
-     * Formni to'ldirishdan oldin: rol permissionlarini
-     * har bir group uchun alohida perm_{key} fieldlarga ajratib yuklash.
+     * Formga yuklashdan oldin: rolning permissionlarini
+     * perm_{key} fieldlarga ajratib to'ldirish.
      */
     protected function mutateFormDataBeforeFill(array $data): array
     {
@@ -26,28 +26,49 @@ class EditRole extends EditRecord
         $role = $this->getRecord();
         $rolePermissions = $role->permissions->pluck('name')->toArray();
 
-        foreach (RoleResource::PERMISSION_GROUPS as $key => $group) {
-            $data["perm_{$key}"] = array_values(
-                array_intersect($rolePermissions, array_keys($group['perms']))
-            );
+        foreach (RoleResource::TABS as $resources) {
+            foreach ($resources as $key => $config) {
+                $data["perm_{$key}"] = array_values(
+                    array_intersect($rolePermissions, array_keys($config['perms']))
+                );
+            }
         }
 
         return $data;
     }
 
     /**
-     * Saqlashdan keyin: barcha perm_{key} fieldlarni birlashtirb
-     * rol permissionlarini sync qilish.
+     * Modelga yozilmaydiganlari chiqarib tashlaymiz —
+     * perm_{key} fieldlar faqat afterSave da ishlatiladi.
+     */
+    protected function mutateFormDataBeforeSave(array $data): array
+    {
+        foreach (RoleResource::allResourceKeys() as $key) {
+            unset($data["perm_{$key}"]);
+        }
+
+        return $data;
+    }
+
+    /**
+     * Saqlashdan keyin: barcha tanlangan permissionlarni sync qilish.
      */
     protected function afterSave(): void
     {
-        /** @var Role $role */
-        $role = $this->getRecord();
+        $this->syncRolePermissions($this->getRecord());
+    }
+
+    private function syncRolePermissions(Role $role): void
+    {
         $allSelected = [];
 
-        foreach (RoleResource::PERMISSION_GROUPS as $key => $group) {
-            $selected = $this->data["perm_{$key}"] ?? [];
-            $allSelected = array_merge($allSelected, $selected);
+        foreach (RoleResource::TABS as $resources) {
+            foreach ($resources as $key => $config) {
+                $selected = $this->data["perm_{$key}"] ?? [];
+                // Faqat bizning permission ro'yxatida borlarini qabul qilamiz
+                $valid = array_intersect((array) $selected, array_keys($config['perms']));
+                $allSelected = array_merge($allSelected, array_values($valid));
+            }
         }
 
         $role->syncPermissions($allSelected);

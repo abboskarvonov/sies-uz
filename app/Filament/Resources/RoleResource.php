@@ -4,10 +4,13 @@ namespace App\Filament\Resources;
 
 use App\Filament\Resources\RoleResource\Pages;
 use Filament\Forms\Components\CheckboxList;
+use Filament\Forms\Components\Placeholder;
 use Filament\Forms\Components\TextInput;
 use Filament\Infolists\Components\TextEntry;
 use Filament\Resources\Resource;
 use Filament\Schemas\Components\Section;
+use Filament\Schemas\Components\Tabs;
+use Filament\Schemas\Components\Tabs\Tab;
 use Filament\Schemas\Schema;
 use Filament\Tables\Actions\DeleteAction;
 use Filament\Tables\Actions\EditAction;
@@ -31,188 +34,228 @@ class RoleResource extends Resource
 
     protected static ?int $navigationSort = 2;
 
-    // ─── Permission groups ────────────────────────────────────────────
-    // key       → form field nomi: perm_{key}
-    // label     → Section sarlavhasi
-    // perms     → [permission_name => label]
+    // ─── Tab tuzilishi ────────────────────────────────────────────────
+    // tab_label => [ resource_key => [ label, perms ] ]
+    //
+    // Har bir resource_key → form field nomi: perm_{resource_key}
+    // Permissions qo'lda yoziladi — Shield bilan aralashmaydi.
 
-    public const PERMISSION_GROUPS = [
-        'access' => [
-            'label' => 'Panel kirish',
-            'perms' => [
-                'access_filament_panel' => 'Admin panelga kirish',
+    public const TABS = [
+        'Sahifalar' => [
+            'faculty' => [
+                'label' => 'Fakultetlar',
+                'perms' => [
+                    'faculty.viewAny'   => "Ko'rish (ro'yxat)",
+                    'faculty.create'    => 'Yaratish',
+                    'faculty.update'    => 'Tahrirlash',
+                    'faculty.delete'    => "O'chirish",
+                    'faculty.deleteAny' => "Barchasini o'chirish",
+                ],
+            ],
+            'department' => [
+                'label' => 'Kafedralar',
+                'perms' => [
+                    'department.viewAny'   => "Ko'rish (ro'yxat)",
+                    'department.create'    => 'Yaratish',
+                    'department.update'    => 'Tahrirlash',
+                    'department.delete'    => "O'chirish",
+                    'department.deleteAny' => "Barchasini o'chirish",
+                ],
+            ],
+            'section' => [
+                'label' => "Bo'limlar",
+                'perms' => [
+                    'section.viewAny'   => "Ko'rish (ro'yxat)",
+                    'section.create'    => 'Yaratish',
+                    'section.update'    => 'Tahrirlash',
+                    'section.delete'    => "O'chirish",
+                    'section.deleteAny' => "Barchasini o'chirish",
+                ],
+            ],
+            'center' => [
+                'label' => 'Markazlar',
+                'perms' => [
+                    'center.viewAny'   => "Ko'rish (ro'yxat)",
+                    'center.create'    => 'Yaratish',
+                    'center.update'    => 'Tahrirlash',
+                    'center.delete'    => "O'chirish",
+                    'center.deleteAny' => "Barchasini o'chirish",
+                ],
+            ],
+            'boshqarma' => [
+                'label' => 'Boshqarmalar',
+                'perms' => [
+                    'boshqarma.viewAny'   => "Ko'rish (ro'yxat)",
+                    'boshqarma.create'    => 'Yaratish',
+                    'boshqarma.update'    => 'Tahrirlash',
+                    'boshqarma.delete'    => "O'chirish",
+                    'boshqarma.deleteAny' => "Barchasini o'chirish",
+                ],
+            ],
+            'page' => [
+                'label' => 'Sahifalar (Blog / Default)',
+                'perms' => [
+                    'page.viewAny'   => "Ko'rish (ro'yxat)",
+                    'page.create'    => 'Yaratish',
+                    'page.update'    => 'Tahrirlash',
+                    'page.delete'    => "O'chirish",
+                    'page.deleteAny' => "Barchasini o'chirish",
+                ],
             ],
         ],
-        'faculty' => [
-            'label' => 'Fakultetlar',
-            'perms' => [
-                'faculty.viewAny'   => "Ko'rish (ro'yxat)",
-                'faculty.create'    => 'Yaratish',
-                'faculty.update'    => 'Tahrirlash',
-                'faculty.delete'    => "O'chirish",
-                'faculty.deleteAny' => "Barchasini o'chirish",
+
+        'Menyular' => [
+            'menu' => [
+                'label' => 'Menyular',
+                'perms' => [
+                    'ViewAny:Menu'   => "Ko'rish (ro'yxat)",
+                    'Create:Menu'    => 'Yaratish',
+                    'Update:Menu'    => 'Tahrirlash',
+                    'Delete:Menu'    => "O'chirish",
+                    'DeleteAny:Menu' => "Barchasini o'chirish",
+                ],
+            ],
+            'submenu' => [
+                'label' => 'Submenyular',
+                'perms' => [
+                    'ViewAny:Submenu'   => "Ko'rish (ro'yxat)",
+                    'Create:Submenu'    => 'Yaratish',
+                    'Update:Submenu'    => 'Tahrirlash',
+                    'Delete:Submenu'    => "O'chirish",
+                    'DeleteAny:Submenu' => "Barchasini o'chirish",
+                ],
+            ],
+            'multimenu' => [
+                'label' => 'Multimenyular',
+                'perms' => [
+                    'ViewAny:Multimenu'   => "Ko'rish (ro'yxat)",
+                    'Create:Multimenu'    => 'Yaratish',
+                    'Update:Multimenu'    => 'Tahrirlash',
+                    'Delete:Multimenu'    => "O'chirish",
+                    'DeleteAny:Multimenu' => "Barchasini o'chirish",
+                ],
             ],
         ],
-        'department' => [
-            'label' => 'Kafedralar',
-            'perms' => [
-                'department.viewAny'   => "Ko'rish (ro'yxat)",
-                'department.create'    => 'Yaratish',
-                'department.update'    => 'Tahrirlash',
-                'department.delete'    => "O'chirish",
-                'department.deleteAny' => "Barchasini o'chirish",
+
+        'Kontent' => [
+            'tag' => [
+                'label' => 'Teglar',
+                'perms' => [
+                    'ViewAny:Tag' => "Ko'rish (ro'yxat)",
+                    'Create:Tag'  => 'Yaratish',
+                    'Update:Tag'  => 'Tahrirlash',
+                    'Delete:Tag'  => "O'chirish",
+                ],
+            ],
+            'symbol' => [
+                'label' => 'Ramzlar (Symbols)',
+                'perms' => [
+                    'ViewAny:Symbol' => "Ko'rish (ro'yxat)",
+                    'Create:Symbol'  => 'Yaratish',
+                    'Update:Symbol'  => 'Tahrirlash',
+                    'Delete:Symbol'  => "O'chirish",
+                ],
             ],
         ],
-        'section' => [
-            'label' => "Bo'limlar",
-            'perms' => [
-                'section.viewAny'   => "Ko'rish (ro'yxat)",
-                'section.create'    => 'Yaratish',
-                'section.update'    => 'Tahrirlash',
-                'section.delete'    => "O'chirish",
-                'section.deleteAny' => "Barchasini o'chirish",
+
+        'Tizim' => [
+            'stat' => [
+                'label' => 'Statistika',
+                'perms' => [
+                    'ViewAny:SiteStat' => "Ko'rish (ro'yxat)",
+                    'Create:SiteStat'  => 'Yaratish',
+                    'Update:SiteStat'  => 'Tahrirlash',
+                    'Delete:SiteStat'  => "O'chirish",
+                ],
             ],
-        ],
-        'center' => [
-            'label' => 'Markazlar',
-            'perms' => [
-                'center.viewAny'   => "Ko'rish (ro'yxat)",
-                'center.create'    => 'Yaratish',
-                'center.update'    => 'Tahrirlash',
-                'center.delete'    => "O'chirish",
-                'center.deleteAny' => "Barchasini o'chirish",
+            'settings' => [
+                'label' => 'Sayt sozlamalari',
+                'perms' => [
+                    'View:SiteSettings'   => "Ko'rish",
+                    'Update:SiteSettings' => 'Tahrirlash',
+                ],
             ],
-        ],
-        'boshqarma' => [
-            'label' => 'Boshqarmalar',
-            'perms' => [
-                'boshqarma.viewAny'   => "Ko'rish (ro'yxat)",
-                'boshqarma.create'    => 'Yaratish',
-                'boshqarma.update'    => 'Tahrirlash',
-                'boshqarma.delete'    => "O'chirish",
-                'boshqarma.deleteAny' => "Barchasini o'chirish",
+            'user' => [
+                'label' => 'Foydalanuvchilar',
+                'perms' => [
+                    'ViewAny:User' => "Ko'rish (ro'yxat)",
+                    'Create:User'  => 'Yaratish',
+                    'Update:User'  => 'Tahrirlash',
+                    'Delete:User'  => "O'chirish",
+                ],
             ],
-        ],
-        'page' => [
-            'label' => 'Sahifalar (Blog / Default)',
-            'perms' => [
-                'page.viewAny'   => "Ko'rish (ro'yxat)",
-                'page.create'    => 'Yaratish',
-                'page.update'    => 'Tahrirlash',
-                'page.delete'    => "O'chirish",
-                'page.deleteAny' => "Barchasini o'chirish",
-            ],
-        ],
-        'page_access' => [
-            'label' => 'Sahifalarga umumiy kirish',
-            'perms' => [
-                'view_all_pages'  => 'Barcha sahifalarni ko\'rish (query filter)',
-                'view_blog_pages' => 'Faqat blog sahifalarni ko\'rish',
-            ],
-        ],
-        'menu' => [
-            'label' => 'Menyular',
-            'perms' => [
-                'ViewAny:Menu'   => "Ko'rish (ro'yxat)",
-                'Create:Menu'    => 'Yaratish',
-                'Update:Menu'    => 'Tahrirlash',
-                'Delete:Menu'    => "O'chirish",
-                'DeleteAny:Menu' => "Barchasini o'chirish",
-            ],
-        ],
-        'submenu' => [
-            'label' => 'Submenyular',
-            'perms' => [
-                'ViewAny:Submenu'   => "Ko'rish (ro'yxat)",
-                'Create:Submenu'    => 'Yaratish',
-                'Update:Submenu'    => 'Tahrirlash',
-                'Delete:Submenu'    => "O'chirish",
-                'DeleteAny:Submenu' => "Barchasini o'chirish",
-            ],
-        ],
-        'multimenu' => [
-            'label' => 'Multimenyular',
-            'perms' => [
-                'ViewAny:Multimenu'   => "Ko'rish (ro'yxat)",
-                'Create:Multimenu'    => 'Yaratish',
-                'Update:Multimenu'    => 'Tahrirlash',
-                'Delete:Multimenu'    => "O'chirish",
-                'DeleteAny:Multimenu' => "Barchasini o'chirish",
-            ],
-        ],
-        'tag' => [
-            'label' => 'Teglar',
-            'perms' => [
-                'ViewAny:Tag' => "Ko'rish (ro'yxat)",
-                'Create:Tag'  => 'Yaratish',
-                'Update:Tag'  => 'Tahrirlash',
-                'Delete:Tag'  => "O'chirish",
-            ],
-        ],
-        'symbol' => [
-            'label' => 'Ramzlar (Symbols)',
-            'perms' => [
-                'ViewAny:Symbol' => "Ko'rish (ro'yxat)",
-                'Create:Symbol'  => 'Yaratish',
-                'Update:Symbol'  => 'Tahrirlash',
-                'Delete:Symbol'  => "O'chirish",
-            ],
-        ],
-        'stat' => [
-            'label' => 'Statistika',
-            'perms' => [
-                'ViewAny:SiteStat' => "Ko'rish (ro'yxat)",
-                'Create:SiteStat'  => 'Yaratish',
-                'Update:SiteStat'  => 'Tahrirlash',
-                'Delete:SiteStat'  => "O'chirish",
-            ],
-        ],
-        'settings' => [
-            'label' => 'Sayt sozlamalari',
-            'perms' => [
-                'View:SiteSettings'   => "Ko'rish",
-                'Update:SiteSettings' => 'Tahrirlash',
-            ],
-        ],
-        'user' => [
-            'label' => 'Foydalanuvchilar',
-            'perms' => [
-                'ViewAny:User' => "Ko'rish (ro'yxat)",
-                'Create:User'  => 'Yaratish',
-                'Update:User'  => 'Tahrirlash',
-                'Delete:User'  => "O'chirish",
+            'special' => [
+                'label' => 'Maxsus',
+                'perms' => [
+                    'access_filament_panel' => 'Admin panelga kirish',
+                    'view_all_pages'        => "Barcha sahifalarni ko'rish",
+                    'view_blog_pages'       => 'Faqat blog sahifalarni ko\'rish',
+                ],
             ],
         ],
     ];
+
+    // ─── Barcha resource keylarni qaytaradi (fill/save uchun) ─────────
+
+    public static function allResourceKeys(): array
+    {
+        $keys = [];
+        foreach (self::TABS as $resources) {
+            $keys = array_merge($keys, array_keys($resources));
+        }
+        return $keys;
+    }
+
+    // ─── Tab building ─────────────────────────────────────────────────
+
+    protected static function buildPermissionTabs(): array
+    {
+        $tabs = [];
+
+        foreach (self::TABS as $tabLabel => $resources) {
+            $lists = [];
+
+            foreach ($resources as $key => $config) {
+                $lists[] = CheckboxList::make("perm_{$key}")
+                    ->label($config['label'])
+                    ->options($config['perms'])
+                    ->columns(3)
+                    ->bulkToggleable()
+                    ->gridDirection('row');
+            }
+
+            $tabs[] = Tab::make($tabLabel)->schema($lists);
+        }
+
+        return $tabs;
+    }
 
     // ─── Form ─────────────────────────────────────────────────────────
 
     public static function form(Schema $schema): Schema
     {
-        $sections = [
+        return $schema->components([
             Section::make('Rol nomi')->schema([
                 TextInput::make('name')
                     ->label('Nom')
                     ->required()
                     ->unique(ignoreRecord: true)
                     ->maxLength(255),
+
+                Placeholder::make('stats')
+                    ->label('Statistika')
+                    ->content(fn (?Role $record): string => $record
+                        ? "Foydalanuvchilar: {$record->users()->count()} | Permissionlar: {$record->permissions()->count()}"
+                        : '')
+                    ->hidden(fn (?Role $record) => $record === null),
+            ])->columns(2),
+
+            Section::make('Huquqlar')->schema([
+                Tabs::make('permission_tabs')
+                    ->tabs(static::buildPermissionTabs())
+                    ->columnSpanFull(),
             ]),
-        ];
-
-        foreach (self::PERMISSION_GROUPS as $key => $group) {
-            $sections[] = Section::make($group['label'])
-                ->schema([
-                    CheckboxList::make("perm_{$key}")
-                        ->label('')
-                        ->options($group['perms'])
-                        ->columns(2)
-                        ->gridDirection('row')
-                        ->dehydrated(false), // Filament relationship sync ishlatmasin
-                ])
-                ->collapsible();
-        }
-
-        return $schema->components($sections);
+        ]);
     }
 
     // ─── Table ────────────────────────────────────────────────────────
@@ -224,7 +267,13 @@ class RoleResource extends Resource
                 TextColumn::make('name')
                     ->label('Nom')
                     ->searchable()
-                    ->sortable(),
+                    ->sortable()
+                    ->badge()
+                    ->color(fn (string $state): string => match ($state) {
+                        'super-admin' => 'danger',
+                        'admin'       => 'warning',
+                        default       => 'primary',
+                    }),
 
                 TextColumn::make('permissions_count')
                     ->counts('permissions')
@@ -237,6 +286,12 @@ class RoleResource extends Resource
                     ->label('Foydalanuvchilar')
                     ->badge()
                     ->color('success'),
+
+                TextColumn::make('created_at')
+                    ->label('Yaratilgan')
+                    ->dateTime('d.m.Y')
+                    ->sortable()
+                    ->toggleable(isToggledHiddenByDefault: true),
             ])
             ->recordActions([
                 EditAction::make(),

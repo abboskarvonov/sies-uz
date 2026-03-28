@@ -11,6 +11,18 @@ class CreateRole extends CreateRecord
     protected static string $resource = RoleResource::class;
 
     /**
+     * Role jadvaliga yozilmaydiganlari chiqarib tashlaymiz.
+     */
+    protected function mutateFormDataBeforeCreate(array $data): array
+    {
+        foreach (RoleResource::allResourceKeys() as $key) {
+            unset($data["perm_{$key}"]);
+        }
+
+        return $data;
+    }
+
+    /**
      * Yaratishdan keyin: tanlangan permissionlarni rolga biriktirish.
      */
     protected function afterCreate(): void
@@ -19,9 +31,12 @@ class CreateRole extends CreateRecord
         $role = $this->getRecord();
         $allSelected = [];
 
-        foreach (RoleResource::PERMISSION_GROUPS as $key => $group) {
-            $selected = $this->data["perm_{$key}"] ?? [];
-            $allSelected = array_merge($allSelected, $selected);
+        foreach (RoleResource::TABS as $resources) {
+            foreach ($resources as $key => $config) {
+                $selected = $this->data["perm_{$key}"] ?? [];
+                $valid = array_intersect((array) $selected, array_keys($config['perms']));
+                $allSelected = array_merge($allSelected, array_values($valid));
+            }
         }
 
         $role->syncPermissions($allSelected);
