@@ -3,9 +3,15 @@
 namespace App\Filament\Resources\RoleResource\Pages;
 
 use App\Filament\Resources\RoleResource;
-use BezhanSalleh\FilamentShield\Resources\Roles\Pages\EditRole as BaseEditRole;
+use Filament\Actions\DeleteAction;
+use Filament\Resources\Pages\EditRecord;
 
-class EditRole extends BaseEditRole
+class EditRole extends EditRecord
 {
     protected static string $resource = RoleResource::class;
+
+    protected function getHeaderActions(): array
+    {
+        return [DeleteAction::make()];
+    }
 }

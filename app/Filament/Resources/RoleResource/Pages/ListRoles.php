@@ -3,9 +3,15 @@
 namespace App\Filament\Resources\RoleResource\Pages;
 
 use App\Filament\Resources\RoleResource;
-use BezhanSalleh\FilamentShield\Resources\Roles\Pages\ListRoles as BaseListRoles;
+use Filament\Actions\CreateAction;
+use Filament\Resources\Pages\ListRecords;
 
-class ListRoles extends BaseListRoles
+class ListRoles extends ListRecords
 {
     protected static string $resource = RoleResource::class;
+
+    protected function getHeaderActions(): array
+    {
+        return [CreateAction::make()];
+    }
 }

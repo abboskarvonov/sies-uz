@@ -3,9 +3,9 @@
 namespace App\Filament\Resources\RoleResource\Pages;
 
 use App\Filament\Resources\RoleResource;
-use BezhanSalleh\FilamentShield\Resources\Roles\Pages\CreateRole as BaseCreateRole;
+use Filament\Resources\Pages\CreateRecord;
 
-class CreateRole extends BaseCreateRole
+class CreateRole extends CreateRecord
 {
     protected static string $resource = RoleResource::class;
 }
