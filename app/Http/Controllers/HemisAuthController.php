@@ -166,6 +166,9 @@ class HemisAuthController extends Controller
         try {
             $api = app(HemisApiService::class);
 
+            // OAuth raw data dan login (tabel raqami) — fallback filter uchun
+            $hemisLogin = $hemisUser->getRaw()['login'] ?? null;
+
             // UUID bo'yicha qidirish (eng ishonchli — barcha lavozimlari)
             $uuid      = $user->hemis_uuid;
             $positions = $uuid ? $api->fetchEmployeePositionsByUuid($uuid) : collect();
@@ -184,18 +187,29 @@ class HemisAuthController extends Controller
             }
 
             // Faqat shu xodimga tegishli yozuvlar (API ba'zan barcha xodimlarni qaytaradi)
-            $positions = $positions->filter(function ($emp) use ($user) {
+            $positions = $positions->filter(function ($emp) use ($user, $hemisLogin) {
+                // 1. UUID bo'yicha (eng ishonchli)
                 if ($user->hemis_uuid && ! empty($emp['uuid'])) {
                     return $emp['uuid'] === $user->hemis_uuid;
                 }
-                return (string) ($emp['id'] ?? '') === (string) $user->hemis_id;
+                // 2. Login (tabel raqami) bo'yicha
+                if ($hemisLogin && ! empty($emp['login'])) {
+                    return $emp['login'] === $hemisLogin;
+                }
+                // 3. hemis_employee_id bo'yicha (sync command tomonidan yozilgan)
+                if ($user->hemis_employee_id) {
+                    return (string) ($emp['id'] ?? '') === (string) $user->hemis_employee_id;
+                }
+                return false;
             });
 
             if ($positions->isEmpty()) {
                 Log::warning('HEMIS positions: no matching records for user after identity filter', [
-                    'user_id'     => $user->id,
-                    'hemis_id'    => $user->hemis_id,
-                    'hemis_uuid'  => $user->hemis_uuid,
+                    'user_id'            => $user->id,
+                    'hemis_id'           => $user->hemis_id,
+                    'hemis_uuid'         => $user->hemis_uuid,
+                    'hemis_employee_id'  => $user->hemis_employee_id,
+                    'hemis_login'        => $hemisLogin,
                 ]);
                 return;
             }
@@ -229,6 +243,10 @@ class HemisAuthController extends Controller
      */
     private function writePositions(User $user, Collection $active): void
     {
+        // Eski lavozimlarni to'liq o'chirish — to'g'ri ma'lumotlar bilan almashtirish.
+        // updateOrCreate eski noto'g'ri yozuvlarni o'chirmaydi, shuning uchun avval tozalash kerak.
+        UserPagePosition::where('user_id', $user->id)->delete();
+
         // Position order bo'yicha saralash — eng yuqori lavozim birinchi (asosiy)
         $sorted = $active->sortBy(function ($emp) {
             $pos = $emp['staffPosition']['name'] ?? '';
