@@ -2,7 +2,7 @@
 
 namespace App\Livewire;
 
-use App\Services\HemisApiService;
+use App\Services\HemisPositionSyncService;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
 use Livewire\Component;
@@ -62,46 +62,29 @@ class EmployeeProfile extends Component
     }
 
     /**
-     * HEMIS dan foydalanuvchining o'z ma'lumotlarini yangilash.
-     * Faqat HEMIS maydonlari yangilanadi — bio, rasm, parol o'zgarmaydi.
+     * HEMIS dan foydalanuvchining barcha lavozimlarini yangilash.
+     * Bio, rasm, parol o'zgarmaydi — faqat HEMIS maydonlari sync bo'ladi.
      */
     public function syncFromHemis(): void
     {
         $user = Auth::user();
 
-        if (empty($user->hemis_employee_id)) {
-            $this->dispatch('hemis-sync-error', message: 'HEMIS Employee ID biriktirilmagan.');
+        if (! $user->hemis_uuid && ! $user->hemis_id && ! $user->hemis_employee_id) {
+            $this->dispatch('hemis-sync-error', message: 'HEMIS ma\'lumotlari biriktirilmagan.');
             return;
         }
 
         $this->syncing = true;
 
-        $api = app(HemisApiService::class);
-        $emp = $api->fetchEmployee($user->hemis_employee_id);
-
-        if (! $emp) {
-            $this->syncing = false;
-            $this->dispatch('hemis-sync-error', message: 'HEMIS dan ma\'lumot olinmadi.');
-            return;
-        }
-
-        $positionOrders = [
-            'Rektor' => 1, "O'quv ishlari bo'yicha birinchi prorektor" => 2,
-            "Yoshlar bilan ishlash bo'yicha prorektor" => 3, 'Dekan' => 6,
-            'Kafedra mudiri' => 9, 'Professor' => 10, 'Dotsent' => 11,
-            "Katta o'qituvchi" => 12, 'Assistent' => 13,
-        ];
-
-        $user->name           = $emp['full_name'] ?? $user->name;
-        $user->position_uz    = $emp['staffPosition']['name'] ?? $user->position_uz;
-        $user->academic_degree = $emp['academicDegree']['name'] ?? $user->academic_degree;
-        $user->academic_rank  = $emp['academicRank']['name'] ?? $user->academic_rank;
-        $user->employment_form = $emp['employmentForm']['name'] ?? $user->employment_form;
-        $user->position_order = $positionOrders[$emp['staffPosition']['name'] ?? ''] ?? $user->position_order ?? 99;
-        $user->save();
+        $synced = app(HemisPositionSyncService::class)->sync($user);
 
         $this->syncing = false;
-        $this->dispatch('hemis-synced');
+
+        if ($synced) {
+            $this->dispatch('hemis-synced');
+        } else {
+            $this->dispatch('hemis-sync-error', message: 'HEMIS dan ma\'lumot olinmadi. Keyinroq urinib ko\'ring.');
+        }
     }
 
     public function render()
