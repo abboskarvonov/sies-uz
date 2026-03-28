@@ -24,6 +24,7 @@ use App\Filament\Resources\UserResource\Pages\CreateUser;
 use App\Filament\Resources\UserResource\Pages;
 use App\Models\User;
 use Filament\Forms\Components\FileUpload;
+use Filament\Forms\Components\Repeater;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
@@ -137,6 +138,39 @@ class UserResource extends Resource
                     ->columns(2)
                     ->collapsed()
                     ->collapsible(),
+
+                Section::make('Lavozimlar')
+                    ->description('Xodimning barcha lavozimlari (user_page_positions). Noto\'g\'ri lavozimni o\'chirib, xodim qayta login qilishi mumkin.')
+                    ->schema([
+                        Repeater::make('pagePositions')
+                            ->relationship()
+                            ->label('')
+                            ->schema([
+                                Select::make('page_id')
+                                    ->label('Bo\'lim / Kafedra / Fakultet')
+                                    ->relationship('page', 'title_uz')
+                                    ->searchable()
+                                    ->preload()
+                                    ->required()
+                                    ->columnSpanFull(),
+
+                                TextInput::make('position_uz')->label('Lavozim (UZ)'),
+                                TextInput::make('position_ru')->label('Lavozim (RU)'),
+                                TextInput::make('position_en')->label('Lavozim (EN)'),
+
+                                Toggle::make('is_primary')
+                                    ->label('Asosiy lavozim')
+                                    ->columnSpanFull(),
+                            ])
+                            ->columns(3)
+                            ->addActionLabel('Lavozim qo\'shish')
+                            ->reorderable(false)
+                            ->collapsible()
+                            ->itemLabel(fn (array $state): ?string => $state['position_uz'] ?? null),
+                    ])
+                    ->collapsed()
+                    ->collapsible()
+                    ->visible(fn (): bool => authUser()?->hasRole('super-admin')),
 
                 Section::make('HEMIS xodim ma\'lumotlari')
                     ->description('HEMIS dan sync qilinadi. Super-admin tomonidan ham tahrirlash mumkin.')
