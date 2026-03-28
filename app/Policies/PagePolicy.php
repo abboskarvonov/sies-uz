@@ -12,44 +12,35 @@ class PagePolicy
 
     public function viewAny(User $user): bool
     {
-        return $user->can('view_any_page');
+        return $user->hasAnyRole(['super-admin', 'admin']) || $user->can('view_any_page');
     }
 
     public function view(User $user, Page $page): bool
     {
-        if (! $user->can('view_page')) {
-            return false;
-        }
-
-        return $user->hasAccessToPage($page);
+        return $user->hasAccessToPage($page)
+            && ($user->hasAnyRole(['super-admin', 'admin']) || $user->can('view_page'));
     }
 
     public function create(User $user): bool
     {
-        return $user->can('create_page');
+        return $user->hasAnyRole(['super-admin', 'admin']) || $user->can('create_page');
     }
 
     public function update(User $user, Page $page): bool
     {
-        if (! $user->can('update_page')) {
-            return false;
-        }
-
-        return $user->hasAccessToPage($page);
+        return $user->hasAccessToPage($page)
+            && ($user->hasAnyRole(['super-admin', 'admin']) || $user->can('update_page'));
     }
 
     public function delete(User $user, Page $page): bool
     {
-        if (! $user->can('delete_page')) {
-            return false;
-        }
-
-        return $user->hasAccessToPage($page);
+        return $user->hasAccessToPage($page)
+            && ($user->hasAnyRole(['super-admin', 'admin']) || $user->can('delete_page'));
     }
 
     public function deleteAny(User $user): bool
     {
-        return $user->can('delete_any_page');
+        return $user->hasAnyRole(['super-admin', 'admin']) || $user->can('delete_any_page');
     }
 
     public function forceDelete(User $user, Page $page): bool
