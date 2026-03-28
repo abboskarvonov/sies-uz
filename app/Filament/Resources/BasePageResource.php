@@ -64,6 +64,80 @@ abstract class BasePageResource extends Resource
      */
     protected static array $pageTypes = [];
 
+    /**
+     * Spatie permission prefix for this resource.
+     * Permissions: {prefix}.viewAny, {prefix}.create, {prefix}.update,
+     *              {prefix}.delete, {prefix}.deleteAny
+     *
+     * Each child resource overrides this to get independent permissions.
+     */
+    protected static string $permissionPrefix = 'page';
+
+    // ─── Authorization ────────────────────────────────────────────────
+
+    public static function canViewAny(): bool
+    {
+        $user = authUser();
+        return $user?->hasAnyRole(['super-admin', 'admin'])
+            || $user?->can(static::$permissionPrefix . '.viewAny')
+            || false;
+    }
+
+    public static function canCreate(): bool
+    {
+        $user = authUser();
+        return $user?->hasAnyRole(['super-admin', 'admin'])
+            || $user?->can(static::$permissionPrefix . '.create')
+            || false;
+    }
+
+    public static function canEdit(\Illuminate\Database\Eloquent\Model $record): bool
+    {
+        $user = authUser();
+        if (! $user) {
+            return false;
+        }
+        if ($user->hasAnyRole(['super-admin', 'admin'])) {
+            return $user->hasAccessToPage($record);
+        }
+        return $user->can(static::$permissionPrefix . '.update')
+            && $user->hasAccessToPage($record);
+    }
+
+    public static function canView(\Illuminate\Database\Eloquent\Model $record): bool
+    {
+        $user = authUser();
+        if (! $user) {
+            return false;
+        }
+        if ($user->hasAnyRole(['super-admin', 'admin'])) {
+            return $user->hasAccessToPage($record);
+        }
+        return $user->can(static::$permissionPrefix . '.viewAny')
+            && $user->hasAccessToPage($record);
+    }
+
+    public static function canDelete(\Illuminate\Database\Eloquent\Model $record): bool
+    {
+        $user = authUser();
+        if (! $user) {
+            return false;
+        }
+        if ($user->hasAnyRole(['super-admin', 'admin'])) {
+            return true;
+        }
+        return $user->can(static::$permissionPrefix . '.delete')
+            && $user->hasAccessToPage($record);
+    }
+
+    public static function canDeleteAny(): bool
+    {
+        $user = authUser();
+        return $user?->hasAnyRole(['super-admin', 'admin'])
+            || $user?->can(static::$permissionPrefix . '.deleteAny')
+            || false;
+    }
+
     protected static function isSingleType(): bool
     {
         return count(static::$pageTypes) === 1;

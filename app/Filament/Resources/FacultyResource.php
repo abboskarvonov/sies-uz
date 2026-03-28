@@ -13,6 +13,7 @@ use App\Filament\Resources\FacultyResource\Pages;
 class FacultyResource extends BasePageResource
 {
     protected static array $pageTypes = ['faculty'];
+    protected static string $permissionPrefix = 'faculty';
 
     protected static string | \BackedEnum | null $navigationIcon = 'heroicon-o-academic-cap';
 

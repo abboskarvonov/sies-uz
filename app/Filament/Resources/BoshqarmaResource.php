@@ -12,6 +12,7 @@ use App\Filament\Resources\BoshqarmaResource\Pages;
 class BoshqarmaResource extends BasePageResource
 {
     protected static array $pageTypes = ['boshqarma'];
+    protected static string $permissionPrefix = 'boshqarma';
 
     protected static string | \BackedEnum | null $navigationIcon = 'heroicon-o-building-office';
 

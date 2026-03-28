@@ -13,6 +13,7 @@ use App\Filament\Resources\SectionResource\Pages;
 class SectionResource extends BasePageResource
 {
     protected static array $pageTypes = ['section'];
+    protected static string $permissionPrefix = 'section';
 
     protected static string | \BackedEnum | null $navigationIcon = 'heroicon-o-rectangle-group';
 

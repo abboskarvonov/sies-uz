@@ -12,6 +12,7 @@ use App\Filament\Resources\PageResource\Pages;
 class PageResource extends BasePageResource
 {
     protected static array $pageTypes = ['default', 'blog'];
+    protected static string $permissionPrefix = 'page';
 
     protected static string | \BackedEnum | null $navigationIcon = 'heroicon-o-document';
 

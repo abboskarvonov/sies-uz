@@ -13,6 +13,7 @@ use App\Filament\Resources\CenterResource\Pages;
 class CenterResource extends BasePageResource
 {
     protected static array $pageTypes = ['center'];
+    protected static string $permissionPrefix = 'center';
 
     protected static string | \BackedEnum | null $navigationIcon = 'heroicon-o-building-office-2';
 

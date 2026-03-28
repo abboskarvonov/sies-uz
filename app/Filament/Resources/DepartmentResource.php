@@ -13,6 +13,7 @@ use App\Filament\Resources\DepartmentResource\Pages;
 class DepartmentResource extends BasePageResource
 {
     protected static array $pageTypes = ['department'];
+    protected static string $permissionPrefix = 'department';
 
     protected static string | \BackedEnum | null $navigationIcon = 'heroicon-o-building-library';
 
