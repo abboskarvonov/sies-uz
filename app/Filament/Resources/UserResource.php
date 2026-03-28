@@ -30,20 +30,16 @@ use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\Toggle;
 use Filament\Infolists\Components;
-use App\Filament\Concerns\HasSpatiePermissions;
 use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Columns\ImageColumn;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 
 class UserResource extends Resource
 {
-    use HasSpatiePermissions;
-
-    protected static string $permPrefix = 'User';
-
     protected static ?string $model = User::class;
 
     protected static string | \BackedEnum | null $navigationIcon = 'heroicon-o-user-group';
@@ -400,6 +396,80 @@ class UserResource extends Resource
     {
         return [];
     }
+
+    // ─── Authorization ────────────────────────────────────────────────
+
+    public static function canViewAny(): bool
+    {
+        $user = authUser();
+        if (! $user) return false;
+        if ($user->hasRole('super-admin')) return true;
+        return $user->can('ViewAny:User') || $user->can('manage_own_page_staff');
+    }
+
+    public static function canCreate(): bool
+    {
+        $user = authUser();
+        if (! $user) return false;
+        if ($user->hasRole('super-admin')) return true;
+        return $user->can('Create:User');
+    }
+
+    public static function canEdit(\Illuminate\Database\Eloquent\Model $record): bool
+    {
+        $user = authUser();
+        if (! $user) return false;
+        if ($user->hasRole('super-admin')) return true;
+        if ($user->can('Update:User')) return true;
+
+        // Bo'lim boshlig'i faqat o'z bo'limidagi xodimlarni tahrirlay oladi
+        if ($user->can('manage_own_page_staff')) {
+            $myPageIds = $user->pagePositions()->pluck('page_id');
+            return $record->pagePositions()->whereIn('page_id', $myPageIds)->exists();
+        }
+
+        return false;
+    }
+
+    public static function canView(\Illuminate\Database\Eloquent\Model $record): bool
+    {
+        return static::canEdit($record);
+    }
+
+    public static function canDelete(\Illuminate\Database\Eloquent\Model $record): bool
+    {
+        $user = authUser();
+        if (! $user) return false;
+        if ($user->hasRole('super-admin')) return true;
+        return $user->can('Delete:User');
+    }
+
+    public static function canDeleteAny(): bool
+    {
+        $user = authUser();
+        if (! $user) return false;
+        if ($user->hasRole('super-admin')) return true;
+        return $user->can('DeleteAny:User');
+    }
+
+    public static function getEloquentQuery(): \Illuminate\Database\Eloquent\Builder
+    {
+        $query = parent::getEloquentQuery();
+        $user  = Auth::user();
+
+        if (! $user) return $query->whereRaw('1=0');
+        if ($user->hasRole('super-admin') || $user->can('ViewAny:User')) return $query;
+
+        // manage_own_page_staff: faqat o'z bo'lim/fakultetidagi xodimlar
+        if ($user->can('manage_own_page_staff')) {
+            $pageIds = $user->pagePositions()->pluck('page_id');
+            return $query->whereHas('pagePositions', fn ($q) => $q->whereIn('page_id', $pageIds));
+        }
+
+        return $query->whereRaw('1=0');
+    }
+
+    // ─── Pages ────────────────────────────────────────────────────────
 
     public static function getPages(): array
     {

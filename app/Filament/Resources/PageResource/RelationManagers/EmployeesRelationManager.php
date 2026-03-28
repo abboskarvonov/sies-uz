@@ -3,6 +3,7 @@
 namespace App\Filament\Resources\PageResource\RelationManagers;
 
 use Filament\Actions\ViewAction;
+use Filament\Tables\Actions\Action;
 use App\Models\StaffCategory;
 use Filament\Resources\RelationManagers\RelationManager;
 use Filament\Tables;
@@ -73,6 +74,13 @@ class EmployeesRelationManager extends RelationManager
             ->recordActions([
                 ViewAction::make()
                     ->url(fn ($record) => route('filament.admin.resources.users.view', $record)),
+                Action::make('edit_employee')
+                    ->label('Tahrirlash')
+                    ->icon('heroicon-o-pencil-square')
+                    ->url(fn ($record) => route('filament.admin.resources.users.edit', $record))
+                    ->visible(fn () => authUser()?->can('manage_own_page_staff')
+                        || authUser()?->can('Update:User')
+                        || authUser()?->hasRole('super-admin')),
             ])
             ->toolbarActions([]);
     }

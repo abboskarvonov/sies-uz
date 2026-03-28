@@ -146,7 +146,7 @@ class User extends Authenticatable implements FilamentUser, MustVerifyEmail
 
     public function hasAccessToPage(Page $page): bool
     {
-        if ($this->hasAnyRole(['super-admin', 'admin'])) {
+        if ($this->hasRole('super-admin')) {
             return true;
         }
 
@@ -158,6 +158,12 @@ class User extends Authenticatable implements FilamentUser, MustVerifyEmail
             return true;
         }
 
+        // HEMIS orqali ulangan lavozim sahifalarini tekshirish
+        if ($this->pagePositions()->where('page_id', $page->id)->exists()) {
+            return true;
+        }
+
+        // Admin tomonidan qo'lda biriktirilgan sahifalar
         return $this->assignedPages()->where('pages.id', $page->id)->exists();
     }
 

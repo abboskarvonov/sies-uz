@@ -189,7 +189,8 @@ class RoleResource extends Resource
                 'perms' => [
                     'access_filament_panel' => 'Admin panelga kirish',
                     'view_all_pages'        => "Barcha sahifalarni ko'rish",
-                    'view_blog_pages'       => 'Faqat blog sahifalarni ko\'rish',
+                    'view_blog_pages'       => "Faqat blog sahifalarni ko'rish",
+                    'manage_own_page_staff' => "O'z bo'limidagi xodimlarni boshqarish",
                 ],
             ],
         ],
