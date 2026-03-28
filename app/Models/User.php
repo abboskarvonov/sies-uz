@@ -45,12 +45,12 @@ class User extends Authenticatable implements FilamentUser, MustVerifyEmail
             return true;
         }
 
-        // HEMIS orqali kirgan xodimlar admin panelga kira olmaydi
-        if ($this->hemis_type !== 'admin') {
+        // HEMIS employee/student orqali kirganlar admin panelga kira olmaydi
+        if (in_array($this->hemis_type, ['employee', 'student'])) {
             return false;
         }
 
-        return ! is_null($this->email_verified_at) && $this->can('AccessFilamentPanel');
+        return $this->can('access_filament_panel');
     }
 
     protected $fillable = [
@@ -150,11 +150,11 @@ class User extends Authenticatable implements FilamentUser, MustVerifyEmail
             return true;
         }
 
-        if ($this->can('ViewAllPages')) {
+        if ($this->can('view_all_pages')) {
             return true;
         }
 
-        if ($page->page_type === 'blog' && $this->can('ViewBlogPages')) {
+        if ($page->page_type === 'blog' && $this->can('view_blog_pages')) {
             return true;
         }
 
