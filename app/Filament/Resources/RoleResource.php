@@ -12,8 +12,8 @@ use Filament\Schemas\Components\Section;
 use Filament\Schemas\Components\Tabs;
 use Filament\Schemas\Components\Tabs\Tab;
 use Filament\Schemas\Schema;
-use Filament\Tables\Actions\DeleteAction;
-use Filament\Tables\Actions\EditAction;
+use Filament\Actions\DeleteAction as TableDeleteAction;
+use Filament\Actions\EditAction as TableEditAction;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
 use Spatie\Permission\Models\Role;
@@ -294,8 +294,8 @@ class RoleResource extends Resource
                     ->toggleable(isToggledHiddenByDefault: true),
             ])
             ->recordActions([
-                EditAction::make(),
-                DeleteAction::make()
+                TableEditAction::make(),
+                TableDeleteAction::make()
                     ->before(function (Role $record) {
                         if ($record->name === 'super-admin') {
                             throw new \Exception("super-admin rolini o'chirish mumkin emas.");
