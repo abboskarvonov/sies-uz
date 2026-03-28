@@ -78,28 +78,24 @@ abstract class BasePageResource extends Resource
     public static function canViewAny(): bool
     {
         $user = authUser();
-        return $user?->hasAnyRole(['super-admin', 'admin'])
-            || $user?->can(static::$permissionPrefix . '.viewAny')
-            || false;
+        if (! $user) return false;
+        if ($user->hasRole('super-admin')) return true;
+        return $user->can(static::$permissionPrefix . '.viewAny');
     }
 
     public static function canCreate(): bool
     {
         $user = authUser();
-        return $user?->hasAnyRole(['super-admin', 'admin'])
-            || $user?->can(static::$permissionPrefix . '.create')
-            || false;
+        if (! $user) return false;
+        if ($user->hasRole('super-admin')) return true;
+        return $user->can(static::$permissionPrefix . '.create');
     }
 
     public static function canEdit(\Illuminate\Database\Eloquent\Model $record): bool
     {
         $user = authUser();
-        if (! $user) {
-            return false;
-        }
-        if ($user->hasAnyRole(['super-admin', 'admin'])) {
-            return $user->hasAccessToPage($record);
-        }
+        if (! $user) return false;
+        if ($user->hasRole('super-admin')) return $user->hasAccessToPage($record);
         return $user->can(static::$permissionPrefix . '.update')
             && $user->hasAccessToPage($record);
     }
@@ -107,12 +103,8 @@ abstract class BasePageResource extends Resource
     public static function canView(\Illuminate\Database\Eloquent\Model $record): bool
     {
         $user = authUser();
-        if (! $user) {
-            return false;
-        }
-        if ($user->hasAnyRole(['super-admin', 'admin'])) {
-            return $user->hasAccessToPage($record);
-        }
+        if (! $user) return false;
+        if ($user->hasRole('super-admin')) return $user->hasAccessToPage($record);
         return $user->can(static::$permissionPrefix . '.viewAny')
             && $user->hasAccessToPage($record);
     }
@@ -120,12 +112,8 @@ abstract class BasePageResource extends Resource
     public static function canDelete(\Illuminate\Database\Eloquent\Model $record): bool
     {
         $user = authUser();
-        if (! $user) {
-            return false;
-        }
-        if ($user->hasAnyRole(['super-admin', 'admin'])) {
-            return true;
-        }
+        if (! $user) return false;
+        if ($user->hasRole('super-admin')) return true;
         return $user->can(static::$permissionPrefix . '.delete')
             && $user->hasAccessToPage($record);
     }
@@ -133,9 +121,9 @@ abstract class BasePageResource extends Resource
     public static function canDeleteAny(): bool
     {
         $user = authUser();
-        return $user?->hasAnyRole(['super-admin', 'admin'])
-            || $user?->can(static::$permissionPrefix . '.deleteAny')
-            || false;
+        if (! $user) return false;
+        if ($user->hasRole('super-admin')) return true;
+        return $user->can(static::$permissionPrefix . '.deleteAny');
     }
 
     protected static function isSingleType(): bool
@@ -173,17 +161,17 @@ abstract class BasePageResource extends Resource
         /** @var User $user */
         $user = Auth::user();
 
-        if ($user->hasAnyRole(['super-admin', 'admin'])) {
+        if ($user->hasRole('super-admin')) {
             return $query;
         }
 
-        if ($user->can('ViewAllPages')) {
+        if ($user->can('view_all_pages')) {
             return $query;
         }
 
         $pageIds = $user->assignedPages()->pluck('pages.id')->toArray();
 
-        if ($user->can('ViewBlogPages') && in_array('blog', static::$pageTypes)) {
+        if ($user->can('view_blog_pages') && in_array('blog', static::$pageTypes)) {
             return $query->where(function ($q) use ($pageIds) {
                 $q->whereIn('id', $pageIds)
                   ->orWhere('page_type', 'blog');

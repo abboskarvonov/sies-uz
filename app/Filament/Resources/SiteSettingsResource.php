@@ -23,6 +23,22 @@ class SiteSettingsResource extends Resource
 {
     protected static ?string $model = SiteSettings::class;
 
+    public static function canViewAny(): bool
+    {
+        $user = authUser();
+        if (! $user) return false;
+        if ($user->hasRole('super-admin')) return true;
+        return $user->can('View:SiteSettings');
+    }
+
+    public static function canEdit(\Illuminate\Database\Eloquent\Model $record): bool
+    {
+        $user = authUser();
+        if (! $user) return false;
+        if ($user->hasRole('super-admin')) return true;
+        return $user->can('Update:SiteSettings');
+    }
+
     protected static string | \BackedEnum | null $navigationIcon = 'heroicon-o-cog-6-tooth';
     protected static string | \UnitEnum | null $navigationGroup = 'Sahifa va boshqa menyular';
     protected static ?int $navigationSort = 8;

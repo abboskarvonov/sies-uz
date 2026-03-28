@@ -20,6 +20,7 @@ use App\Filament\Resources\SymbolResource\Pages;
 use App\Models\Symbol;
 use Filament\Forms;
 use Filament\Forms\Components\FileUpload;
+use App\Filament\Concerns\HasSpatiePermissions;
 use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Table;
@@ -27,6 +28,10 @@ use AmidEsfahani\FilamentTinyEditor\TinyEditor;
 
 class SymbolResource extends Resource
 {
+    use HasSpatiePermissions;
+
+    protected static string $permPrefix = 'Symbol';
+
     protected static ?string $model = Symbol::class;
 
     protected static string | \BackedEnum | null $navigationIcon = 'heroicon-o-check-badge';

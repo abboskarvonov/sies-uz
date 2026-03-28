@@ -13,6 +13,7 @@ use App\Filament\Resources\SiteStatResource\Pages\EditSiteStat;
 use App\Filament\Resources\SiteStatResource\Pages;
 use App\Models\SiteStat;
 use Filament\Forms\Components\TextInput;
+use App\Filament\Concerns\HasSpatiePermissions;
 use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Columns\TextColumn;
@@ -20,6 +21,10 @@ use Filament\Tables\Table;
 
 class SiteStatResource extends Resource
 {
+    use HasSpatiePermissions;
+
+    protected static string $permPrefix = 'SiteStat';
+
     protected static ?string $model = SiteStat::class;
 
     protected static string | \BackedEnum | null $navigationIcon = 'heroicon-o-chart-bar';

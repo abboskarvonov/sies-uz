@@ -30,6 +30,7 @@ use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\Toggle;
 use Filament\Infolists\Components;
+use App\Filament\Concerns\HasSpatiePermissions;
 use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Columns\ImageColumn;
@@ -39,6 +40,10 @@ use Illuminate\Support\Facades\Hash;
 
 class UserResource extends Resource
 {
+    use HasSpatiePermissions;
+
+    protected static string $permPrefix = 'User';
+
     protected static ?string $model = User::class;
 
     protected static string | \BackedEnum | null $navigationIcon = 'heroicon-o-user-group';

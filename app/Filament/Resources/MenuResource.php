@@ -25,6 +25,7 @@ use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
 use Filament\Infolists\Components;
 use Filament\Pages\Page;
+use App\Filament\Concerns\HasSpatiePermissions;
 use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Columns\IconColumn;
@@ -35,6 +36,10 @@ use Filament\Tables\Table;
 
 class MenuResource extends Resource
 {
+    use HasSpatiePermissions;
+
+    protected static string $permPrefix = 'Menu';
+
     protected static ?string $model = Menu::class;
 
     protected static string | \BackedEnum | null $navigationIcon = 'heroicon-o-rectangle-stack';
