@@ -183,6 +183,23 @@ class HemisAuthController extends Controller
                 return;
             }
 
+            // Faqat shu xodimga tegishli yozuvlar (API ba'zan barcha xodimlarni qaytaradi)
+            $positions = $positions->filter(function ($emp) use ($user) {
+                if ($user->hemis_uuid && ! empty($emp['uuid'])) {
+                    return $emp['uuid'] === $user->hemis_uuid;
+                }
+                return (string) ($emp['id'] ?? '') === (string) $user->hemis_id;
+            });
+
+            if ($positions->isEmpty()) {
+                Log::warning('HEMIS positions: no matching records for user after identity filter', [
+                    'user_id'     => $user->id,
+                    'hemis_id'    => $user->hemis_id,
+                    'hemis_uuid'  => $user->hemis_uuid,
+                ]);
+                return;
+            }
+
             // Faqat aktiv lavozimlari (11=ishlamoqda, 12=ta'tilda)
             $active = $positions->filter(
                 fn($emp) => in_array($emp['employeeStatus']['code'] ?? 0, [11, 12])
