@@ -107,17 +107,6 @@ class UserResource extends Resource
                     ])
                     ->columns(2),
 
-                Section::make('Biriktirilgan sahifalar')
-                    ->description('Foydalanuvchi faqat shu sahifalar va ularga tegishli ma\'lumotlarni (fayllar, xodimlar, kategoriyalar, tarix) tahrirlashi mumkin')
-                    ->schema([
-                        Select::make('assignedPages')
-                            ->label('Sahifalar')
-                            ->relationship('assignedPages', 'title_uz')
-                            ->multiple()
-                            ->preload()
-                            ->searchable(),
-                    ]),
-
                 Section::make('HEMIS ulash')
                     ->description('Agar bu foydalanuvchi HEMIS dagi xodim bilan bir xil shaxs bo\'lsa, HEMIS Employee ID ni kiriting. Keyingi sync da avtomatik topiladi.')
                     ->schema([
@@ -256,13 +245,6 @@ class UserResource extends Resource
                     ->color('primary')
                     ->toggleable(isToggledHiddenByDefault: true),
 
-                TextColumn::make('assigned_pages_count')
-                    ->counts('assignedPages')
-                    ->label('Sahifalar')
-                    ->badge()
-                    ->color('info')
-                    ->toggleable(isToggledHiddenByDefault: true),
-
                 IconColumn::make('email_verified_at')
                     ->label('Tasdiqlangan')
                     ->boolean(),
@@ -364,23 +346,6 @@ class UserResource extends Resource
                     ->columns(3)
                     ->visible(fn ($record) => $record?->hemis_type === 'employee'),
 
-                Section::make('Biriktirilgan sahifalar')
-                    ->schema([
-                        RepeatableEntry::make('assignedPages')
-                            ->label('')
-                            ->schema([
-                                TextEntry::make('title_uz')
-                                    ->label('Sahifa')
-                                    ->badge()
-                                    ->color('info'),
-                                TextEntry::make('page_type')
-                                    ->label('Turi')
-                                    ->badge()
-                                    ->color('gray'),
-                            ])
-                            ->columns(2)
-                            ->contained(false),
-                    ]),
             ]);
     }
 
