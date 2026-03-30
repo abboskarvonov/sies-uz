@@ -236,6 +236,8 @@ class PageController extends Controller
             'blog' => 'pages.blog.show',
             'faculty' => 'pages.faculty.show',
             'department' => 'pages.department.show',
+            'center' => 'pages.center',
+            'section' => 'pages.section',
             default => 'pages.default',
         };
 
