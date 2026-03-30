@@ -4,7 +4,6 @@ namespace App\Filament\Resources;
 
 use App\Filament\Resources\RoleResource\Pages;
 use Filament\Forms\Components\CheckboxList;
-use Filament\Forms\Components\Placeholder;
 use Filament\Forms\Components\TextInput;
 use Filament\Infolists\Components\TextEntry;
 use Filament\Resources\Resource;
@@ -12,8 +11,8 @@ use Filament\Schemas\Components\Section;
 use Filament\Schemas\Components\Tabs;
 use Filament\Schemas\Components\Tabs\Tab;
 use Filament\Schemas\Schema;
-use Filament\Actions\DeleteAction as TableDeleteAction;
-use Filament\Actions\EditAction as TableEditAction;
+use Filament\Actions\DeleteAction;
+use Filament\Actions\EditAction;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
 use Spatie\Permission\Models\Role;
@@ -22,9 +21,9 @@ class RoleResource extends Resource
 {
     protected static ?string $model = Role::class;
 
-    protected static string | \BackedEnum | null $navigationIcon = 'heroicon-o-shield-check';
+    protected static string|\BackedEnum|null $navigationIcon = 'heroicon-o-shield-check';
 
-    protected static string | \UnitEnum | null $navigationGroup = 'System';
+    protected static string|\UnitEnum|null $navigationGroup = 'System';
 
     protected static ?string $navigationLabel = 'Rollar';
 
@@ -187,10 +186,11 @@ class RoleResource extends Resource
             'special' => [
                 'label' => 'Maxsus',
                 'perms' => [
-                    'access_filament_panel' => 'Admin panelga kirish',
-                    'view_all_pages'        => "Barcha sahifalarni ko'rish",
-                    'view_blog_pages'       => "Faqat blog sahifalarni ko'rish",
-                    'manage_own_page_staff' => "O'z bo'limidagi xodimlarni boshqarish",
+                    'access_filament_panel'      => 'Admin panelga kirish',
+                    'view_all_pages'             => "Barcha sahifalarni ko'rish",
+                    'view_blog_pages'            => "Faqat blog sahifalarni ko'rish",
+                    'manage_own_page_staff'      => "O'z bo'limidagi xodimlarni boshqarish",
+                    'manage_own_assigned_pages'  => "Biriktirilgan sahifalarni to'liq boshqarish (email login)",
                 ],
             ],
         ],
@@ -233,6 +233,7 @@ class RoleResource extends Resource
 
     // ─── Form ─────────────────────────────────────────────────────────
 
+    /** @inheritDoc */
     public static function form(Schema $schema): Schema
     {
         return $schema->components([
@@ -243,9 +244,9 @@ class RoleResource extends Resource
                     ->unique(ignoreRecord: true)
                     ->maxLength(255),
 
-                Placeholder::make('stats')
+                TextEntry::make('stats')
                     ->label('Statistika')
-                    ->content(fn (?Role $record): string => $record
+                    ->state(fn (?Role $record): string => $record
                         ? "Foydalanuvchilar: {$record->users()->count()} | Permissionlar: {$record->permissions()->count()}"
                         : '')
                     ->hidden(fn (?Role $record) => $record === null),
@@ -295,8 +296,8 @@ class RoleResource extends Resource
                     ->toggleable(isToggledHiddenByDefault: true),
             ])
             ->recordActions([
-                TableEditAction::make(),
-                TableDeleteAction::make()
+                EditAction::make(),
+                DeleteAction::make()
                     ->before(function (Role $record) {
                         if ($record->name === 'super-admin') {
                             throw new \Exception("super-admin rolini o'chirish mumkin emas.");
@@ -307,6 +308,7 @@ class RoleResource extends Resource
 
     // ─── Infolist ─────────────────────────────────────────────────────
 
+    /** @inheritDoc */
     public static function infolist(Schema $schema): Schema
     {
         return $schema->components([

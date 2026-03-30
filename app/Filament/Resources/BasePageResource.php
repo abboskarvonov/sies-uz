@@ -80,6 +80,7 @@ abstract class BasePageResource extends Resource
         $user = authUser();
         if (! $user) return false;
         if ($user->hasRole('super-admin')) return true;
+        if ($user->can('manage_own_assigned_pages')) return true;
         return $user->can(static::$permissionPrefix . '.viewAny');
     }
 
@@ -96,6 +97,7 @@ abstract class BasePageResource extends Resource
         $user = authUser();
         if (! $user) return false;
         if ($user->hasRole('super-admin')) return $user->hasAccessToPage($record);
+        if ($user->can('manage_own_assigned_pages') && $user->hasAccessToPage($record)) return true;
         return $user->can(static::$permissionPrefix . '.update')
             && $user->hasAccessToPage($record);
     }
@@ -105,6 +107,7 @@ abstract class BasePageResource extends Resource
         $user = authUser();
         if (! $user) return false;
         if ($user->hasRole('super-admin')) return $user->hasAccessToPage($record);
+        if ($user->can('manage_own_assigned_pages') && $user->hasAccessToPage($record)) return true;
         return $user->can(static::$permissionPrefix . '.viewAny')
             && $user->hasAccessToPage($record);
     }
@@ -170,6 +173,12 @@ abstract class BasePageResource extends Resource
         }
 
         $pageIds = $user->assignedPages()->pluck('pages.id')->toArray();
+
+        // manage_own_assigned_pages uchun pagePositions ham qo'shiladi
+        if ($user->can('manage_own_assigned_pages')) {
+            $positionPageIds = $user->pagePositions()->pluck('page_id')->toArray();
+            $pageIds = array_unique(array_merge($pageIds, $positionPageIds));
+        }
 
         if ($user->can('view_blog_pages') && in_array('blog', static::$pageTypes)) {
             return $query->where(function ($q) use ($pageIds) {
@@ -463,7 +472,7 @@ abstract class BasePageResource extends Resource
                                     ? json_decode($record->images, true)
                                     : ($record->images ?? []);
 
-                                return collect($images)->map(fn($img) => asset(Storage::url($img)))->toArray();
+                                return collect($images)->map(fn($img) => Storage::url($img))->toArray();
                             })
                             ->extraImgAttributes(['alt' => 'Logo', 'loading' => 'lazy'])
                             ->height(150)

@@ -79,6 +79,7 @@ class EmployeesRelationManager extends RelationManager
                     ->icon('heroicon-o-pencil-square')
                     ->url(fn ($record) => route('filament.admin.resources.users.edit', $record))
                     ->visible(fn () => authUser()?->can('manage_own_page_staff')
+                        || authUser()?->can('manage_own_assigned_pages')
                         || authUser()?->hasRole('super-admin')),
             ])
             ->toolbarActions([]);

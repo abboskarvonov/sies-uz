@@ -90,6 +90,14 @@ class AppServiceProvider extends ServiceProvider
 
         if (app()->isProduction() || str_starts_with(config('app.url', ''), 'https')) {
             URL::forceScheme('https');
+
+            // Storage::url() URL facade'ni bypass qilib config'dan o'qiydi.
+            // env('APP_URL') http:// bo'lsa ham Storage::url() https:// qaytarishi uchun
+            // public disk URL ni ham majburan https:// ga o'tkazamiz.
+            $diskUrl = config('filesystems.disks.public.url', '');
+            if (str_starts_with($diskUrl, 'http://')) {
+                config(['filesystems.disks.public.url' => 'https://' . substr($diskUrl, 7)]);
+            }
         }
 
         // API Rate Limiters

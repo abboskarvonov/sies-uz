@@ -15,13 +15,11 @@ use Filament\Actions\DeleteBulkAction;
 use Filament\Infolists\Components\ImageEntry;
 use Filament\Infolists\Components\TextEntry;
 use Filament\Infolists\Components\IconEntry;
-use Filament\Infolists\Components\RepeatableEntry;
 use Filament\Pages\Page;
 use App\Filament\Resources\UserResource\Pages\ViewUser;
 use App\Filament\Resources\UserResource\Pages\EditUser;
 use App\Filament\Resources\UserResource\Pages\ListUsers;
 use App\Filament\Resources\UserResource\Pages\CreateUser;
-use App\Filament\Resources\UserResource\Pages;
 use App\Models\User;
 use Filament\Forms\Components\FileUpload;
 use Filament\Forms\Components\Repeater;
@@ -29,9 +27,7 @@ use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\Toggle;
-use Filament\Infolists\Components;
 use Filament\Resources\Resource;
-use Filament\Tables;
 use Filament\Tables\Columns\ImageColumn;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
@@ -106,6 +102,27 @@ class UserResource extends Resource
                             ->searchable(),
                     ])
                     ->columns(2),
+
+                Section::make('Boshqaradigan sahifalar')
+                    ->description('Email orqali kirgan foydalanuvchi qaysi bo\'lim/kafedra/fakultet sahifalarini boshqarishini belgilaydi. manage_own_assigned_pages va/yoki manage_own_page_staff permission berilganda ishlaydi.')
+                    ->schema([
+                        Select::make('assignedPages')
+                            ->label('Sahifalar')
+                            ->relationship(
+                                name: 'assignedPages',
+                                titleAttribute: 'title_uz',
+                                modifyQueryUsing: fn ($query) => $query->whereIn('page_type', [
+                                    'faculty', 'department', 'center', 'section', 'boshqarma',
+                                ])->orderBy('page_type')->orderBy('title_uz')
+                            )
+                            ->multiple()
+                            ->preload()
+                            ->searchable()
+                            ->columnSpanFull(),
+                    ])
+                    ->collapsed()
+                    ->collapsible()
+                    ->visible(fn (): bool => authUser()?->hasRole('super-admin')),
 
                 Section::make('HEMIS ulash')
                     ->description('Agar bu foydalanuvchi HEMIS dagi xodim bilan bir xil shaxs bo\'lsa, HEMIS Employee ID ni kiriting. Keyingi sync da avtomatik topiladi.')
@@ -389,8 +406,9 @@ class UserResource extends Resource
 
         // Bo'lim boshlig'i faqat o'z bo'limidagi xodimlarni tahrirlay oladi
         if ($user->can('manage_own_page_staff')) {
-            $myPageIds = $user->pagePositions()->pluck('page_id');
-            return $record->pagePositions()->whereIn('page_id', $myPageIds)->exists();
+            $myPageIds = static::getManagedPageIds($user);
+            return $record->pagePositions()->whereIn('page_id', $myPageIds)->exists()
+                || $myPageIds->contains($record->department_page_id);
         }
 
         return false;
@@ -417,6 +435,17 @@ class UserResource extends Resource
         return $user->can('DeleteAny:User');
     }
 
+    /**
+     * Foydalanuvchi boshqaradigan sahifalar IDlarini qaytaradi.
+     * HEMIS pagePositions + qo'lda biriktirilgan assignedPages birlashtiradi.
+     */
+    private static function getManagedPageIds(\App\Models\User $user): \Illuminate\Support\Collection
+    {
+        return $user->pagePositions()->pluck('page_id')
+            ->merge($user->assignedPages()->pluck('pages.id'))
+            ->unique();
+    }
+
     public static function getEloquentQuery(): \Illuminate\Database\Eloquent\Builder
     {
         $query = parent::getEloquentQuery();
@@ -425,10 +454,13 @@ class UserResource extends Resource
         if (! $user) return $query->whereRaw('1=0');
         if ($user->hasRole('super-admin') || $user->can('ViewAny:User')) return $query;
 
-        // manage_own_page_staff: faqat o'z bo'lim/fakultetidagi xodimlar
+        // manage_own_page_staff: HEMIS (pagePositions) yoki qo'lda (assignedPages) bo'limidagi xodimlar
         if ($user->can('manage_own_page_staff')) {
-            $pageIds = $user->pagePositions()->pluck('page_id');
-            return $query->whereHas('pagePositions', fn ($q) => $q->whereIn('page_id', $pageIds));
+            $pageIds = static::getManagedPageIds($user);
+            return $query->where(function ($q) use ($pageIds) {
+                $q->whereHas('pagePositions', fn ($inner) => $inner->whereIn('page_id', $pageIds))
+                  ->orWhereIn('department_page_id', $pageIds);
+            });
         }
 
         return $query->whereRaw('1=0');

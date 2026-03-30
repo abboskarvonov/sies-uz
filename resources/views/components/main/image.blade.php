@@ -75,8 +75,8 @@ $isAbsolute = Str::startsWith($rawSrc, ['http://', 'https://']);
     $autoSrcset = $srcset;
 
     if (!$autoSrcset && !$isVectorOrAnimated && !$isAbsolute) {
-        // Cache key yaratish
-        $cacheKey = 'srcset:' . md5($rawSrc . implode(',', $widths) . $quality);
+        // Cache key yaratish (scheme ham kiradi — http→https o'tishda eskicha cache qaytmasin)
+        $cacheKey = 'srcset:' . md5($rawSrc . implode(',', $widths) . $quality . request()->getScheme());
 
         // 1 soat cache
         $autoSrcset = Cache::remember($cacheKey, 3600, function () use ($rawSrc, $widths, $quality) {
