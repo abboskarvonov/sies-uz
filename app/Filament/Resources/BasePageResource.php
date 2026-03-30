@@ -223,7 +223,8 @@ abstract class BasePageResource extends Resource
                                 ]),
                             ])
                             ->columnSpanFull(),
-                    ]),
+                    ])
+                    ->columnSpanFull(),
 
                 Section::make('Menyular')
                     ->schema([
@@ -255,6 +256,7 @@ abstract class BasePageResource extends Resource
                     ])
                     ->collapsed(false)
                     ->columns(3)
+                    ->columnSpanFull()
                     ->visible(fn(): bool => authUser()?->hasRole('super-admin') || authUser()?->hasRole('admin')),
 
                 Section::make("Qo'shimcha ma'lumotlar")
@@ -300,6 +302,7 @@ abstract class BasePageResource extends Resource
                             ->default(false),
                     ])
                     ->columns(3)
+                    ->columnSpanFull()
                     ->visible(fn(): bool => authUser()?->hasRole('super-admin') || authUser()?->hasRole('admin')),
 
                 Section::make('Rasmlar')
@@ -314,7 +317,8 @@ abstract class BasePageResource extends Resource
                             ->formatStateUsing(fn($state) => is_string($state) ? json_decode($state, true) : $state)
                             ->nullable(),
                     ])
-                    ->columns(2),
+                    ->columns(2)
+                    ->columnSpanFull(),
             ]);
     }
 
