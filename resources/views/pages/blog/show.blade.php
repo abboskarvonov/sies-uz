@@ -25,6 +25,16 @@
                             {!! lc_content($page) !!}
                         </div>
 
+                        @if ($page->activity)
+                            <div class="mt-4 pt-4 border-t border-gray-200 flex flex-wrap items-center gap-2 text-sm text-gray-700">
+                                <span class="font-medium">Onlayn translatsiya:</span>
+                                <a href="https://sies.uz/uz/onlayn-translatsiya/onlayn-translatsiya/onlayn-himoya"
+                                    class="text-teal-700 hover:underline break-all" target="_blank" rel="noopener noreferrer">
+                                    https://sies.uz/uz/onlayn-translatsiya/onlayn-translatsiya/onlayn-himoya
+                                </a>
+                            </div>
+                        @endif
+
                         {{-- Inline gallery --}}
                         @if (!empty($images) && is_array($images))
                             <div class="mt-6 grid grid-cols-2 md:grid-cols-3 gap-2 lg:grid-cols-4">
