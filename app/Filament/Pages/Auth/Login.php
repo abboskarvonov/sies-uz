@@ -2,13 +2,14 @@
 
 namespace App\Filament\Pages\Auth;
 
+use Filament\Auth\Http\Responses\Contracts\LoginResponse;
 use Filament\Auth\Pages\Login as BaseLogin;
 use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Validation\ValidationException;
 
 class Login extends BaseLogin
 {
-    public function authenticate(): void
+    public function authenticate(): ?LoginResponse
     {
         $email = strtolower($this->data['email'] ?? '');
         $throttleKey = 'filament-login:' . $email . '|' . request()->ip();
@@ -24,8 +25,9 @@ class Login extends BaseLogin
         }
 
         try {
-            parent::authenticate();
+            $response = parent::authenticate();
             RateLimiter::clear($throttleKey);
+            return $response;
         } catch (\Throwable $e) {
             RateLimiter::hit($throttleKey, 60);
             throw $e;
