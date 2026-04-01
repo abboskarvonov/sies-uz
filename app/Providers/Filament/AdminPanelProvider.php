@@ -30,8 +30,9 @@ class AdminPanelProvider extends PanelProvider
         return $panel
             ->default()
             ->id('admin')
-            ->path('admin')
+            ->path(env('FILAMENT_PATH', 'admin'))
             ->login()
+            ->loginRateLimiting(5)
             ->sidebarFullyCollapsibleOnDesktop()
             ->maxContentWidth('full')
             ->profile(isSimple: false)

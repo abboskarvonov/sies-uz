@@ -20,7 +20,7 @@ class UpdateUserProfileInformation implements UpdatesUserProfileInformation
         Validator::make($input, [
             'name' => ['required', 'string', 'max:255'],
             'email' => ['required', 'email', 'max:255', Rule::unique('users')->ignore($user->id)],
-            'photo' => ['nullable', 'mimes:jpg,jpeg,png,webp,gif', 'max:5120'],
+            'photo' => ['nullable', 'image', 'mimes:jpg,jpeg,png,webp', 'max:2048', 'dimensions:max_width=4000,max_height=4000'],
         ])->validateWithBag('updateProfileInformation');
 
         if (isset($input['photo'])) {

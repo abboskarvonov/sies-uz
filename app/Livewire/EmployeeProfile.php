@@ -5,6 +5,7 @@ namespace App\Livewire;
 use App\Services\HemisPositionSyncService;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
+use Livewire\Attributes\Validate;
 use Livewire\Component;
 use Livewire\WithFileUploads;
 
@@ -15,6 +16,7 @@ class EmployeeProfile extends Component
     public string $content_uz = '';
     public string $content_ru = '';
     public string $content_en = '';
+    #[Validate(['nullable', 'image', 'mimes:jpg,jpeg,png,webp', 'max:2048', 'dimensions:max_width=4000,max_height=4000'])]
     public $photo;
 
     public bool $syncing = false;
@@ -33,7 +35,7 @@ class EmployeeProfile extends Component
             'content_uz' => 'nullable|string|max:10000',
             'content_ru' => 'nullable|string|max:10000',
             'content_en' => 'nullable|string|max:10000',
-            'photo'      => 'nullable|image|max:2048',
+            'photo'      => ['nullable', 'image', 'mimes:jpg,jpeg,png,webp', 'max:2048', 'dimensions:max_width=4000,max_height=4000'],
         ]);
 
         $user = Auth::user();
