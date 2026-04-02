@@ -68,11 +68,12 @@ class HemisPositionSyncService
      * @param  string|null  $hemisLogin  OAuth raw data dagi login (tabel raqami)
      * @return bool  Muvaffaqiyatli sync bo'ldimi
      */
-    public function sync(User $user, ?string $hemisLogin = null): bool
+    public function sync(User $user, ?string $hemisLogin = null, ?string $oauthUuid = null): bool
     {
         try {
-            // UUID bo'yicha qidirish (eng ishonchli)
-            $uuid      = $user->hemis_uuid;
+            // OAuth dan kelgan UUID eng ishonchli — DB da saqlangan emas
+            $uuid = $oauthUuid ?? $user->hemis_uuid;
+
             $positions = $uuid ? $this->api->fetchEmployeePositionsByUuid($uuid) : collect();
 
             // UUID ishlamasa — hemis_id ni sinab ko'rish
@@ -88,6 +89,7 @@ class HemisPositionSyncService
             if ($positions->isEmpty()) {
                 Log::info('HemisPositionSyncService: no data from API', [
                     'user_id'           => $user->id,
+                    'oauth_uuid'        => $oauthUuid,
                     'hemis_uuid'        => $user->hemis_uuid,
                     'hemis_id'          => $user->hemis_id,
                     'hemis_employee_id' => $user->hemis_employee_id,
@@ -96,15 +98,30 @@ class HemisPositionSyncService
             }
 
             // Faqat shu xodimga tegishli yozuvlar
-            $positions = $positions->filter(function ($emp) use ($user, $hemisLogin) {
-                if ($user->hemis_uuid && ! empty($emp['uuid'])) {
-                    return $emp['uuid'] === $user->hemis_uuid;
+            // Eslatma: HEMIS API uuid/login parametrlarini filter qilmaydi va response da bu fieldlar yo'q.
+            // Shuning uchun hemis_employee_id (employee-list id) bo'yicha, so'ng ism bo'yicha moslik.
+            $positions = $positions->filter(function ($emp) use ($user, $hemisLogin, $uuid) {
+                // 1. hemis_employee_id — eng ishonchli (employee-list dagi id)
+                if ($user->hemis_employee_id) {
+                    return (string) ($emp['id'] ?? '') === (string) $user->hemis_employee_id;
                 }
+                // 2. login (agar kelajakda API da paydo bo'lsa)
                 if ($hemisLogin && ! empty($emp['login'])) {
                     return $emp['login'] === $hemisLogin;
                 }
-                if ($user->hemis_employee_id) {
-                    return (string) ($emp['id'] ?? '') === (string) $user->hemis_employee_id;
+                // 3. uuid (agar kelajakda API da paydo bo'lsa)
+                if ($uuid && ! empty($emp['uuid'])) {
+                    return $emp['uuid'] === $uuid;
+                }
+                // 4. Ism bo'yicha moslik — so'nggi chora
+                if ($user->name) {
+                    $empFullName = mb_strtolower($emp['full_name'] ?? '');
+                    foreach (explode(' ', mb_strtolower($user->name)) as $part) {
+                        if (mb_strlen($part) > 2 && ! str_contains($empFullName, $part)) {
+                            return false;
+                        }
+                    }
+                    return $empFullName !== '';
                 }
                 return false;
             });
@@ -112,6 +129,7 @@ class HemisPositionSyncService
             if ($positions->isEmpty()) {
                 Log::warning('HemisPositionSyncService: no records after identity filter', [
                     'user_id'           => $user->id,
+                    'oauth_uuid'        => $oauthUuid,
                     'hemis_uuid'        => $user->hemis_uuid,
                     'hemis_employee_id' => $user->hemis_employee_id,
                     'hemis_login'       => $hemisLogin,

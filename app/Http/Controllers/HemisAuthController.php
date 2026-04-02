@@ -33,7 +33,8 @@ class HemisAuthController extends Controller
 
         // Login dan keyin HEMIS API dan lavozimlarini sync qilish
         $hemisLogin = $hemisUser->getRaw()['login'] ?? null;
-        app(HemisPositionSyncService::class)->sync($user, $hemisLogin);
+        $hemisUuid  = $hemisUser->getRaw()['uuid']  ?? null;
+        app(HemisPositionSyncService::class)->sync($user, $hemisLogin, $hemisUuid);
 
         Auth::login($user, remember: true);
 
