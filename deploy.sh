@@ -41,6 +41,7 @@ composer install --no-dev --no-interaction --prefer-dist --optimize-autoloader
 # 5. NPM build
 # =============================================================================
 step "NPM build..."
+export PATH="/root/.nvm/versions/node/v22.19.0/bin:$PATH"
 npm ci --prefer-offline
 npm run build
 
