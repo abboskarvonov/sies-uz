@@ -79,7 +79,7 @@
             {{-- Right: image --}}
             <div class="lg:col-span-2 page-anim-right page-anim-d2">
                 <x-main.image :src="$image" :alt="$title"
-                    class="w-full rounded-2xl object-cover border border-teal-700/40 {{ $activity ? 'max-h-[520px]' : 'max-h-95' }}"
+                    class="w-full rounded-2xl object-cover border border-teal-700/40 {{ $activity ? 'max-h-[650px]' : 'max-h-95' }}"
                     style="box-shadow: 0 8px 32px rgba(0,0,0,0.4);" />
             </div>
 
