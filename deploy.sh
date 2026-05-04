@@ -26,7 +26,7 @@ php -r "version_compare(PHP_VERSION, '8.2.0', '<') && exit(1);" \
     || fail "PHP 8.2+ kerak. Hozirgi: $(php -v | grep -m1 '' | cut -d' ' -f1-2)"
 
 echo "  PHP:      $(php -v | grep -m1 '' | cut -d' ' -f1-2)"
-echo "  Composer: $(composer --version 2>/dev/null | cut -d' ' -f1-3)"
+echo "  Composer: $(composer --version --no-interaction 2>/dev/null | cut -d' ' -f1-3)"
 
 [ -f ".env" ] || fail ".env fayl topilmadi!"
 
