@@ -41,9 +41,8 @@ composer install --no-dev --no-interaction --prefer-dist --optimize-autoloader
 # 5. NPM build
 # =============================================================================
 step "NPM build..."
-NPM="/root/.nvm/versions/node/v22.19.0/bin/npm"
-"$NPM" ci --prefer-offline
-"$NPM" run build
+npm ci --prefer-offline
+npm run build
 
 # =============================================================================
 # 6. Cache tozalash
