@@ -1,4 +1,22 @@
 @if ($menu)
+    @php
+        $bcItems = [];
+        $pos = 1;
+        $bcItems[] = ['@type' => 'ListItem', 'position' => $pos++, 'name' => __('messages.home') ?: 'Home', 'item' => route('home')];
+        $bcItems[] = ['@type' => 'ListItem', 'position' => $pos++, 'name' => lc_title($menu), 'item' => localized_page_route($menu)];
+        if (!empty($submenu))   $bcItems[] = ['@type' => 'ListItem', 'position' => $pos++, 'name' => lc_title($submenu),   'item' => localized_page_route($menu, $submenu)];
+        if (!empty($multimenu)) $bcItems[] = ['@type' => 'ListItem', 'position' => $pos++, 'name' => lc_title($multimenu), 'item' => localized_page_route($menu, $submenu, $multimenu)];
+        if (!empty($page))      $bcItems[] = ['@type' => 'ListItem', 'position' => $pos++, 'name' => lc_title($page),      'item' => localized_page_route($menu, $submenu, $multimenu, $page)];
+        if (!empty($staff))     $bcItems[] = ['@type' => 'ListItem', 'position' => $pos,   'name' => $staff->name ?? lc_name($staff)];
+        $bcSchema = json_encode(
+            ['@context' => 'https://schema.org', '@type' => 'BreadcrumbList', 'itemListElement' => $bcItems],
+            JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES
+        );
+    @endphp
+    @push('schema')
+    <script type="application/ld+json">{!! $bcSchema !!}</script>
+    @endpush
+
     <div class="bg-teal-950 px-4 lg:px-0 py-10 border-b border-teal-600">
         <div class="container mx-auto">
             <nav aria-label="Breadcrumb">

@@ -16,6 +16,7 @@ use Laravel\Jetstream\HasProfilePhoto;
 use Laravel\Sanctum\HasApiTokens;
 use Spatie\Activitylog\LogOptions;
 use Spatie\Activitylog\Traits\LogsActivity;
+use App\Traits\CompressesImages;
 use BezhanSalleh\FilamentShield\Traits\HasPanelShield;
 use Spatie\Permission\Traits\HasRoles;
 
@@ -26,6 +27,9 @@ class User extends Authenticatable implements FilamentUser, MustVerifyEmail
     use HasProfilePhoto;
     use Notifiable;
     use TwoFactorAuthenticatable;
+    use CompressesImages;
+
+    protected array $compressibleImageFields = ['profile_photo_path'];
 
     // ─── Email verification override ────────────────────────────────
     // HEMIS orqali kirgan xodim va talabalar email verifikatsiyasiz kirishi mumkin:

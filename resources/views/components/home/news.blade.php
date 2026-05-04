@@ -33,7 +33,7 @@
                     <a href="{{ localized_page_route($latestNews->menu, $latestNews->submenu, $latestNews->multimenu, $latestNews) }}"
                         class="card-shine footer-anim group relative block overflow-hidden rounded-2xl bg-gray-200"
                         style="transition-delay: 0.15s">
-                        <x-main.image src="{{ 'storage/' . $latestNews->image }}"
+                        <x-main.image src="{{ $latestNews->imageUrl() }}"
                             class="h-87.5 md:h-112.5 xl:h-150 w-full object-cover transition group-hover:scale-[1.02]"
                             alt="{{ lc_title($latestNews) }}" />
                         <div class="pointer-events-none absolute inset-0 bg-linear-to-t from-black/70 to-transparent">
@@ -70,7 +70,7 @@
                                        bg-white border border-gray-200 hover:border-teal-800
                                        shadow-sm hover:shadow-md hover:-translate-y-1 transition-transform duration-300">
                                 <div class="relative">
-                                    <x-main.image src="{{ 'storage/' . $item->image }}"
+                                    <x-main.image src="{{ $item->imageUrl() }}"
                                         class="h-40 w-full object-cover transition group-hover:scale-[1.02]"
                                         alt="{{ lc_title($item) }}" />
                                     <span
@@ -123,7 +123,7 @@
                                 class="card-shine group grid grid-cols-[64px_1fr] gap-3 rounded-lg p-2 overflow-hidden
                                        bg-gray-50 border border-gray-100 hover:border-teal-800
                                        hover:-translate-y-0.5 transition-transform duration-300">
-                                <x-main.image src="{{ 'storage/' . $ad->image }}"
+                                <x-main.image src="{{ $ad->imageUrl() }}"
                                     class="h-16 w-16 rounded-md object-cover" alt="{{ lc_title($ad) }}" />
                                 <div>
                                     <h4

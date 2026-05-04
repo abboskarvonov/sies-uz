@@ -28,6 +28,3 @@ Clean-param: ref from /
 
 
 Sitemap: https://sies.uz/sitemap.xml
-Sitemap: https://sies.uz/uz/sitemap.xml
-Sitemap: https://sies.uz/ru/sitemap.xml
-Sitemap: https://sies.uz/en/sitemap.xml

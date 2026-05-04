@@ -22,7 +22,7 @@
                                   hover:-translate-y-1 transition-transform duration-300">
                             <div class="shrink-0 w-28 h-28 rounded-full overflow-hidden border-2 border-gray-200">
                                 <x-main.image class="w-full h-full object-cover transition group-hover:scale-[1.04]"
-                                    src="{{ asset('storage/' . $department->image) }}" alt="{{ lc_title($department) }}" />
+                                    src="{{ $department->imageUrl() }}" alt="{{ lc_title($department) }}" />
                             </div>
                             <div class="flex-grow min-w-0">
                                 <h3 class="text-base font-bold text-gray-800 group-hover:text-teal-800 transition-colors leading-snug line-clamp-2">

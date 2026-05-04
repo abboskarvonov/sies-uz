@@ -20,8 +20,8 @@ use App\Filament\Resources\MenuResource\Pages\ListMenus;
 use App\Filament\Resources\MenuResource\Pages\CreateMenu;
 use App\Filament\Resources\MenuResource\Pages;
 use App\Models\Menu;
-use Filament\Forms\Components\FileUpload;
 use Filament\Forms\Components\Select;
+use Filament\Forms\Components\SpatieMediaLibraryFileUpload;
 use Filament\Forms\Components\TextInput;
 use Filament\Infolists\Components;
 use Filament\Pages\Page;
@@ -29,7 +29,7 @@ use App\Filament\Concerns\HasSpatiePermissions;
 use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Columns\IconColumn;
-use Filament\Tables\Columns\ImageColumn;
+use Filament\Tables\Columns\SpatieMediaLibraryImageColumn;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Table;
@@ -93,7 +93,7 @@ class MenuResource extends Resource
                     ->columns(3),
                 Section::make('Rasm')
                     ->schema([
-                        FileUpload::make('image')->directory('menus')->nullable(),
+                        SpatieMediaLibraryFileUpload::make('image')->collection('image'),
                     ])
                     ->columns(1)
                     ->collapsed(false)
@@ -123,7 +123,7 @@ class MenuResource extends Resource
                     ->label('Multi menyular')
                     ->badge()
                     ->color('warning'),
-                ImageColumn::make('image')->label('Rasm'),
+                SpatieMediaLibraryImageColumn::make('image')->collection('image')->conversion('thumb')->label('Rasm'),
             ])->defaultSort(('order'))
             ->filters([
                 SelectFilter::make('position')

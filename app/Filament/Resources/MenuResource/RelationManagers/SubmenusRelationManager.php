@@ -12,13 +12,13 @@ use Filament\Actions\EditAction;
 use Filament\Actions\DeleteAction;
 use Filament\Actions\BulkActionGroup;
 use Filament\Actions\DeleteBulkAction;
-use Filament\Forms\Components\FileUpload;
 use Filament\Forms\Components\Select;
+use Filament\Forms\Components\SpatieMediaLibraryFileUpload;
 use Filament\Forms\Components\TextInput;
 use Filament\Resources\RelationManagers\RelationManager;
 use Filament\Tables;
 use Filament\Tables\Columns\IconColumn;
-use Filament\Tables\Columns\ImageColumn;
+use Filament\Tables\Columns\SpatieMediaLibraryImageColumn;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
 
@@ -66,7 +66,7 @@ class SubmenusRelationManager extends RelationManager
 
                 Section::make('Rasm')
                     ->schema([
-                        FileUpload::make('image')->directory('submenus'),
+                        SpatieMediaLibraryFileUpload::make('image')->collection('image'),
                     ]),
             ]);
     }
@@ -86,7 +86,7 @@ class SubmenusRelationManager extends RelationManager
                     ->label('Multi menyular')
                     ->badge()
                     ->color('info'),
-                ImageColumn::make('image')->label('Rasm'),
+                SpatieMediaLibraryImageColumn::make('image')->collection('image')->conversion('thumb')->label('Rasm'),
             ])
             ->filters([
                 SelectFilter::make('type')

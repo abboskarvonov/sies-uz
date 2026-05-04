@@ -1,4 +1,10 @@
 <x-main-layout :metaTitle="$metaTitle" :metaImage="$metaImage">
+    @if ($pages->previousPageUrl())
+        @push('head_links')<link rel="prev" href="{{ $pages->previousPageUrl() }}">@endpush
+    @endif
+    @if ($pages->nextPageUrl())
+        @push('head_links')<link rel="next" href="{{ $pages->nextPageUrl() }}">@endpush
+    @endif
     <x-breadcrumb :menu="$menuModel" :submenu="$submenuModel ?? null" :multimenu="$multimenuModel ?? null" />
 
     <div class="bg-gray-100 px-4 lg:px-0 py-10" x-data x-intersect.once.threshold.10="$el.classList.add('footer-in')">

@@ -1,4 +1,10 @@
 <x-main-layout :metaTitle="$metaTitle" :metaDescription="$metaDescription" :metaImage="$metaImage" :canonical="$canonical">
+    @if ($submenus->previousPageUrl())
+        @push('head_links')<link rel="prev" href="{{ $submenus->previousPageUrl() }}">@endpush
+    @endif
+    @if ($submenus->nextPageUrl())
+        @push('head_links')<link rel="next" href="{{ $submenus->nextPageUrl() }}">@endpush
+    @endif
     <x-breadcrumb :menu="$menuModel" />
 
     <div class="px-4 lg:px-0 py-10" x-data x-intersect.once.threshold.10="$el.classList.add('footer-in')">
@@ -23,7 +29,7 @@
                             @foreach ($submenus as $sm)
                                 @php
                                     $title = lc_title($sm);
-                                    $img = $sm->image ? asset('storage/' . $sm->image) : asset('img/category.webp');
+                                    $img = $sm->imageUrl() ?: asset('img/category.webp');
                                     $url = localized_page_route($menuModel, $sm);
                                 @endphp
                                 <div class="footer-anim"

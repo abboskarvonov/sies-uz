@@ -13,13 +13,13 @@ use Filament\Actions\DeleteAction;
 use Filament\Actions\BulkActionGroup;
 use Filament\Actions\DeleteBulkAction;
 use App\Models\Submenu;
-use Filament\Forms\Components\FileUpload;
 use Filament\Forms\Components\Select;
+use Filament\Forms\Components\SpatieMediaLibraryFileUpload;
 use Filament\Forms\Components\TextInput;
 use Filament\Resources\RelationManagers\RelationManager;
 use Filament\Tables;
 use Filament\Tables\Columns\IconColumn;
-use Filament\Tables\Columns\ImageColumn;
+use Filament\Tables\Columns\SpatieMediaLibraryImageColumn;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
 
@@ -71,7 +71,7 @@ class MultimenusRelationManager extends RelationManager
 
                 Section::make('Rasm')
                     ->schema([
-                        FileUpload::make('image')->directory('multimenus')->nullable(),
+                        SpatieMediaLibraryFileUpload::make('image')->collection('image'),
                     ]),
             ]);
     }
@@ -86,7 +86,7 @@ class MultimenusRelationManager extends RelationManager
                 TextColumn::make('submenu.title_uz')->label('Ichki menyu'),
                 IconColumn::make('status')->boolean()->label('Holati'),
                 TextColumn::make('order')->label('Tartib')->sortable(),
-                ImageColumn::make('image')->label('Rasm'),
+                SpatieMediaLibraryImageColumn::make('image')->collection('image')->conversion('thumb')->label('Rasm'),
             ])
             ->filters([
                 SelectFilter::make('submenu_id')

@@ -3,7 +3,10 @@
     'metaDescription' => "Samarqand Iqtisodiyot va Servis Instituti — iqtisodiyot, buxgalteriya, bank ishi, servis, menejment va zamonaviy fanlar bo'yicha yetakchi oliy ta'lim muassasasi. Talabalarga sifatli ta'lim, ilmiy izlanishlar va amaliyot imkoniyatlarini taqdim etadi.",
     'metaKeywords' => "Samarqand, iqtisodiyot, universitet, o'qish, institut",
     'metaImage' => asset('img/og-image.webp'),
+    'metaImageAlt' => null,
     'canonical' => url()->current(),
+    'ogType' => 'website',
+    'robotsContent' => 'index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1',
     'preloadHero' => false,
 ])
 
@@ -29,9 +32,11 @@
     <meta name="csrf-token" content="{{ csrf_token() }}">
 
     <title>{{ html_entity_decode($metaTitle) }}</title>
+    <meta name="robots" content="{{ $robotsContent }}">
     <meta name="description" content="{{ html_entity_decode($metaDescription) }}">
     <meta name="keywords" content="{{ $metaKeywords }}">
     <link rel="canonical" href="{{ $canonical }}">
+    @stack('head_links')
 
     @php use Mcamara\LaravelLocalization\Facades\LaravelLocalization; @endphp
     @foreach(['uz', 'ru', 'en'] as $hrefLocale)
@@ -39,7 +44,7 @@
     @endforeach
     <link rel="alternate" hreflang="x-default" href="{{ LaravelLocalization::getLocalizedURL('uz', null, [], true) }}">
 
-    <meta property="og:type" content="website">
+    <meta property="og:type" content="{{ $ogType }}">
     <meta property="og:locale" content="{{ $ogLocale }}">
     @foreach(array_diff_key($ogLocaleMap, [$currentLocale => '']) as $altLocale)
     <meta property="og:locale:alternate" content="{{ $altLocale }}">
@@ -49,6 +54,7 @@
     <meta property="og:image" content="{{ $ogImage }}">
     <meta property="og:image:width" content="1200">
     <meta property="og:image:height" content="630">
+    <meta property="og:image:alt" content="{{ $metaImageAlt ?? $metaTitle }}">
     <meta property="og:url" content="{{ $canonical }}">
     <meta property="og:site_name" content="SamISI">
 
@@ -73,6 +79,43 @@
 
     <!-- Dark mode: apply before CSS loads to prevent flash -->
     <script>(function(){var t=localStorage.getItem('theme');if(t==='dark'||(!t&&window.matchMedia('(prefers-color-scheme: dark)').matches)){document.documentElement.classList.add('dark');}})();</script>
+
+    {{-- Organization JSON-LD --}}
+    @php
+        $settings = \App\Models\SiteSettings::instance();
+        $orgSchema = [
+            '@context'      => 'https://schema.org',
+            '@type'         => 'EducationalOrganization',
+            'name'          => $settings->site_name_uz ?? 'Samarqand iqtisodiyot va servis instituti',
+            'alternateName' => 'SamISI',
+            'url'           => url('/'),
+            'logo'          => [
+                '@type'  => 'ImageObject',
+                'url'    => $settings->logoUrl(),
+                'width'  => 200,
+                'height' => 60,
+            ],
+            'image'       => $ogImage,
+            'description' => $settings->site_name_uz ?? '',
+            'address'     => [
+                '@type'           => 'PostalAddress',
+                'streetAddress'   => $settings->address_uz ?? '',
+                'addressLocality' => 'Samarqand',
+                'addressCountry'  => 'UZ',
+            ],
+            'sameAs' => array_values(array_filter([
+                $settings->facebook_url  ?? null,
+                $settings->instagram_url ?? null,
+                $settings->youtube_url   ?? null,
+                $settings->telegram_url  ?? null,
+            ])),
+        ];
+        if ($settings->phone_primary) $orgSchema['telephone'] = $settings->phone_primary;
+        if ($settings->email_primary) $orgSchema['email']     = $settings->email_primary;
+    @endphp
+    <script type="application/ld+json">{!! json_encode($orgSchema, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES | JSON_PRETTY_PRINT) !!}</script>
+
+    @stack('schema')
 
     <!-- Scripts -->
     @vite(['resources/css/app.css', 'resources/js/app.js'])

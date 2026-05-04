@@ -3,9 +3,14 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Spatie\MediaLibrary\HasMedia;
+use Spatie\MediaLibrary\InteractsWithMedia;
+use Spatie\MediaLibrary\MediaCollections\Models\Media;
 
-class SiteSettings extends Model
+class SiteSettings extends Model implements HasMedia
 {
+    use InteractsWithMedia;
+
     protected $fillable = [
         'site_name_uz',
         'site_name_ru',
@@ -28,17 +33,32 @@ class SiteSettings extends Model
         'map_embed_url',
     ];
 
-    /**
-     * Tizimda bitta yozuv bo'ladi — singleton olish.
-     */
+    public function registerMediaCollections(): void
+    {
+        $this->addMediaCollection('logo')
+            ->singleFile()
+            ->useDisk('public');
+    }
+
+    public function registerMediaConversions(?Media $media = null): void
+    {
+        $this->addMediaConversion('webp')
+            ->format('webp')
+            ->quality(80)
+            ->nonQueued();
+
+        $this->addMediaConversion('thumb')
+            ->width(200)
+            ->format('webp')
+            ->quality(80)
+            ->nonQueued();
+    }
+
     public static function instance(): static
     {
         return static::firstOrCreate([]);
     }
 
-    /**
-     * Tilga mos site_name qaytaradi (uz fallback).
-     */
     public function siteName(?string $locale = null): string
     {
         $locale ??= app()->getLocale();
@@ -47,23 +67,21 @@ class SiteSettings extends Model
             ?? config('app.name', 'SIES');
     }
 
-    /**
-     * Tilga mos address qaytaradi (uz fallback).
-     */
     public function address(?string $locale = null): ?string
     {
         $locale ??= app()->getLocale();
         return $this->{"address_{$locale}"} ?? $this->address_uz;
     }
 
-    /**
-     * Logo URL (fallback: /img/logo.webp).
-     */
     public function logoUrl(): string
     {
-        if ($this->logo) {
-            return asset('storage/' . $this->logo);
-        }
+        $url = $this->getFirstMediaUrl('logo', 'webp');
+        if ($url) return $url;
+
+        // Legacy fallback
+        $legacy = $this->attributes['logo'] ?? null;
+        if ($legacy) return asset('storage/' . $legacy);
+
         return asset('img/logo.webp');
     }
 }

@@ -4,7 +4,7 @@
     {{-- ══ HEADER ══ --}}
     <x-page.show-header
         :title="lc_title($page)"
-        :image="asset('storage/' . $page->image)"
+        :image="$page->imageUrl()"
         :date="$page->date?->format('Y-m-d')"
         :views="$page->views ?? 0"
     />

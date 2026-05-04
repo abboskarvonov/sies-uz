@@ -20,13 +20,13 @@ use App\Filament\Resources\StaffMemberResource\Pages;
 use App\Models\Page;
 use App\Models\StaffCategory;
 use App\Models\StaffMember;
-use Filament\Forms\Components\FileUpload;
+use Filament\Forms\Components\SpatieMediaLibraryFileUpload;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
 use AmidEsfahani\FilamentTinyEditor\TinyEditor;
 use Filament\Resources\Resource;
 use Filament\Tables;
-use Filament\Tables\Columns\ImageColumn;
+use Filament\Tables\Columns\SpatieMediaLibraryImageColumn;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Table;
@@ -139,10 +139,9 @@ class StaffMemberResource extends Resource
 
                 Section::make('Rasm')
                     ->schema([
-                        FileUpload::make('image')
+                        SpatieMediaLibraryFileUpload::make('image')
                             ->label('Rasm')
-                            ->disk('public')
-                            ->directory('staff_members'),
+                            ->collection('image'),
                     ]),
             ]);
     }
@@ -158,7 +157,7 @@ class StaffMemberResource extends Resource
                 TextColumn::make('page.title_uz')->label('Tegishli sahifa'),
                 TextColumn::make('createdBy.name')->label('Yaratuvchi'),
                 TextColumn::make('updatedBy.name')->label('O\'zgartiruvchi'),
-                ImageColumn::make('image')->label('Rasm')->disk('public'),
+                SpatieMediaLibraryImageColumn::make('image')->collection('image')->conversion('thumb')->label('Rasm'),
             ])
             ->filters([
                 SelectFilter::make('page_id')

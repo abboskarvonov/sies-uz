@@ -11,7 +11,7 @@ use Filament\Actions\DeleteAction;
 use Filament\Actions\BulkActionGroup;
 use Filament\Actions\DeleteBulkAction;
 use Filament\Infolists\Components\TextEntry;
-use Filament\Infolists\Components\ImageEntry;
+use Filament\Infolists\Components\SpatieMediaLibraryImageEntry;
 use App\Filament\Resources\MultimenuResource\Pages\ViewMultimenu;
 use App\Filament\Resources\MultimenuResource\Pages\EditMultimenu;
 use App\Filament\Resources\MultimenuResource\Pages\ListMultimenus;
@@ -19,8 +19,8 @@ use App\Filament\Resources\MultimenuResource\Pages\CreateMultimenu;
 use App\Filament\Resources\MultimenuResource\Pages;
 use App\Models\Multimenu;
 use App\Models\Submenu;
-use Filament\Forms\Components\FileUpload;
 use Filament\Forms\Components\Select;
+use Filament\Forms\Components\SpatieMediaLibraryFileUpload;
 use Filament\Forms\Components\TextInput;
 use Filament\Infolists\Components;
 use Filament\Pages\Page;
@@ -28,7 +28,7 @@ use App\Filament\Concerns\HasSpatiePermissions;
 use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Columns\IconColumn;
-use Filament\Tables\Columns\ImageColumn;
+use Filament\Tables\Columns\SpatieMediaLibraryImageColumn;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Table;
@@ -113,7 +113,7 @@ class MultimenuResource extends Resource
 
                 Section::make('Rasm')
                     ->schema([
-                        FileUpload::make('image')->directory('multimenus')->nullable(),
+                        SpatieMediaLibraryFileUpload::make('image')->collection('image'),
                     ])
                     ->columns(1)
                     ->collapsed(false),
@@ -134,7 +134,7 @@ class MultimenuResource extends Resource
                 TextColumn::make('order')->sortable(),
                 TextColumn::make('createdBy.name')->label('Yaratuvchi'),
                 TextColumn::make('updatedBy.name')->label('O\'zgartiruvchi'),
-                ImageColumn::make('image')->label('Rasm'),
+                SpatieMediaLibraryImageColumn::make('image')->collection('image')->conversion('thumb')->label('Rasm'),
             ])
             ->filters([
                 SelectFilter::make('status')
@@ -187,7 +187,7 @@ class MultimenuResource extends Resource
                     ->columns(3),
                 Section::make('Rasm')
                     ->schema([
-                        ImageEntry::make('image')->label('Rasm'),
+                        SpatieMediaLibraryImageEntry::make('image')->collection('image')->conversion('webp')->label('Rasm'),
                     ])
                     ->columns(1),
 

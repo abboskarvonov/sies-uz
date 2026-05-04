@@ -339,9 +339,7 @@ $faculties = \App\Models\Page::where('page_type', 'faculty')
                                 @php
                                     $newsUrl = localized_page_route($news);
                                     $newsTitle = lc_title($news);
-                                    $newsImg = $news->image
-                                        ? \Illuminate\Support\Facades\Storage::url($news->image)
-                                        : null;
+                                    $newsImg = $news->imageUrl('thumb') ?: null;
                                 @endphp
                                 <a href="{{ $newsUrl }}" target="_blank" rel="noopener"
                                     class="group flex flex-col bg-white rounded-2xl shadow-sm border border-gray-100

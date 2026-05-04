@@ -43,7 +43,7 @@
                             <x-main.image
                                 class="absolute inset-0 w-full h-full object-cover
                                        transition-transform duration-700 group-hover:scale-110 will-change-transform"
-                                src="{{ asset('storage/' . $faculty->image) }}" alt="{{ lc_title($faculty) }}" />
+                                src="{{ $faculty->imageUrl() }}" alt="{{ lc_title($faculty) }}" />
 
                             {{-- Gradient overlay: resting state --}}
                             <div

@@ -1,4 +1,10 @@
 <x-main-layout :metaTitle="$metaTitle" :metaDescription="$metaDescription" :metaImage="$metaImage">
+    @if ($pages->previousPageUrl())
+        @push('head_links')<link rel="prev" href="{{ $pages->previousPageUrl() }}">@endpush
+    @endif
+    @if ($pages->nextPageUrl())
+        @push('head_links')<link rel="next" href="{{ $pages->nextPageUrl() }}">@endpush
+    @endif
 
     {{-- Inline breadcrumb --}}
     <div class="bg-teal-950 px-4 lg:px-0 py-5">
@@ -67,7 +73,7 @@
                                                hover:-translate-y-1 transition-transform duration-300">
                                         <div class="relative overflow-hidden">
                                             <x-main.image class="h-48 w-full object-cover transition duration-500 group-hover:scale-[1.04]"
-                                                src="{{ asset('storage/' . $page->image) }}" />
+                                                src="{{ $page->imageUrl() }}" />
                                             <div class="absolute inset-0 bg-linear-to-t from-black/50 to-transparent"></div>
                                             <div class="absolute bottom-2.5 left-3 flex items-center gap-3 text-[11px] text-teal-100">
                                                 <span class="flex gap-1 items-center">

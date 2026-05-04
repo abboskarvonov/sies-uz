@@ -12,10 +12,13 @@ use Spatie\Activitylog\LogOptions;
 use Spatie\Activitylog\Traits\LogsActivity;
 use Spatie\EloquentSortable\Sortable;
 use Spatie\EloquentSortable\SortableTrait;
+use Spatie\MediaLibrary\HasMedia;
+use Spatie\MediaLibrary\InteractsWithMedia;
+use Spatie\MediaLibrary\MediaCollections\Models\Media;
 
-class Page extends Model implements Sortable
+class Page extends Model implements Sortable, HasMedia
 {
-    use HasFactory, SortableTrait, LogsActivity;
+    use HasFactory, SortableTrait, LogsActivity, InteractsWithMedia;
 
     protected $fillable = [
         'old_id',
@@ -57,6 +60,54 @@ class Page extends Model implements Sortable
         'sort_when_creating' => true,
     ];
 
+    public function registerMediaCollections(): void
+    {
+        $this->addMediaCollection('image')
+            ->singleFile()
+            ->useDisk('public');
+
+        $this->addMediaCollection('gallery')
+            ->useDisk('public');
+    }
+
+    public function registerMediaConversions(?Media $media = null): void
+    {
+        $this->addMediaConversion('webp')
+            ->format('webp')
+            ->quality(80)
+            ->nonQueued();
+
+        $this->addMediaConversion('thumb')
+            ->width(400)
+            ->format('webp')
+            ->quality(80)
+            ->nonQueued();
+    }
+
+    public function imageUrl(string $conversion = 'webp'): string
+    {
+        $url = $this->getFirstMediaUrl('image', $conversion);
+        if ($url) return $url;
+
+        $legacy = $this->attributes['image'] ?? null;
+        return $legacy ? asset('storage/' . $legacy) : '';
+    }
+
+    public function galleryUrls(string $conversion = 'webp'): array
+    {
+        $media = $this->getMedia('gallery');
+        if ($media->isNotEmpty()) {
+            return $media->map(fn($m) => $m->getUrl($conversion))->toArray();
+        }
+
+        $raw = $this->attributes['images'] ?? null;
+        if ($raw) {
+            $paths = is_array($raw) ? $raw : json_decode($raw, true);
+            return array_map(fn($p) => asset('storage/' . $p), array_filter($paths ?? []));
+        }
+        return [];
+    }
+
     protected static function booted()
     {
         static::creating(function ($model) {
@@ -69,32 +120,29 @@ class Page extends Model implements Sortable
             $model->updated_by = Auth::id();
         });
 
+        // Legacy files cleanup (medialibrary handles its own files automatically)
         static::deleting(function ($page) {
-            if ($page->image && Storage::disk('public')->exists($page->image)) {
-                Storage::disk('public')->delete($page->image);
+            $legacy = $page->attributes['image'] ?? null;
+            if ($legacy && Storage::disk('public')->exists($legacy)) {
+                Storage::disk('public')->delete($legacy);
             }
-            if ($page->images && is_array($page->images)) {
-                foreach ($page->images as $image) {
+            $raw = $page->attributes['images'] ?? null;
+            if ($raw) {
+                $paths = is_array($raw) ? $raw : json_decode($raw, true);
+                foreach (array_filter($paths ?? []) as $path) {
                     try {
-                        if (Storage::disk('public')->exists($image)) {
-                            Storage::disk('public')->delete($image);
+                        if (Storage::disk('public')->exists($path)) {
+                            Storage::disk('public')->delete($path);
                         }
                     } catch (Exception $e) {
-                        // Agar nimadir xato bo'lsa (masalan, noto'g'ri path) – shunchaki o'tkazib yuboriladi
                         continue;
                     }
                 }
             }
         });
 
-        // Keshni tozalash - yangi ma'lumot qo'shilganda yoki o'zgartirilganda
-        static::saved(function ($page) {
-            self::clearHomepageCache();
-        });
-
-        static::deleted(function ($page) {
-            self::clearHomepageCache();
-        });
+        static::saved(fn () => self::clearHomepageCache());
+        static::deleted(fn () => self::clearHomepageCache());
     }
 
     public function parentPage()
@@ -159,7 +207,6 @@ class Page extends Model implements Sortable
                     ->orderBy('name');
     }
 
-    // App\Models\Page.php
     public function scopeOfType($query, $type)
     {
         return $query->where('page_type', $type);
@@ -185,17 +232,13 @@ class Page extends Model implements Sortable
     public function getActivitylogOptions(): LogOptions
     {
         return LogOptions::defaults()
-            ->logAll() // barcha maydonlarni log qiladi
-            ->useLogName('page'); // log nomi
+            ->logAll()
+            ->useLogName('page');
     }
 
-    /**
-     * Homepage keshini tozalash
-     */
     public static function clearHomepageCache(): void
     {
-        $locales = ['uz', 'ru', 'en'];
-        foreach ($locales as $locale) {
+        foreach (['uz', 'ru', 'en'] as $locale) {
             Cache::forget("homepage_data_{$locale}");
         }
     }

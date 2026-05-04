@@ -13,12 +13,12 @@ use Filament\Actions\BulkActionGroup;
 use Filament\Actions\DeleteBulkAction;
 use AmidEsfahani\FilamentTinyEditor\TinyEditor;
 use App\Models\StaffCategory;
-use Filament\Forms\Components\FileUpload;
+use Filament\Forms\Components\SpatieMediaLibraryFileUpload;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
 use Filament\Resources\RelationManagers\RelationManager;
 use Filament\Tables;
-use Filament\Tables\Columns\ImageColumn;
+use Filament\Tables\Columns\SpatieMediaLibraryImageColumn;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Table;
@@ -77,10 +77,9 @@ class StaffMembersRelationManager extends RelationManager
                             ->searchable()
                             ->required(),
 
-                        FileUpload::make('image')
+                        SpatieMediaLibraryFileUpload::make('image')
                             ->label('Rasm')
-                            ->disk('public')
-                            ->directory('staff_members'),
+                            ->collection('image'),
                     ])
                     ->columns(2),
             ]);
@@ -94,7 +93,7 @@ class StaffMembersRelationManager extends RelationManager
                 TextColumn::make('position_uz')->label('Lavozim'),
                 TextColumn::make('staffCategory.title_uz')->label('Kategoriya'),
                 TextColumn::make('user.name')->label('Foydalanuvchi'),
-                ImageColumn::make('image')->label('Rasm')->disk('public'),
+                SpatieMediaLibraryImageColumn::make('image')->collection('image')->conversion('thumb')->label('Rasm'),
             ])
             ->filters([
                 SelectFilter::make('staff_category_id')

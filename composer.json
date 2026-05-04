@@ -14,6 +14,7 @@
         "amidesfahani/filament-tinyeditor": "^4.0",
         "bezhansalleh/filament-shield": "^4.0",
         "filament/filament": "^4.0",
+        "filament/spatie-laravel-media-library-plugin": "^4.0",
         "intervention/image": "^3.11",
         "laravel/framework": "^12.0",
         "laravel/jetstream": "^5.3",
@@ -26,6 +27,7 @@
         "openspout/openspout": "^4.23",
         "spatie/eloquent-sortable": "^4.4",
         "spatie/laravel-activitylog": "^4.10",
+        "spatie/laravel-medialibrary": "^11.22",
         "spatie/laravel-permission": "^6.18",
         "spatie/laravel-sitemap": "^7.3",
         "spatie/simple-excel": "^3.7"

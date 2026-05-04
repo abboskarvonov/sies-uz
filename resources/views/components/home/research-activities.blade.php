@@ -20,7 +20,7 @@
 
                             <div class="w-40 h-40 rounded-full overflow-hidden mb-4 border-4 border-gray-300 group-hover:border-teal-800/30 transition-colors shrink-0">
                                 <x-main.image class="w-full h-full object-cover transition group-hover:scale-[1.04]"
-                                    src="{{ asset('storage/' . $item->image) }}" alt="{{ lc_title($item) }}" />
+                                    src="{{ $item->imageUrl() }}" alt="{{ lc_title($item) }}" />
                             </div>
 
                             <h3 class="text-base font-semibold text-gray-800 group-hover:text-teal-800 transition-colors line-clamp-2">

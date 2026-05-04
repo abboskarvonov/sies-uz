@@ -19,7 +19,7 @@ use App\Filament\Resources\SymbolResource\Pages\EditSymbol;
 use App\Filament\Resources\SymbolResource\Pages;
 use App\Models\Symbol;
 use Filament\Forms;
-use Filament\Forms\Components\FileUpload;
+use Filament\Forms\Components\SpatieMediaLibraryFileUpload;
 use App\Filament\Concerns\HasSpatiePermissions;
 use Filament\Resources\Resource;
 use Filament\Tables;
@@ -79,9 +79,9 @@ class SymbolResource extends Resource
 
 
                             ]),
-                        FileUpload::make('image')
+                        SpatieMediaLibraryFileUpload::make('image')
                             ->label('Rasm')
-                            ->directory('symbols')
+                            ->collection('image')
                             ->imageEditor()
                             ->imagePreviewHeight('150')
                             ->downloadable()

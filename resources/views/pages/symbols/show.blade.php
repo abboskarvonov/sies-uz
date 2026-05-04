@@ -33,7 +33,7 @@
     {{-- ══ HEADER ══ --}}
     <x-page.show-header
         :title="lc_title($data)"
-        :image="asset('storage/' . $data->image)"
+        :image="$data->imageUrl()"
     />
 
     {{-- ══ CONTENT ══ --}}

@@ -11,10 +11,13 @@ use Spatie\Activitylog\LogOptions;
 use Spatie\Activitylog\Traits\LogsActivity;
 use Spatie\EloquentSortable\Sortable;
 use Spatie\EloquentSortable\SortableTrait;
+use Spatie\MediaLibrary\HasMedia;
+use Spatie\MediaLibrary\InteractsWithMedia;
+use Spatie\MediaLibrary\MediaCollections\Models\Media;
 
-class Submenu extends Model implements Sortable
+class Submenu extends Model implements Sortable, HasMedia
 {
-    use HasFactory, SortableTrait, LogsActivity;
+    use HasFactory, SortableTrait, LogsActivity, InteractsWithMedia;
 
     protected $fillable = [
         'old_id',
@@ -40,6 +43,36 @@ class Submenu extends Model implements Sortable
         'sort_when_creating' => true,
     ];
 
+    public function registerMediaCollections(): void
+    {
+        $this->addMediaCollection('image')
+            ->singleFile()
+            ->useDisk('public');
+    }
+
+    public function registerMediaConversions(?Media $media = null): void
+    {
+        $this->addMediaConversion('webp')
+            ->format('webp')
+            ->quality(80)
+            ->nonQueued();
+
+        $this->addMediaConversion('thumb')
+            ->width(400)
+            ->format('webp')
+            ->quality(80)
+            ->nonQueued();
+    }
+
+    public function imageUrl(string $conversion = 'webp'): string
+    {
+        $url = $this->getFirstMediaUrl('image', $conversion);
+        if ($url) return $url;
+
+        $legacy = $this->attributes['image'] ?? null;
+        return $legacy ? asset('storage/' . $legacy) : '';
+    }
+
     protected static function booted()
     {
         static::creating(function ($model) {
@@ -53,8 +86,9 @@ class Submenu extends Model implements Sortable
         });
 
         static::deleting(function ($submenu) {
-            if ($submenu->image && Storage::disk('public')->exists($submenu->image)) {
-                Storage::disk('public')->delete($submenu->image);
+            $legacy = $submenu->attributes['image'] ?? null;
+            if ($legacy && Storage::disk('public')->exists($legacy)) {
+                Storage::disk('public')->delete($legacy);
             }
         });
 
@@ -65,8 +99,7 @@ class Submenu extends Model implements Sortable
     public function getSlug($locale = null)
     {
         $locale = $locale ?? app()->getLocale();
-        $column = 'slug_' . $locale;
-        return $this->$column;
+        return $this->{'slug_' . $locale};
     }
 
     public function createdBy()
@@ -92,7 +125,7 @@ class Submenu extends Model implements Sortable
     public function getActivitylogOptions(): LogOptions
     {
         return LogOptions::defaults()
-            ->logAll() // barcha maydonlarni log qiladi
-            ->useLogName('page'); // log nomi
+            ->logAll()
+            ->useLogName('page');
     }
 }

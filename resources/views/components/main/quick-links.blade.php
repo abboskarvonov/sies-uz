@@ -19,8 +19,9 @@
                         <a href="{{ $link->link ?: '#' }}" target="{{ $link->link ? '_blank' : '_self' }}"
                             class="card-shine group flex items-center gap-2 px-4 py-2 overflow-hidden bg-white/10 hover:bg-white/20 dark:bg-gray-800/50 dark:hover:bg-gray-700/70 text-white rounded-lg transition-all duration-300 transform border border-white/20 dark:border-gray-600 header-btn-anim"
                             style="animation-delay: {{ 400 + $loop->index * 70 }}ms">
-                            @if ($link->image)
-                                <img src="{{ asset('storage/' . $link->image) }}"
+                            @php $linkImg = $link->imageUrl('thumb'); @endphp
+                            @if ($linkImg)
+                                <img src="{{ $linkImg }}"
                                     alt="{{ $link->{'title_' . app()->getLocale()} }}"
                                     class="w-4 h-4 opacity-90 group-hover:opacity-100 transition-opacity" />
                             @endif

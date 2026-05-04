@@ -1,10 +1,43 @@
-<x-main-layout :metaTitle="$metaTitle" :metaDescription="$metaDescription" :metaImage="$metaImage">
+<x-main-layout
+    :metaTitle="$metaTitle"
+    :metaDescription="$metaDescription"
+    :metaImage="$metaImage"
+    :metaImageAlt="lc_title($page)"
+    ogType="article">
+
+    @php
+        $settings = \App\Models\SiteSettings::instance();
+        $articleSchema = json_encode([
+            '@context'         => 'https://schema.org',
+            '@type'            => 'NewsArticle',
+            'headline'         => lc_title($page),
+            'description'      => $metaDescription,
+            'image'            => [$metaImage],
+            'datePublished'    => $page->created_at?->toIso8601String(),
+            'dateModified'     => $page->updated_at?->toIso8601String(),
+            'author'           => [
+                '@type' => 'Organization',
+                'name'  => $settings->site_name_uz ?? 'SamISI',
+                'url'   => url('/'),
+            ],
+            'publisher'        => [
+                '@type' => 'Organization',
+                'name'  => $settings->site_name_uz ?? 'SamISI',
+                'logo'  => ['@type' => 'ImageObject', 'url' => $settings->logoUrl()],
+            ],
+            'mainEntityOfPage' => ['@type' => 'WebPage', '@id' => url()->current()],
+        ], JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
+    @endphp
+    @push('schema')
+    <script type="application/ld+json">{!! $articleSchema !!}</script>
+    @endpush
+
     <x-breadcrumb :menu="$menuModel" :submenu="$submenuModel ?? null" :multimenu="$multimenuModel ?? null" :page="$page ?? null" />
 
     {{-- ══ HEADER ══ --}}
     <x-page.show-header
         :title="lc_title($page)"
-        :image="asset('storage/' . $page->image)"
+        :image="$page->imageUrl()"
         :date="$page->date?->format('Y-m-d')"
         :views="$page->views ?? 0"
     />

@@ -110,6 +110,7 @@ class GenerateSitemap extends Command
 
         Page::query()
             ->where('status', 'active')
+            ->with(['menu', 'submenu', 'multimenu', 'media'])
             ->orderBy('updated_at', 'desc')
             ->chunk($pageChunk, function ($pages) use (&$counter, $locales, $index) {
                 $map = Sitemap::create();
@@ -136,15 +137,15 @@ class GenerateSitemap extends Command
                             ->setChangeFrequency($needsDetail ? Url::CHANGE_FREQUENCY_DAILY : Url::CHANGE_FREQUENCY_WEEKLY)
                             ->setPriority($needsDetail ? 0.9 : 0.8);
 
-                        // Agar asosiy rasm bor bo‘lsa <image:image> qo‘shamiz:
-                        if ($page->image) {
-                            $tag->addImage(asset('storage/' . $page->image));
+                        // Asosiy rasm
+                        $mainImg = $page->imageUrl(‘webp’);
+                        if ($mainImg) {
+                            $tag->addImage($mainImg);
                         }
 
-                        // Gallery bo‘lsa ham qo‘shish mumkin:
-                        $images = is_array($page->images) ? $page->images : (json_decode($page->images ?? '[]', true) ?: []);
-                        foreach (array_slice($images, 0, 10) as $img) {
-                            $tag->addImage(asset('storage/' . $img));
+                        // Gallery rasmlari (birinchi 10 ta)
+                        foreach (array_slice($page->galleryUrls(‘webp’), 0, 10) as $imgUrl) {
+                            $tag->addImage($imgUrl);
                         }
 
                         $map->add($tag);

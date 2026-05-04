@@ -3,8 +3,13 @@
 namespace App\Providers;
 
 use App\Models\Menu;
+use App\Models\Multimenu;
+use App\Models\Page;
 use App\Models\SiteSettings;
+use App\Models\Submenu;
 use App\Models\Symbol;
+use App\Observers\MenuObserver;
+use App\Observers\PageObserver;
 use App\Services\Socialite\HemisEmployeeProvider;
 use App\Services\Socialite\HemisStudentProvider;
 use Illuminate\Cache\RateLimiting\Limit;
@@ -30,6 +35,11 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
+        Page::observe(PageObserver::class);
+        Menu::observe(MenuObserver::class);
+        Submenu::observe(MenuObserver::class);
+        Multimenu::observe(MenuObserver::class);
+
         View::composer('components.main.navbar', function ($view) {
             $menus = Menu::with(['submenus.multimenus'])
                 ->where('status', true)

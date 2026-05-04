@@ -10,12 +10,12 @@ use App\Filament\Resources\SiteSettingsResource\Pages\CreateSiteSettings;
 use App\Filament\Resources\SiteSettingsResource\Pages\EditSiteSettings;
 use App\Filament\Resources\SiteSettingsResource\Pages;
 use App\Models\SiteSettings;
-use Filament\Forms\Components\FileUpload;
+use Filament\Forms\Components\SpatieMediaLibraryFileUpload;
 use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
 use Filament\Resources\Resource;
 use Filament\Tables;
-use Filament\Tables\Columns\ImageColumn;
+use Filament\Tables\Columns\SpatieMediaLibraryImageColumn;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
 
@@ -136,12 +136,10 @@ class SiteSettingsResource extends Resource
 
             Section::make('Logo')
                 ->schema([
-                    FileUpload::make('logo')
+                    SpatieMediaLibraryFileUpload::make('logo')
                         ->label('Sayt logosi')
-                        ->disk('public')
-                        ->directory('site')
-                        ->imagePreviewHeight('80')
-                        ->maxSize(2048),
+                        ->collection('logo')
+                        ->imagePreviewHeight('80'),
                 ]),
 
             Section::make('Google Maps')
@@ -158,9 +156,10 @@ class SiteSettingsResource extends Resource
     {
         return $table
             ->columns([
-                ImageColumn::make('logo')
+                SpatieMediaLibraryImageColumn::make('logo')
+                    ->collection('logo')
+                    ->conversion('thumb')
                     ->label('Logo')
-                    ->disk('public')
                     ->height(40)
                     ->defaultImageUrl(asset('img/logo.webp')),
                 TextColumn::make('site_name_uz')->label('Sayt nomi (UZ)')->limit(40),

@@ -13,9 +13,11 @@ Schedule::command('activitylog:clean')
     ->dailyAt('01:00')
     ->timezone('Asia/Tashkent');
 
-// Sitemap generation - haftada 2 marta (Dushanba va Payshanba, soat 02:00 da)
+// Sitemap generation - har kuni soat 03:00 da (to'liq rebuild)
+// Kontent o'zgarganda esa observer orqali avtomatik (2 daqiqa kechikish bilan) ishga tushadi
 Schedule::command('sitemap:generate')
-    ->weeklyOn([1, 4], '02:00') // Dushanba (1) va Payshanba (4), soat 02:00
+    ->dailyAt('03:00')
     ->timezone('Asia/Tashkent')
+    ->withoutOverlapping()
     ->emailOutputOnFailure(config('mail.from.address'))
     ->appendOutputTo(storage_path('logs/sitemap-generation.log'));

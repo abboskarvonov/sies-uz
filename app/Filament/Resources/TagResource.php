@@ -13,14 +13,14 @@ use App\Filament\Resources\TagResource\Pages\CreateTag;
 use App\Filament\Resources\TagResource\Pages\EditTag;
 use App\Filament\Resources\TagResource\Pages;
 use App\Models\Tag;
-use Filament\Forms\Components\FileUpload;
 use Filament\Forms\Components\Select;
+use Filament\Forms\Components\SpatieMediaLibraryFileUpload;
 use Filament\Forms\Components\TextInput;
 use App\Filament\Concerns\HasSpatiePermissions;
 use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Columns\IconColumn;
-use Filament\Tables\Columns\ImageColumn;
+use Filament\Tables\Columns\SpatieMediaLibraryImageColumn;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Table;
@@ -58,7 +58,7 @@ class TagResource extends Resource
                     ->default('active')
                     ->required(),
                 TextInput::make('order')->numeric()->default(0),
-                FileUpload::make('image')->directory('tags'),
+                SpatieMediaLibraryFileUpload::make('image')->collection('image'),
             ]);
     }
 
@@ -73,7 +73,7 @@ class TagResource extends Resource
                 TextColumn::make('order')->sortable(),
                 TextColumn::make('createdBy.name')->label('Yaratuvchi'),
                 TextColumn::make('updatedBy.name')->label('O\'zgartiruvchi'),
-                ImageColumn::make('image')->label('Rasm'),
+                SpatieMediaLibraryImageColumn::make('image')->collection('image')->conversion('thumb')->label('Rasm'),
             ])
             ->filters([
                 SelectFilter::make('status')

@@ -8,7 +8,7 @@
     {{-- Image --}}
     <div class="relative overflow-hidden">
         <x-main.image class="h-56 w-full object-cover transition duration-500 group-hover:scale-[1.04]"
-            src="{{ 'storage/' . $page->image }}" alt="{{ lc_title($page) }}"
+            src="{{ $page->imageUrl() }}" alt="{{ lc_title($page) }}"
             sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 400px" />
         <div class="absolute inset-0 bg-linear-to-t from-black/50 to-transparent"></div>
 

@@ -2,17 +2,18 @@
 
 namespace App\Models;
 
-use Throwable;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
-use Illuminate\Support\Facades\Storage;
 use Spatie\Activitylog\LogOptions;
 use Spatie\Activitylog\Traits\LogsActivity;
+use Spatie\MediaLibrary\HasMedia;
+use Spatie\MediaLibrary\InteractsWithMedia;
+use Spatie\MediaLibrary\MediaCollections\Models\Media;
 
-class StaffMember extends Model
+class StaffMember extends Model implements HasMedia
 {
-    use LogsActivity;
+    use LogsActivity, InteractsWithMedia;
 
     protected $fillable = [
         'user_id',
@@ -31,6 +32,39 @@ class StaffMember extends Model
         'created_by',
         'updated_by'
     ];
+
+    public function registerMediaCollections(): void
+    {
+        $this->addMediaCollection('image')
+            ->singleFile()
+            ->useDisk('public');
+    }
+
+    public function registerMediaConversions(?Media $media = null): void
+    {
+        $this->addMediaConversion('webp')
+            ->format('webp')
+            ->quality(80)
+            ->nonQueued();
+
+        $this->addMediaConversion('thumb')
+            ->width(400)
+            ->format('webp')
+            ->quality(80)
+            ->nonQueued();
+    }
+
+    public function imageUrl(string $conversion = 'webp'): string
+    {
+        $url = $this->getFirstMediaUrl('image', $conversion);
+        if ($url) return $url;
+
+        $legacy = $this->attributes['image'] ?? null;
+        if ($legacy && !in_array(trim($legacy), ['staff_members/', 'staff_members'], true)) {
+            return asset('storage/' . $legacy);
+        }
+        return '';
+    }
 
     public function user()
     {
@@ -62,12 +96,6 @@ class StaffMember extends Model
         static::updating(function ($model) {
             $model->updated_by = Auth::id();
         });
-
-        static::deleting(function ($file) {
-            if ($file->file && Storage::disk('public')->exists($file->file)) {
-                Storage::disk('public')->delete($file->file);
-            }
-        });
     }
 
     public function createdBy()
@@ -83,89 +111,7 @@ class StaffMember extends Model
     public function getActivitylogOptions(): LogOptions
     {
         return LogOptions::defaults()
-            ->logAll() // barcha maydonlarni log qiladi
-            ->useLogName('page'); // log nomi
-    }
-
-    /**
-     * Image accessor - fayl yo'lini validate qilish
-     */
-    public function getImageAttribute($value): ?string
-    {
-        if (!$value || empty(trim($value))) {
-            return null;
-        }
-
-        $value = trim($value);
-
-        // Faqat "staff_members/" bo'lsa - invalid
-        if ($value === 'staff_members/' || $value === 'staff_members') {
-            return null;
-        }
-
-        // Agar "staff_members/" bilan boshlansa - tekshirish
-        if (str_starts_with($value, 'staff_members/')) {
-            if (Storage::disk('public')->exists($value)) {
-                return $value;
-            }
-            return null; // Fayl yo'q
-        }
-
-        // Faqat fayl nomi bo'lsa - prefix qo'shish
-        if (!str_contains($value, '/')) {
-            $fullPath = 'staff_members/' . $value;
-            if (Storage::disk('public')->exists($fullPath)) {
-                return $fullPath;
-            }
-            return null;
-        }
-
-        // Qo'shimcha tekshirish
-        if (Storage::disk('public')->exists($value)) {
-            return $value;
-        }
-
-        return null;
-    }
-
-    /**
-     * Image mutator
-     */
-    public function setImageAttribute($value): void
-    {
-        // Filament FileUpload array qaytarishi mumkin — birinchi elementni olamiz
-        if (is_array($value)) {
-            $value = $value[0] ?? null;
-        }
-
-        // String bo'lsa sanitize qilish
-        if ($value && is_string($value)) {
-            $value = trim($value);
-
-            // Prefix yo'q bo'lsa qo'shish
-            if (!str_starts_with($value, 'staff_members/') && !empty($value)) {
-                $value = 'staff_members/' . $value;
-            }
-        } else {
-            $value = null;
-        }
-
-        // Eski faylni o'chirish
-        if ($this->exists && $this->getOriginal('image')) {
-            $oldImage = trim($this->getOriginal('image'));
-
-            // Invalid bo'lsa o'chirmaslik
-            if ($oldImage !== 'staff_members/' && !empty($oldImage) && $oldImage !== $value) {
-                if (Storage::disk('public')->exists($oldImage)) {
-                    try {
-                        Storage::disk('public')->delete($oldImage);
-                    } catch (Throwable $e) {
-                        Log::error('Failed to delete staff image', ['path' => $oldImage]);
-                    }
-                }
-            }
-        }
-
-        $this->attributes['image'] = $value;
+            ->logAll()
+            ->useLogName('page');
     }
 }

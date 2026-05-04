@@ -37,6 +37,8 @@ class PageController extends Controller
             ? Cache::remember($cacheKey, $cacheTTL, fn() => $this->homepageService->getHomePageData($locale))
             : $this->homepageService->getHomePageData($locale);
 
+        $data = $this->injectFreshViews($data);
+
         return view('pages.index', $data);
     }
 
@@ -52,6 +54,7 @@ class PageController extends Controller
 
         $submenus = $menuModel->submenus()
             ->select(['id', 'menu_id', 'title_uz', 'title_ru', 'title_en', 'slug_uz', 'slug_ru', 'slug_en', 'image', 'order'])
+            ->with('media')
             ->orderBy('order')
             ->paginate(config('site.pagination.per_page', 9));
 
@@ -60,9 +63,7 @@ class PageController extends Controller
             'submenus' => $submenus,
             'metaTitle' => $menuModel->{"title_{$locale}"} ?? $menuModel->title_uz ?? 'Menu',
             'metaDescription' => Str::limit(strip_tags($menuModel->{"title_{$locale}"} ?? ''), config('site.meta.description_limit', 150)),
-            'metaImage' => $menuModel->image
-                ? asset('storage/' . $menuModel->image)
-                : asset(config('site.meta.default_image', 'img/og-image.webp')),
+            'metaImage' => $menuModel->imageUrl() ?: asset(config('site.meta.default_image', 'img/og-image.webp')),
             'canonical' => url()->current(),
         ]);
     }
@@ -82,6 +83,7 @@ class PageController extends Controller
             ->where('menu_id', $menuModel->id)
             ->where('submenu_id', $submenuModel->id)
             ->select(['id', 'menu_id', 'submenu_id', 'title_uz', 'title_ru', 'title_en', 'slug_uz', 'slug_ru', 'slug_en', 'image', 'order'])
+            ->with('media')
             ->orderBy('order')
             ->orderBy('id')
             ->paginate(config('site.pagination.per_page', 9));
@@ -92,9 +94,7 @@ class PageController extends Controller
             'multimenus' => $multimenus,
             'metaTitle' => $submenuModel->{"title_{$locale}"} ?? $submenuModel->title_uz ?? 'Submenu',
             'metaDescription' => Str::limit(strip_tags($submenuModel->{"title_{$locale}"} ?? ''), config('site.meta.description_limit', 150)),
-            'metaImage' => $submenuModel->image
-                ? asset('storage/' . $submenuModel->image)
-                : asset(config('site.meta.default_image', 'img/og-image.webp')),
+            'metaImage' => $submenuModel->imageUrl() ?: asset(config('site.meta.default_image', 'img/og-image.webp')),
             'canonical' => url()->current(),
         ]);
     }
@@ -134,6 +134,7 @@ class PageController extends Controller
         if (in_array($pageType, ['blog', 'faculty', 'department'])) {
             $pages = Page::where($baseQuery)
                 ->select(['id', 'title_uz', 'title_ru', 'title_en', 'slug_uz', 'slug_ru', 'slug_en', 'content_uz', 'content_ru', 'content_en', 'image', 'date', 'views', 'menu_id', 'submenu_id', 'multimenu_id'])
+                ->with('media')
                 ->orderByDesc('date')
                 ->orderByDesc('id')
                 ->paginate(config('site.pagination.per_page', 9));
@@ -144,9 +145,7 @@ class PageController extends Controller
                 'submenuModel' => $submenuModel,
                 'multimenuModel' => $multimenuModel,
                 'metaTitle' => $multimenuModel->{"title_{$locale}"},
-                'metaImage' => $multimenuModel->image
-                    ? asset('storage/' . $multimenuModel->image)
-                    : asset(config('site.meta.default_image', 'img/og-image.webp')),
+                'metaImage' => $multimenuModel->imageUrl() ?: asset(config('site.meta.default_image', 'img/og-image.webp')),
             ]);
         }
 
@@ -169,9 +168,7 @@ class PageController extends Controller
             'locale' => $locale,
             'metaTitle' => $page->{"title_{$locale}"},
             'metaDescription' => Str::limit(strip_tags($page->{"content_{$locale}"}), config('site.meta.description_limit', 150)),
-            'metaImage' => $page->image
-                ? asset('storage/' . $page->image)
-                : asset(config('site.meta.default_image', 'img/og-image.webp')),
+            'metaImage' => $page->imageUrl() ?: asset(config('site.meta.default_image', 'img/og-image.webp')),
         ]);
     }
 
@@ -253,9 +250,7 @@ class PageController extends Controller
             'images' => $images,
             'metaTitle' => $pageModel->{"title_{$locale}"},
             'metaDescription' => Str::limit(strip_tags($pageModel->{"content_{$locale}"}), config('site.meta.description_limit', 150)),
-            'metaImage' => $pageModel->image
-                ? asset('storage/' . $pageModel->image)
-                : asset(config('site.meta.default_image', 'img/og-image.webp')),
+            'metaImage' => $pageModel->imageUrl() ?: asset(config('site.meta.default_image', 'img/og-image.webp')),
         ]);
     }
 
@@ -351,7 +346,7 @@ class PageController extends Controller
 
         $pages = Page::query()
             ->whereHas('tags', fn($q) => $q->where('tags.id', $tag->id))
-            ->with(['tags:id,name,slug'])
+            ->with(['tags:id,name,slug', 'media'])
             ->select(['id', 'title_uz', 'title_ru', 'title_en', 'slug_uz', 'slug_ru', 'slug_en', 'content_uz', 'content_ru', 'content_en', 'image', 'date', 'views', 'menu_id', 'submenu_id', 'multimenu_id'])
             ->latest('date')
             ->paginate(config('site.pagination.per_page', 9));
@@ -370,6 +365,44 @@ class PageController extends Controller
      * PRIVATE HELPER METHODS - Optimized and Refactored
      * =================================================================
      */
+
+    /**
+     * Fetch fresh views counts from DB and inject into cached homepage collections.
+     * One extra SELECT query per request — keeps views always up-to-date.
+     */
+    private function injectFreshViews(array $data): array
+    {
+        $keys = ['otherNews', 'announcements', 'announcementsWithActivity'];
+
+        $ids = collect($keys)
+            ->flatMap(fn($k) => isset($data[$k]) ? $data[$k]->pluck('id') : [])
+            ->push($data['latestNews']?->id)
+            ->filter()
+            ->unique()
+            ->values()
+            ->all();
+
+        if (empty($ids)) {
+            return $data;
+        }
+
+        $freshViews = Page::whereIn('id', $ids)->pluck('views', 'id');
+
+        if ($data['latestNews']) {
+            $data['latestNews']->views = $freshViews->get($data['latestNews']->id, 0);
+        }
+
+        foreach ($keys as $key) {
+            if (!isset($data[$key])) {
+                continue;
+            }
+            $data[$key]->each(function ($item) use ($freshViews) {
+                $item->views = $freshViews->get($item->id, 0);
+            });
+        }
+
+        return $data;
+    }
 
     /**
      * Generic model finder - DRY principle

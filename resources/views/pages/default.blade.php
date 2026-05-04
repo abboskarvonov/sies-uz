@@ -4,7 +4,7 @@
     {{-- ══ HEADER ══ --}}
     <x-page.show-header
         :title="lc_title($page)"
-        :image="asset('storage/' . $page->image)"
+        :image="$page->imageUrl()"
         :date="$page->date?->format('Y-m-d')"
         :views="$page->views ?? 0"
     />
@@ -43,13 +43,14 @@
                             </div>
                         @endif
 
-                        @if (!empty($page->images) && is_array($page->images))
+                        @php $galleryUrls = $page->galleryUrls(); @endphp
+                        @if (!empty($galleryUrls))
                             <div class="mt-6 grid grid-cols-2 md:grid-cols-3 gap-2 lg:grid-cols-4">
-                                @foreach ($page->images as $img)
-                                    <a data-fancybox="gallery" href="{{ asset('storage/' . $img) }}"
+                                @foreach ($galleryUrls as $imgUrl)
+                                    <a data-fancybox="gallery" href="{{ $imgUrl }}"
                                         aria-label="Photo gallery"
                                         class="card-shine group relative block overflow-hidden rounded-xl border border-gray-200 hover:border-teal-800">
-                                        <x-main.image src="{{ asset('storage/' . $img) }}"
+                                        <x-main.image src="{{ $imgUrl }}"
                                             class="h-50 w-full object-cover transition duration-500 group-hover:scale-105" />
                                         <div
                                             class="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition flex items-center justify-center">
@@ -74,7 +75,7 @@
         </div>
     </div>
 
-    @if (!empty($page->images) && is_array($page->images))
+    @if (!empty($page->galleryUrls()))
         @push('styles')
             <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/ui/dist/fancybox.css" />
         @endpush

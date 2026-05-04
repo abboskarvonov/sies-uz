@@ -16,7 +16,6 @@ use Filament\Actions\DeleteBulkAction;
 use Filament\Infolists\Components\TextEntry;
 use Filament\Infolists\Components\IconEntry;
 use Filament\Infolists\Components\RepeatableEntry;
-use Filament\Infolists\Components\ImageEntry;
 use App\Filament\Resources\PageResource\RelationManagers\FilesRelationManager;
 use App\Filament\Resources\PageResource\RelationManagers\StaffCategoriesRelationManager;
 use App\Filament\Resources\PageResource\RelationManagers\EmployeesRelationManager;
@@ -29,8 +28,8 @@ use App\Models\Page;
 use App\Models\Submenu;
 use Filament;
 use Filament\Forms\Components\DatePicker;
-use Filament\Forms\Components\FileUpload;
 use Filament\Forms\Components\Hidden;
+use Filament\Forms\Components\SpatieMediaLibraryFileUpload;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\Toggle;
@@ -38,7 +37,8 @@ use Filament\Infolists\Components;
 use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Columns\IconColumn;
-use Filament\Tables\Columns\ImageColumn;
+use Filament\Tables\Columns\SpatieMediaLibraryImageColumn;
+use Filament\Infolists\Components\SpatieMediaLibraryImageEntry;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Table;
@@ -307,15 +307,13 @@ abstract class BasePageResource extends Resource
 
                 Section::make('Rasmlar')
                     ->schema([
-                        FileUpload::make('image')->directory('pages')->nullable(),
-                        FileUpload::make('images')
+                        SpatieMediaLibraryFileUpload::make('image')
+                            ->collection('image'),
+                        SpatieMediaLibraryFileUpload::make('images')
                             ->label('Galereya')
+                            ->collection('gallery')
                             ->multiple()
-                            ->directory('pages/gallery')
-                            ->reorderable()
-                            ->getUploadedFileNameForStorageUsing(fn($file) => $file->hashName())
-                            ->formatStateUsing(fn($state) => is_string($state) ? json_decode($state, true) : $state)
-                            ->nullable(),
+                            ->reorderable(),
                     ])
                     ->columns(2)
                     ->columnSpanFull(),
@@ -369,7 +367,7 @@ abstract class BasePageResource extends Resource
                 TextColumn::make('order')->sortable(),
                 TextColumn::make('createdBy.name')->label('Yaratuvchi'),
                 TextColumn::make('updatedBy.name')->label("O'zgartiruvchi"),
-                ImageColumn::make('image')->label('Rasm'),
+                SpatieMediaLibraryImageColumn::make('image')->collection('image')->conversion('thumb')->label('Rasm'),
             ])
             ->filters([
                 SelectFilter::make('page_type')
@@ -468,17 +466,15 @@ abstract class BasePageResource extends Resource
 
                 Section::make('RasmLar')
                     ->schema([
-                        ImageEntry::make('image')->label('Rasm'),
-                        ImageEntry::make('images')
+                        SpatieMediaLibraryImageEntry::make('image')
+                            ->collection('image')
+                            ->conversion('webp')
+                            ->label('Rasm'),
+                        SpatieMediaLibraryImageEntry::make('images')
+                            ->collection('gallery')
+                            ->conversion('webp')
                             ->label("Qo'shimcha rasmlar")
-                            ->getStateUsing(function ($record) {
-                                $images = is_string($record->images)
-                                    ? json_decode($record->images, true)
-                                    : ($record->images ?? []);
-
-                                return collect($images)->map(fn($img) => Storage::url($img))->toArray();
-                            })
-                            ->extraImgAttributes(['alt' => 'Logo', 'loading' => 'lazy'])
+                            ->extraImgAttributes(['alt' => 'Rasm', 'loading' => 'lazy'])
                             ->height(150)
                             ->ring(3)
                             ->limit(6)

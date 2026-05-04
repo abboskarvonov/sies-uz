@@ -2,7 +2,7 @@
     <x-breadcrumb :menu="$menuModel" :submenu="$submenuModel ?? null" :multimenu="$multimenuModel ?? null" :page="$page ?? null" />
 
     {{-- ══ HEADER ══ --}}
-    <x-page.show-header :title="lc_title($page)" :image="asset('storage/' . $page->image)" :date="$page->date?->format('Y-m-d')" :views="$page->views ?? 0" />
+    <x-page.show-header :title="lc_title($page)" :image="$page->imageUrl()" :date="$page->date?->format('Y-m-d')" :views="$page->views ?? 0" />
 
     {{-- ══ CONTENT ══ --}}
     <div class="bg-gray-100 px-4 lg:px-0 py-10" x-data x-intersect.once.threshold.10="$el.classList.add('footer-in')">
