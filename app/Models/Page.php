@@ -103,7 +103,10 @@ class Page extends Model implements Sortable, HasMedia
         $raw = $this->attributes['images'] ?? null;
         if ($raw) {
             $paths = is_array($raw) ? $raw : json_decode($raw, true);
-            return array_map(fn($p) => asset('storage/' . $p), array_filter($paths ?? []));
+            if (!is_array($paths)) {
+                $paths = $paths ? [$paths] : [];
+            }
+            return array_map(fn($p) => asset('storage/' . $p), array_filter($paths));
         }
         return [];
     }
