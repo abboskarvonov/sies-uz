@@ -145,6 +145,7 @@ $branch   = DEPLOY_BRANCH;
 $cmd = implode(' && ', [
     "cd {$root}",
     "touch {$lockFile}",
+    "git config --global --add safe.directory {$root}",
     "git fetch --prune origin",
     "git reset --hard origin/{$branch}",
     "bash deploy.sh",
