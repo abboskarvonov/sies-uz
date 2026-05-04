@@ -23,7 +23,7 @@ class GenerateSitemap extends Command
     {
         $this->info('Generating sitemap…');
 
-        // Agar sayt katta bo‘lsa, sitemaps ni bo‘lib (index bilan) chiqaramiz:
+        // Agar sayt katta bo'lsa, sitemaps ni bo'lib (index bilan) chiqaramiz:
         $index = SitemapIndex::create();
 
         // 1) Statik sahifalar (bosh sahifa va h.k.)
@@ -38,16 +38,16 @@ class GenerateSitemap extends Command
                 ->setPriority(1.0)
         );
 
-        // Agar boshqa statik sahifalar bo‘lsa shu yerga qo‘shing:
+        // Agar boshqa statik sahifalar bo'lsa shu yerga qo'shing:
         // $static->add(Url::create(url('/contact')) ...);
 
         $static->writeToFile($staticMapPath);
         $index->add(url('sitemap-static.xml'));
 
-        // Til kodlari (mcamara/laravel-localization’dan)
+        // Til kodlari (mcamara/laravel-localization'dan)
         $locales = array_keys(LaravelLocalization::getSupportedLocales() ?? ['uz' => []]);
 
-        // 2) Katalog sahifalari: menu, submenu, multimenu ro‘yxatlari (paginasiz)
+        // 2) Katalog sahifalari: menu, submenu, multimenu ro'yxatlari (paginasiz)
         $catalogMapPath = public_path('sitemap-catalog.xml');
         $catalog = Sitemap::create();
 
@@ -104,7 +104,7 @@ class GenerateSitemap extends Command
         $index->add(url('sitemap-catalog.xml'));
 
         // 3) Dinamik sahifalar (Pages) — blog/faculty/department/default… hammasi
-        // Juda ko‘p bo‘lsa, bo‘lib yozamiz: sitemap-pages-1.xml, sitemap-pages-2.xml, …
+        // Juda ko'p bo'lsa, bo'lib yozamiz: sitemap-pages-1.xml, sitemap-pages-2.xml, …
         $pageChunk = 3000; // Google limit ~50k, lekin fayl hajmini (50MB) yodda tuting
         $counter   = 1;
 
@@ -116,14 +116,14 @@ class GenerateSitemap extends Command
                 $map = Sitemap::create();
 
                 foreach ($pages as $page) {
-                    // Eng ko‘p ishlatiladigan URL: /{lang}/{menu}/{submenu}/{multimenu} yoki detallarda /{…}/{page-slug}
+                    // Eng ko'p ishlatiladigan URL: /{lang}/{menu}/{submenu}/{multimenu} yoki detallarda /{…}/{page-slug}
                     foreach ($locales as $loc) {
                         $menuSlug     = optional($page->menu)->{'slug_' . $loc}     ?? optional($page->menu)->slug_uz;
                         $submenuSlug  = optional($page->submenu)->{'slug_' . $loc}  ?? optional($page->submenu)->slug_uz;
                         $multiSlug    = optional($page->multimenu)->{'slug_' . $loc} ?? optional($page->multimenu)->slug_uz;
                         if (!$menuSlug || !$submenuSlug || !$multiSlug) continue;
 
-                        // Agar page turiga qarab detail kerak bo‘lsa:
+                        // Agar page turiga qarab detail kerak bo'lsa:
                         $needsDetail = in_array($page->page_type, ['blog', 'faculty', 'department']);
                         $pageSlug    = $page->{'slug_' . $loc}
                             ?? (($page->{'title_' . $loc} ?? null) ? Str::slug($page->{'title_' . $loc}) . '-' . $page->id : (string)$page->id);
@@ -138,13 +138,13 @@ class GenerateSitemap extends Command
                             ->setPriority($needsDetail ? 0.9 : 0.8);
 
                         // Asosiy rasm
-                        $mainImg = $page->imageUrl(‘webp’);
+                        $mainImg = $page->imageUrl('webp');
                         if ($mainImg) {
                             $tag->addImage($mainImg);
                         }
 
                         // Gallery rasmlari (birinchi 10 ta)
-                        foreach (array_slice($page->galleryUrls(‘webp’), 0, 10) as $imgUrl) {
+                        foreach (array_slice($page->galleryUrls('webp'), 0, 10) as $imgUrl) {
                             $tag->addImage($imgUrl);
                         }
 
