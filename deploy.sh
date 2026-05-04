@@ -38,7 +38,14 @@ step "Composer..."
 composer install --no-dev --no-interaction --prefer-dist --optimize-autoloader
 
 # =============================================================================
-# 5. Cache tozalash
+# 5. NPM build
+# =============================================================================
+step "NPM build..."
+npm ci --prefer-offline
+npm run build
+
+# =============================================================================
+# 6. Cache tozalash
 # =============================================================================
 step "Cache tozalanmoqda..."
 php artisan optimize:clear
