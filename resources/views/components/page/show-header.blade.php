@@ -1,4 +1,4 @@
-@props(['title', 'image', 'date' => null, 'views' => null, 'subtitle' => null])
+@props(['title', 'image', 'date' => null, 'views' => null, 'subtitle' => null, 'activity' => false])
 
 <div class="relative bg-cover bg-center px-4 lg:px-0 py-10" style="background-image: url('/img/hero-bg-1920.webp');">
     <div class="absolute inset-0 bg-teal-950/40"></div>
@@ -79,7 +79,7 @@
             {{-- Right: image --}}
             <div class="lg:col-span-2 page-anim-right page-anim-d2">
                 <x-main.image :src="$image" :alt="$title"
-                    class="w-full max-h-95 rounded-2xl object-cover border border-teal-700/40"
+                    class="w-full rounded-2xl object-cover border border-teal-700/40 {{ $activity ? 'max-h-[520px]' : 'max-h-95' }}"
                     style="box-shadow: 0 8px 32px rgba(0,0,0,0.4);" />
             </div>
 

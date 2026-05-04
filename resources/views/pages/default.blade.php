@@ -7,6 +7,7 @@
         :image="$page->imageUrl()"
         :date="$page->date?->format('Y-m-d')"
         :views="$page->views ?? 0"
+        :activity="$page->activity ?? false"
     />
 
     {{-- ══ CONTENT ══ --}}
