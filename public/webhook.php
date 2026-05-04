@@ -146,8 +146,8 @@ $cmd = implode(' && ', [
     "cd {$root}",
     "touch {$lockFile}",
     "HOME=/tmp git config --global --add safe.directory {$root}",
-    "HOME=/tmp git fetch --prune origin",
-    "HOME=/tmp git reset --hard origin/{$branch}",
+    "HOME=/tmp git -c http.sslVerify=false fetch --prune origin",
+    "HOME=/tmp git -c http.sslVerify=false reset --hard origin/{$branch}",
     "bash deploy.sh",
 ]) . "; rm -f {$lockFile}";
 
