@@ -119,7 +119,8 @@ if (file_exists(LOCK_FILE) && (time() - filemtime(LOCK_FILE)) < 600) {
 
 $commit = substr($data['after'] ?? 'unknown', 0, 7);
 $pusher = $data['pusher']['name'] ?? $data['user_username'] ?? 'unknown';
-logMsg("INFO: Deploy boshlandi — commit={$commit} pusher={$pusher}");
+$phpUser = function_exists('posix_getpwuid') ? (posix_getpwuid(posix_geteuid())['name'] ?? 'unknown') : trim((string)shell_exec('whoami'));
+logMsg("INFO: Deploy boshlandi — commit={$commit} pusher={$pusher} php_user={$phpUser}");
 
 http_response_code(200);
 header('Content-Type: application/json');
@@ -144,6 +145,7 @@ $branch   = DEPLOY_BRANCH;
 
 $cmd = implode(' && ', [
     "cd {$root}",
+    "echo \"CMD_USER: $(whoami)\"",
     "touch {$lockFile}",
     "HOME=/tmp git config --global --add safe.directory {$root}",
     "HOME=/tmp git -c http.sslVerify=false fetch --prune origin",
