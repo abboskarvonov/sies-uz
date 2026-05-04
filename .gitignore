@@ -16,6 +16,9 @@ Homestead.yaml
 npm-debug.log
 yarn-error.log
 /public/cache/images/
+*.backup
+.DS_Store
+/storage/backups/
 /auth.json
 /.fleet
 /.idea
