@@ -238,8 +238,7 @@ class PageController extends Controller
             default => 'pages.default',
         };
 
-        // Images processing - optimized
-        $images = $this->processPageImages($pageModel->images);
+        $images = $pageModel->galleryUrls();
 
         return view($view, [
             'locale' => $locale,
@@ -447,37 +446,6 @@ class PageController extends Controller
                 session()->put($sessionKey, true);
             }
         }
-    }
-
-    /**
-     * Process page images - extracted for reusability
-     */
-    private function processPageImages($raw): array
-    {
-        $images = [];
-
-        if (is_string($raw)) {
-            $decoded = json_decode($raw, true);
-            if (json_last_error() !== JSON_ERROR_NONE) {
-                $decoded = json_decode(stripslashes($raw), true);
-            }
-            if (is_array($decoded)) {
-                $images = array_values(array_filter($decoded));
-            }
-        } elseif (is_array($raw)) {
-            $images = array_values(array_filter($raw));
-        }
-
-        return array_map(function ($p) {
-            $p = ltrim($p, '/');
-            if (Str::startsWith($p, ['http://', 'https://'])) {
-                return $p;
-            }
-            if (Str::startsWith($p, 'storage/')) {
-                return asset($p);
-            }
-            return asset('storage/' . $p);
-        }, $images);
     }
 
     /**
