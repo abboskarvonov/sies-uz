@@ -41,8 +41,19 @@ composer install --no-dev --no-interaction --prefer-dist --optimize-autoloader
 # 5. NPM build
 # =============================================================================
 step "NPM build..."
-npm ci --prefer-offline
-npm run build
+# nvm non-interactive shell'da yuklanmaydi — qo'lda yuklaymiz
+export NVM_DIR="${NVM_DIR:-$HOME/.nvm}"
+[ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
+
+# npm'ni topamiz
+NPM=$(command -v npm 2>/dev/null \
+    || ls /usr/local/bin/npm 2>/dev/null \
+    || ls "$NVM_DIR"/versions/node/*/bin/npm 2>/dev/null | sort -V | tail -1 \
+    || echo "")
+[ -n "$NPM" ] || fail "npm topilmadi! Node.js o'rnatilganini tekshiring."
+
+"$NPM" ci --prefer-offline
+"$NPM" run build
 
 # =============================================================================
 # 6. Cache tozalash
