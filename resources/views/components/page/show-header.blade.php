@@ -79,8 +79,8 @@
             {{-- Right: image --}}
             <div class="lg:col-span-2 page-anim-right page-anim-d2">
                 <x-main.image :src="$image" :alt="$title"
-                    class="w-full rounded-2xl object-cover border border-teal-700/40"
-                    style="max-height: {{ $activity ? '650px' : '380px' }}; box-shadow: 0 8px 32px rgba(0,0,0,0.4);" />
+                    class="w-full rounded-2xl border border-teal-700/40"
+                    style="box-shadow: 0 8px 32px rgba(0,0,0,0.4);" />
             </div>
 
         </div>
